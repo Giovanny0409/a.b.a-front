@@ -1,10 +1,16 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, catchError, forkJoin, map, of, switchMap, tap } from 'rxjs';
+import { Observable, catchError, concatMap, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
 import { DataRefreshService } from '../../core/data-refresh.service';
 import { Product, SaleLine, SaleRecord, SaleUnit } from '../../core/pos.models';
 import { PosApiService } from '../../core/pos-api.service';
 
 export type SalesEntryMode = SaleUnit | 'money';
+
+export interface PendingSaleLine {
+  productId: string;
+  mode: SalesEntryMode;
+  amount: number;
+}
 
 @Injectable()
 export class SalesStore {
@@ -67,6 +73,28 @@ export class SalesStore {
       tap((sale) => {
         this.salesState.update((sales) => [sale, ...sales]);
         this.refresh.requestRefresh();
+      })
+    );
+  }
+
+  registerSaleBatch(customer: string, lines: PendingSaleLine[]): Observable<SaleRecord> {
+    const normalizedCustomer = customer || 'Publico general';
+
+    return from(lines).pipe(
+      concatMap((line) => this.registerSale(normalizedCustomer, line.productId, line.mode, line.amount)),
+      toArray(),
+      map((sales) => {
+        const combinedLines = sales.flatMap((sale) => sale.lines);
+
+        return {
+          id: sales.map((sale) => sale.id).join(','),
+          soldAt: sales[0]?.soldAt ?? new Date().toISOString(),
+          customer: normalizedCustomer,
+          lines: combinedLines,
+          total: combinedLines.reduce((sum, line) => sum + line.total, 0),
+          cost: combinedLines.reduce((sum, line) => sum + line.cost, 0),
+          profit: combinedLines.reduce((sum, line) => sum + line.profit, 0)
+        };
       })
     );
   }
