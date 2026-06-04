@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { salesAuthorizationGuard } from './core/sales-auth.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'tablero' },
@@ -12,6 +13,7 @@ export const routes: Routes = [
   },
   {
     path: 'ventas',
+    canMatch: [salesAuthorizationGuard],
     loadComponent: () => import('./features/sales/sales-page.component').then((m) => m.SalesPageComponent)
   },
   {
