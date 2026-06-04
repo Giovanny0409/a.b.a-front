@@ -1,0 +1,136 @@
+﻿@use './_colors' as *;
+@use './buttons' as *;
+@use './form' as *;
+
+:root {
+  --header-background-image: url('/assets/images/textures/Pleca-1920-x-200-px.png');
+}
+
+// Aumentamos la especificidad del selector para asegurar que se aplique
+body {
+  .form-dialog-style.p-dialog {
+    overflow: hidden; // clips header gradient/texture to dialog's rounded corners
+
+    .p-dialog-header {
+      background: $blue-primary;
+      background-image: var(--header-background-image);
+      background-size: cover ;
+      background-position: center;
+      color: $white;
+      padding: 1.5rem;
+
+      .p-dialog-title {
+        color: $white;
+        font-weight: 600;
+      }
+
+      // v18: .p-dialog-header-icons / .p-dialog-header-icon
+      // v20: .p-dialog-header-actions / .p-dialog-close-button
+      .p-dialog-header-icons,
+      .p-dialog-header-actions {
+        .p-dialog-header-icon,
+        .p-dialog-header-close,
+        .p-dialog-close-button {
+          color: $white !important;
+          --p-button-text-primary-color: #{$white};
+          --p-button-text-plain-color: #{$white};
+          background: transparent !important;
+
+          i, svg, span {
+            color: $white !important;
+            fill: currentColor;
+          }
+
+          &:hover {
+            background: rgba($white, 0.15) !important;
+            color: $white !important;
+          }
+
+          &:focus,
+          &:focus-visible {
+            box-shadow: 0 0 0 2px $white, 0 0 0 4px rgba($white, 0.3);
+            outline: none;
+          }
+        }
+      }
+    }
+    .p-dialog-footer {
+      @extend .text-button-style;
+    }
+
+    // Aplicar automáticamente estilos naranja a todos los componentes dentro del diálogo
+    .p-dialog-content {
+      padding-top: 1.25rem;
+
+      .field {
+        margin-bottom: 1rem;
+
+        label {
+          display: block;
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      // InputText
+      .p-inputtext,
+      input[pInputText] {
+        @extend .inputText-orange;
+        width: 100%;
+      }
+
+      // TextArea
+      textarea.p-textarea,
+      textarea[pTextarea] {
+        @extend .textarea-orange;
+        width: 100%;
+      }
+
+      // AutoComplete / MultiSelect
+      .p-autocomplete,
+      .p-multiselect {
+        width: 100%;
+      }
+
+      // Checkbox
+      .p-checkbox {
+        @extend .checklist-orange;
+      }
+
+      // ToggleSwitch (v20: reemplaza InputSwitch)
+      .p-toggleswitch {
+        @extend .p-toggleswitch-orange;
+      }
+
+      // InputNumber
+      .p-inputnumber {
+        @extend .inputNumber-orange;
+      }
+
+      // Dropdown (v20: p-select)
+      .p-select {
+        @extend .dropdown-orange;
+      }
+
+      // AutoComplete
+      .p-autocomplete {
+        @extend .autoComplete-orange;
+      }
+
+      // MultiSelect
+      .p-multiselect {
+        @extend .multiselect-orange;
+      }
+
+      // Password
+      .p-password {
+        @extend .password-orange;
+        width: 100%;
+      }
+
+      // Calendar (PrimeNG v20: p-datepicker)
+      .p-datepicker {
+        @extend .calendar-orange;
+      }
+    }
+  }
+}

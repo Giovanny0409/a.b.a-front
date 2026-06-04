@@ -1,0 +1,230 @@
+@use 'sass:color';
+@use './_colors' as *;
+@use './_themes' as *;
+
+// Mixin para estilos base de botones
+@mixin button-base {
+    .p-button {
+        &-icon {
+            font-size: 1rem;
+            margin-right: 0.5rem;
+        }
+
+        // v18: :enabled:focus | v20: :not(:disabled):focus
+        &:enabled:focus,
+        &:not(:disabled):focus {
+            box-shadow: none;
+        }
+    }
+}
+
+// Mixin para estados del botón
+@mixin button-states($bg-color, $hover-color) {
+    .p-button {
+        background: $bg-color;
+        border-color: $bg-color;
+        color: $white;
+
+        // v18: :enabled:hover/:enabled:active | v20: :not(:disabled):hover/:not(:disabled):active
+        &:enabled:hover,
+        &:enabled:active,
+        &:not(:disabled):hover,
+        &:not(:disabled):active {
+            background: $hover-color;
+            border-color: $hover-color;
+        }
+
+        &:disabled {
+            background: rgba($bg-color, 0.6);
+            border-color: rgba($bg-color, 0.6);
+            color: rgba($white, 0.6);
+            cursor: not-allowed;
+        }
+    }
+}
+
+// Estilos específicos para cada tipo de botón
+button.green-button-style.p-button,
+.green-button-style.p-button {
+    background: $button-add;
+    border-color: $button-add;
+    color: $white;
+
+    &:enabled:hover,
+    &:enabled:active,
+    &:not(:disabled):hover,
+    &:not(:disabled):active {
+        background: $button-add-hover;
+        border-color: $button-add-hover;
+    }
+}
+
+button.orange-button-style.p-button,
+.orange-button-style.p-button {
+    background: $button-delete;
+    border-color: $button-delete;
+    color: $white;
+
+    &:enabled:hover,
+    &:enabled:active,
+    &:not(:disabled):hover,
+    &:not(:disabled):active {
+        background: $button-delete-hover;
+        border-color: $button-delete-hover;
+    }
+}
+
+button.blue-button-style.p-button,
+.blue-button-style.p-button {
+    background: $button-export;
+    border-color: $button-export;
+    color: $white;
+
+    &:enabled:hover,
+    &:enabled:active,
+    &:not(:disabled):hover,
+    &:not(:disabled):active {
+        background: $button-export-hover;
+        border-color: $button-export-hover;
+    }
+}
+
+// Estilo para botones text naranja
+.text-button-style {
+    @include button-base;
+    .p-button {
+        &.p-button-text {
+            color: $orange-primary;
+            background: transparent;
+
+            &:enabled:hover,
+            &:not(:disabled):hover {
+                background: rgba($orange-primary, 0.1);
+                color: color.adjust($orange-primary, $lightness: -10%);
+            }
+
+            &:enabled:active,
+            &:not(:disabled):active {
+                background: rgba($orange-primary, 0.2);
+            }
+
+            &:disabled {
+                color: rgba($orange-primary, 0.6);
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+// Estilo para botones outlined con borde gris oscuro
+.outlined-button-dark-gray-active {
+    @include button-base;
+
+    &.p-button.p-button-outlined,
+    .p-button.p-button-outlined {
+        color: $dark-gray;
+        background: rgba($dark-gray, 0.1);
+        border: 1px solid $dark-gray;
+
+        &:enabled:hover,
+        &:not(:disabled):hover {
+            background: rgba($dark-gray, 0.15);
+            color: color.adjust($dark-gray, $lightness: -10%);
+            border-color: color.adjust($dark-gray, $lightness: -10%);
+        }
+
+        &:enabled:active,
+        &:not(:disabled):active {
+            background: rgba($dark-gray, 0.2);
+        }
+
+        &:enabled:focus,
+        &:not(:disabled):focus {
+            box-shadow: 0 0 0 2px rgba($dark-gray, 0.2);
+        }
+
+        &:disabled {
+            color: rgba($dark-gray, 0.6);
+            border-color: rgba($dark-gray, 0.6);
+            cursor: not-allowed;
+        }
+    }
+}
+
+// Estilo para botones outlined con borde gris oscuro (activo/expandido)
+.outlined-button-dark-gray {
+    @include button-base;
+
+    &.p-button.p-button-outlined,
+    .p-button.p-button-outlined {
+        color: $white;
+        background: $dark-gray;
+        border: 1px solid $dark-gray;
+
+        &:enabled:hover,
+        &:not(:disabled):hover {
+            background: color.adjust($dark-gray, $lightness: -5%);
+            border-color: color.adjust($dark-gray, $lightness: -10%);
+            color: $white !important;
+        }
+
+        &:enabled:active,
+        &:not(:disabled):active {
+            background: color.adjust($dark-gray, $lightness: -10%);
+        }
+
+        &:enabled:focus,
+        &:not(:disabled):focus {
+            box-shadow: 0 0 0 2px rgba($dark-gray, 0.3);
+        }
+
+        &:disabled {
+            background: rgba($dark-gray, 0.6);
+            border-color: rgba($dark-gray, 0.6);
+            color: rgba($white, 0.8);
+            cursor: not-allowed;
+        }
+    }
+}
+
+// Mixin para tema de colores de botones de la barra superior (desktop)
+@mixin button-theme-topnav {
+    color: $white;
+    background: transparent;
+    border: none;
+
+    i, span {
+        color: inherit;
+    }
+
+    &:hover, &.active {
+        color: $orange-primary;
+    }
+
+    &:focus {
+        box-shadow: 0 0 0 2px $blue-primary;
+    }
+
+    &:disabled {
+        color: rgba($white, 0.6);
+        cursor: not-allowed;
+    }
+}
+
+// Mixin para tema de colores de botones de la barra superior (móvil)
+@mixin button-theme-topnav-mobile {
+    color: $black;
+    
+    i, span {
+        color: $black;
+    }
+
+    &:hover, &.active, &.router-link-active {
+        background-color: $blue-primary;
+        color: $white;
+        
+        i, span {
+            color: $white;
+        }
+    }
+}

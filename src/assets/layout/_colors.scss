@@ -1,0 +1,24 @@
+// primary Colors
+$orange-primary: #f37021;
+$blue-primary: #1b2c65;
+$gray-primary: #f1f2f2;
+$dark-gray: #575F54;
+
+// Neutral Colors
+$white: #ffffff;
+$black: #000000;
+
+// System Colors
+$success: #28A745;        // Sugerido para estados exitosos
+$warning: #F59E0B;        // Sugerido para advertencias
+$danger: #EF4444;         // Sugerido para errores
+$info: #3B82F6;          // Sugerido para información
+
+// Menu Colors
+$menu-shadow-color: rgba(0, 0, 0, .02);
+$menu-shadow-color-2: rgba(0, 0, 0, .05);
+$menu-shadow-color-3: rgba(0, 0, 0, .08);
+$menu-text-color: var(--text-color);
+$menu-hover-bg: var(--surface-hover);
+$menu-surface: var(--surface-overlay);
+$menu-title-color: var(--surface-900);

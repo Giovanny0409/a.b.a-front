@@ -1,0 +1,58 @@
+@use "./_colors" as *;
+@use "sass:color";
+@use "./buttons" as buttons;
+
+// OrderList personalizado
+.orderlist-1 {
+  // v20: force controls to render on the right side of the list
+  &.p-orderlist,
+  .p-orderlist {
+    .p-orderlist-controls {
+      order: 2;
+    }
+    .p-orderlist-list-container {
+      order: 1;
+      flex: 1;
+    }
+  }
+
+  .p-orderlist-controls {
+    // Move up (↑) - estilo naranja
+    .p-button:nth-child(1) {
+      @extend .orange-button-style;
+    }
+
+    // Move down (↓) - estilo azul  
+    .p-button:nth-child(2) {
+      @extend .blue-button-style;
+    }
+
+    // Move to top (⇈) - estilo naranja
+    .p-button:nth-child(3) {
+      @extend .orange-button-style;
+    }
+
+    // Move to bottom (⇊) - estilo azul
+    .p-button:nth-child(4) {
+      @extend .blue-button-style;
+    }
+  }
+
+  .p-listbox-list {
+    // PrimeNG v20 OrderList uses Listbox internally.
+    // Selected option class is .p-listbox-option-selected.
+    .p-listbox-option.p-listbox-option-selected,
+    .p-listbox-option.p-listbox-option-selected.p-focus,
+    // Backward compatibility with older highlight class (if present)
+    .p-listbox-option.p-highlight {
+      background-color: $dark-gray !important;
+      color: $white !important;
+      border-color: $dark-gray !important;
+    }
+
+    .p-listbox-option:hover:not(.p-listbox-option-selected):not(.p-highlight),
+    .p-listbox-option.p-focus:not(.p-listbox-option-selected):not(.p-highlight) {
+      background-color: rgba($dark-gray, 0.1) !important;
+    }
+  }
+}
