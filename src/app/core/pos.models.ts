@@ -43,6 +43,16 @@ export interface SaleRecord {
   profit: number;
 }
 
+export interface Seller {
+  id: string;
+  name: string;
+}
+
+export interface SellerAuthorization {
+  authorized: boolean;
+  seller: Seller | null;
+}
+
 export interface PurchaseRecord {
   id: string;
   purchasedAt: string;

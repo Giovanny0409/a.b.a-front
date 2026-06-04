@@ -8,7 +8,8 @@ import {
   PurchaseRecord,
   SaleLine,
   SaleRecord,
-  SaleUnit
+  SaleUnit,
+  SellerAuthorization
 } from './pos.models';
 
 const API_BASE_URL = 'http://localhost:5028/api';
@@ -76,10 +77,23 @@ export class PosApiService {
 
   registerSale(input: {
     customer: string;
+    sellerId: string;
     productId: string;
     unit: SaleUnit;
     quantity: number;
   }): Observable<SaleRecord> {
     return this.http.post<SaleRecord>(`${API_BASE_URL}/sales`, input);
+  }
+
+  registerSaleBatch(input: {
+    customer: string;
+    sellerId: string;
+    lines: Array<{ productId: string; unit: SaleUnit; quantity: number }>;
+  }): Observable<SaleRecord> {
+    return this.http.post<SaleRecord>(`${API_BASE_URL}/sales/batch`, input);
+  }
+
+  authorizeSeller(sellerId: string): Observable<SellerAuthorization> {
+    return this.http.post<SellerAuthorization>(`${API_BASE_URL}/sellers/authorize`, { sellerId });
   }
 }
