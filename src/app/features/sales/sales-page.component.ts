@@ -1,4 +1,4 @@
-import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
+import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,10 +12,16 @@ interface CartLine extends PendingSaleLine {
   quote: SaleLine;
 }
 
+interface TicketPreview {
+  sale: SaleRecord;
+  received: number;
+  change: number;
+}
+
 @Component({
   selector: 'aba-sales-page',
   standalone: true,
-  imports: [CurrencyPipe, NgFor, NgIf, ReactiveFormsModule],
+  imports: [CurrencyPipe, DatePipe, NgFor, NgIf, ReactiveFormsModule],
   providers: [SalesStore],
   template: `
     <section class="sales-layout">
@@ -124,6 +130,54 @@ interface CartLine extends PendingSaleLine {
         </form>
       </article>
     </section>
+
+    <section class="ticket-overlay" *ngIf="ticket() as currentTicket">
+      <article class="ticket-panel">
+        <div class="ticket-actions">
+          <button class="btn secondary" type="button" (click)="closeTicket()">
+            <i class="pi pi-times"></i>
+            Cerrar
+          </button>
+          <button class="btn" type="button" (click)="printTicket()">
+            <i class="pi pi-print"></i>
+            Imprimir
+          </button>
+        </div>
+
+        <div class="ticket-paper" id="sale-ticket">
+          <h2>Alimentos Balanceados Alonso</h2>
+          <p>{{ currentTicket.sale.soldAt | date: 'dd/MM/yyyy HH:mm' }}</p>
+          <p>Cliente: {{ currentTicket.sale.customer }}</p>
+
+          <table>
+            <tbody>
+              <tr *ngFor="let line of currentTicket.sale.lines">
+                <td>
+                  <strong>{{ line.productName }}</strong>
+                  <span>{{ formatNumber(line.quantity) }} {{ line.unit === 'kg' ? 'kg' : 'bulto' }}</span>
+                </td>
+                <td>{{ line.total | currency: 'MXN' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="ticket-total">
+            <span>Total</span>
+            <strong>{{ currentTicket.sale.total | currency: 'MXN' }}</strong>
+          </div>
+          <div class="ticket-total">
+            <span>Recibido</span>
+            <span>{{ currentTicket.received | currency: 'MXN' }}</span>
+          </div>
+          <div class="ticket-total">
+            <span>Cambio</span>
+            <span>{{ currentTicket.change | currency: 'MXN' }}</span>
+          </div>
+
+          <p class="thanks">Gracias por su compra</p>
+        </div>
+      </article>
+    </section>
   `,
   styles: [`
     .sales-layout {
@@ -223,6 +277,85 @@ interface CartLine extends PendingSaleLine {
       font-weight: 800;
     }
 
+    .ticket-overlay {
+      align-items: flex-start;
+      background: rgba(23, 33, 30, 0.52);
+      display: flex;
+      inset: 0;
+      justify-content: center;
+      overflow: auto;
+      padding: 2rem 1rem;
+      position: fixed;
+      z-index: 50;
+    }
+
+    .ticket-panel {
+      background: var(--surface);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 1rem;
+      max-width: 24rem;
+      padding: 1rem;
+      width: 100%;
+    }
+
+    .ticket-actions {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    .ticket-paper {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #17211e;
+      display: grid;
+      font-family: Arial, sans-serif;
+      font-size: 12px;
+      gap: 0.45rem;
+      padding: 1rem;
+    }
+
+    .ticket-paper h2,
+    .ticket-paper p {
+      margin: 0;
+      text-align: center;
+    }
+
+    .ticket-paper h2 {
+      font-size: 1rem;
+    }
+
+    .ticket-paper table {
+      min-width: 0;
+      width: 100%;
+    }
+
+    .ticket-paper td {
+      border-bottom: 1px dashed #999;
+      padding: 0.45rem 0;
+    }
+
+    .ticket-paper td:last-child {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .ticket-paper td span {
+      display: block;
+      margin-top: 0.15rem;
+    }
+
+    .ticket-total {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .thanks {
+      margin-top: 0.6rem;
+    }
+
     @media (max-width: 1080px) {
       .summary {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -246,6 +379,40 @@ interface CartLine extends PendingSaleLine {
         flex-direction: column;
       }
     }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      .ticket-overlay,
+      .ticket-overlay * {
+        visibility: visible;
+      }
+
+      .ticket-overlay {
+        background: #fff;
+        display: block;
+        inset: 0;
+        padding: 0;
+        position: fixed;
+      }
+
+      .ticket-panel {
+        box-shadow: none;
+        max-width: none;
+        padding: 0;
+      }
+
+      .ticket-actions {
+        display: none;
+      }
+
+      .ticket-paper {
+        border: 0;
+        width: 72mm;
+      }
+    }
   `]
 })
 export class SalesPageComponent {
@@ -256,6 +423,7 @@ export class SalesPageComponent {
   readonly quote = signal<SaleLine | null>(null);
   readonly cart = signal<CartLine[]>([]);
   readonly isSelling = signal(false);
+  readonly ticket = signal<TicketPreview | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     customer: [''],
@@ -390,14 +558,16 @@ export class SalesPageComponent {
         const change = received - sale.total;
         this.message.set(`Venta cobrada por ${this.formatCurrency(sale.total)}. Cambio: ${this.formatCurrency(change)}.`);
 
-        if (window.confirm('Venta finalizada. Requiere tiket para imprimir?')) {
-          this.printTicket(sale, received, change);
+        if (window.confirm('Venta finalizada. Requiere ticket?')) {
+          this.ticket.set({ sale, received, change });
+        } else {
+          this.ticket.set(null);
         }
 
         this.clearCart();
       },
       error: (error) => {
-        this.message.set(error?.error?.message ?? 'No fue posible registrar la venta en el backend.');
+        this.message.set(error?.error?.message ?? error?.message ?? 'No fue posible registrar la venta en el backend.');
       },
       complete: () => {
         this.isSelling.set(false);
@@ -405,54 +575,15 @@ export class SalesPageComponent {
     });
   }
 
-  private printTicket(sale: SaleRecord, received: number, change: number): void {
-    const ticketWindow = window.open('', '_blank', 'width=320,height=640');
-
-    if (!ticketWindow) {
-      this.message.set('Venta cobrada, pero el navegador bloqueo la ventana del tiket.');
-      return;
-    }
-
-    const rows = sale.lines.map((line) => `
-      <tr>
-        <td>${line.productName}</td>
-        <td>${this.formatNumber(line.quantity)} ${line.unit === 'kg' ? 'kg' : 'bulto'}</td>
-        <td>${this.formatCurrency(line.total)}</td>
-      </tr>
-    `).join('');
-
-    ticketWindow.document.write(`
-      <html>
-        <head>
-          <title>Tiket ${sale.id}</title>
-          <style>
-            body { font-family: Arial, sans-serif; font-size: 12px; margin: 0; padding: 14px; }
-            h1, p { margin: 0; text-align: center; }
-            h1 { font-size: 16px; }
-            table { border-collapse: collapse; margin: 12px 0; width: 100%; }
-            td { border-bottom: 1px dashed #999; padding: 6px 0; vertical-align: top; }
-            td:last-child { text-align: right; }
-            .total { display: flex; justify-content: space-between; margin-top: 6px; }
-            .thanks { margin-top: 14px; }
-          </style>
-        </head>
-        <body>
-          <h1>Alimentos Balanceados Alonso</h1>
-          <p>${new Date(sale.soldAt).toLocaleString('es-MX')}</p>
-          <p>Cliente: ${sale.customer}</p>
-          <table>${rows}</table>
-          <div class="total"><strong>Total</strong><strong>${this.formatCurrency(sale.total)}</strong></div>
-          <div class="total"><span>Recibido</span><span>${this.formatCurrency(received)}</span></div>
-          <div class="total"><span>Cambio</span><span>${this.formatCurrency(change)}</span></div>
-          <p class="thanks">Gracias por su compra</p>
-          <script>window.print(); window.close();</script>
-        </body>
-      </html>
-    `);
-    ticketWindow.document.close();
+  printTicket(): void {
+    window.print();
   }
 
-  private formatNumber(value: number): string {
+  closeTicket(): void {
+    this.ticket.set(null);
+  }
+
+  formatNumber(value: number): string {
     return new Intl.NumberFormat('es-MX', { maximumFractionDigits: 2 }).format(value);
   }
 

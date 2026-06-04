@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, catchError, concatMap, forkJoin, from, map, of, switchMap, tap, toArray } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, switchMap, tap, throwError } from 'rxjs';
 import { DataRefreshService } from '../../core/data-refresh.service';
 import { Product, SaleLine, SaleRecord, SaleUnit } from '../../core/pos.models';
 import { PosApiService } from '../../core/pos-api.service';
@@ -53,10 +53,17 @@ export class SalesStore {
   }
 
   registerSale(customer: string, productId: string, mode: SalesEntryMode, amount: number): Observable<SaleRecord> {
+    const sellerId = sessionStorage.getItem('abaSellerId');
+
+    if (!sellerId) {
+      return throwError(() => new Error('Vendedor no autorizado para registrar ventas.'));
+    }
+
     const request = mode === 'money'
       ? this.moneyToKg(productId, amount).pipe(
         switchMap((quantity) => this.api.registerSale({
           customer: customer || 'Publico general',
+          sellerId,
           productId,
           unit: 'kg',
           quantity
@@ -64,6 +71,7 @@ export class SalesStore {
       )
       : this.api.registerSale({
         customer: customer || 'Publico general',
+        sellerId,
         productId,
         unit: mode,
         quantity: amount
@@ -79,24 +87,41 @@ export class SalesStore {
 
   registerSaleBatch(customer: string, lines: PendingSaleLine[]): Observable<SaleRecord> {
     const normalizedCustomer = customer || 'Publico general';
+    const sellerId = sessionStorage.getItem('abaSellerId');
 
-    return from(lines).pipe(
-      concatMap((line) => this.registerSale(normalizedCustomer, line.productId, line.mode, line.amount)),
-      toArray(),
-      map((sales) => {
-        const combinedLines = sales.flatMap((sale) => sale.lines);
+    if (!sellerId) {
+      return throwError(() => new Error('Vendedor no autorizado para registrar ventas.'));
+    }
 
-        return {
-          id: sales.map((sale) => sale.id).join(','),
-          soldAt: sales[0]?.soldAt ?? new Date().toISOString(),
-          customer: normalizedCustomer,
-          lines: combinedLines,
-          total: combinedLines.reduce((sum, line) => sum + line.total, 0),
-          cost: combinedLines.reduce((sum, line) => sum + line.cost, 0),
-          profit: combinedLines.reduce((sum, line) => sum + line.profit, 0)
-        };
+    return forkJoin(lines.map((line) => this.toBackendLine(line))).pipe(
+      switchMap((backendLines) => this.api.registerSaleBatch({
+        customer: normalizedCustomer,
+        sellerId,
+        lines: backendLines
+      })),
+      tap((sale) => {
+        this.salesState.update((sales) => [sale, ...sales]);
+        this.refresh.requestRefresh();
       })
     );
+  }
+
+  private toBackendLine(line: PendingSaleLine): Observable<{ productId: string; unit: SaleUnit; quantity: number }> {
+    if (line.mode === 'money') {
+      return this.moneyToKg(line.productId, line.amount).pipe(
+        map((quantity) => ({
+          productId: line.productId,
+          unit: 'kg' as SaleUnit,
+          quantity
+        }))
+      );
+    }
+
+    return of({
+      productId: line.productId,
+      unit: line.mode,
+      quantity: line.amount
+    });
   }
 
   private quoteMoneySale(productId: string, amount: number): Observable<SaleLine | null> {
