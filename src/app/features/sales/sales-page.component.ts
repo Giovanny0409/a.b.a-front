@@ -4,6 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { debounceTime, startWith, switchMap } from 'rxjs';
 import { SaleLine, SaleRecord } from '../../core/pos.models';
+import { SavedTicket } from './store/sales.actions';
 import { PendingSaleLine, SalesEntryMode, SalesStore } from './sales.store';
 
 interface CartLine extends PendingSaleLine {
@@ -24,6 +25,14 @@ interface TicketPreview {
   imports: [CurrencyPipe, DatePipe, NgFor, NgIf, ReactiveFormsModule],
   providers: [SalesStore],
   template: `
+    <div class="sales-toolbar">
+      <button class="btn secondary" type="button" (click)="openSavedTicketsDialog()">
+        <i class="pi pi-ticket"></i>
+        Tickets guardados
+        <span>{{ savedTickets().length }}</span>
+      </button>
+    </div>
+
     <section class="sales-layout">
       <article class="panel">
         <h2>Nueva venta</h2>
@@ -131,12 +140,61 @@ interface TicketPreview {
       </article>
     </section>
 
+    <section class="dialog-overlay" *ngIf="savedTicketsDialogOpen()">
+      <article class="dialog-panel saved-tickets-dialog">
+        <div class="dialog-head">
+          <div>
+            <h2>Tickets guardados</h2>
+            <span>{{ savedTickets().length }} guardados</span>
+          </div>
+          <button class="icon-btn neutral" type="button" title="Cerrar" (click)="closeSavedTicketsDialog()">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Cliente</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let savedTicket of savedTickets()">
+                <td>{{ savedTicket.sale.soldAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ savedTicket.sale.customer }}</td>
+                <td>{{ savedTicket.sale.total | currency: 'MXN' }}</td>
+                <td class="ticket-row-actions">
+                  <button class="icon-btn neutral" type="button" title="Abrir ticket" (click)="openSavedTicket(savedTicket)">
+                    <i class="pi pi-eye"></i>
+                  </button>
+                  <button class="icon-btn" type="button" title="Eliminar ticket" (click)="deleteSavedTicket(savedTicket.sale.id)">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="savedTickets().length === 0">
+                <td colspan="4" class="empty">Los tickets guardados apareceran aqui.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
     <section class="ticket-overlay" *ngIf="ticket() as currentTicket">
       <article class="ticket-panel">
         <div class="ticket-actions">
           <button class="btn secondary" type="button" (click)="closeTicket()">
             <i class="pi pi-times"></i>
             Cerrar
+          </button>
+          <button class="btn secondary" type="button" (click)="saveTicket(currentTicket)">
+            <i class="pi pi-save"></i>
+            Guardar
           </button>
           <button class="btn" type="button" (click)="printTicket()">
             <i class="pi pi-print"></i>
@@ -180,6 +238,25 @@ interface TicketPreview {
     </section>
   `,
   styles: [`
+    .sales-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 1rem;
+    }
+
+    .sales-toolbar .btn span {
+      align-items: center;
+      background: var(--brand);
+      border-radius: 999px;
+      color: #fff;
+      display: inline-flex;
+      font-size: 0.75rem;
+      height: 1.35rem;
+      justify-content: center;
+      min-width: 1.35rem;
+      padding: 0 0.35rem;
+    }
+
     .sales-layout {
       display: grid;
       gap: 1rem;
@@ -277,6 +354,18 @@ interface TicketPreview {
       font-weight: 800;
     }
 
+    .ticket-row-actions {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: flex-end;
+    }
+
+    .icon-btn.neutral {
+      background: #e7f0ef;
+      color: var(--brand);
+    }
+
+    .dialog-overlay,
     .ticket-overlay {
       align-items: flex-start;
       background: rgba(23, 33, 30, 0.52);
@@ -289,6 +378,7 @@ interface TicketPreview {
       z-index: 50;
     }
 
+    .dialog-panel,
     .ticket-panel {
       background: var(--surface);
       border-radius: 8px;
@@ -298,6 +388,28 @@ interface TicketPreview {
       max-width: 24rem;
       padding: 1rem;
       width: 100%;
+    }
+
+    .dialog-panel {
+      max-width: 54rem;
+    }
+
+    .dialog-head {
+      align-items: center;
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .dialog-head h2 {
+      margin: 0;
+    }
+
+    .dialog-head span {
+      color: var(--muted);
+      display: block;
+      font-weight: 800;
+      margin-top: 0.2rem;
     }
 
     .ticket-actions {
@@ -424,6 +536,8 @@ export class SalesPageComponent {
   readonly cart = signal<CartLine[]>([]);
   readonly isSelling = signal(false);
   readonly ticket = signal<TicketPreview | null>(null);
+  readonly savedTickets = this.store.savedTickets;
+  readonly savedTicketsDialogOpen = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     customer: [''],
@@ -577,6 +691,41 @@ export class SalesPageComponent {
 
   printTicket(): void {
     window.print();
+  }
+
+  saveTicket(ticket: TicketPreview): void {
+    const savedTicket: SavedTicket = {
+      ...ticket,
+      savedAt: new Date().toISOString()
+    };
+
+    this.store.saveTicket(savedTicket);
+    this.message.set('Ticket guardado correctamente.');
+  }
+
+  openSavedTicketsDialog(): void {
+    this.savedTicketsDialogOpen.set(true);
+  }
+
+  closeSavedTicketsDialog(): void {
+    this.savedTicketsDialogOpen.set(false);
+  }
+
+  openSavedTicket(ticket: SavedTicket): void {
+    this.closeSavedTicketsDialog();
+    this.ticket.set({
+      sale: ticket.sale,
+      received: ticket.received,
+      change: ticket.change
+    });
+  }
+
+  deleteSavedTicket(saleId: string): void {
+    if (!window.confirm('Eliminar este ticket guardado?')) {
+      return;
+    }
+
+    this.store.deleteSavedTicket(saleId);
   }
 
   closeTicket(): void {
