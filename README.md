@@ -17,4 +17,4 @@ npm install
 npm start
 ```
 
-El estado inicial se guarda en `localStorage` mientras se define el backend.
+El frontend consume el backend configurado en `http://localhost:5028/api` y mantiene el estado de la sesion en NgRx.
