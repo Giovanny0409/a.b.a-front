@@ -1,0 +1,59 @@
+@use "sass:color";
+
+.p-column-title {
+  display: none;
+}
+
+@media screen and (max-width: 768px) {
+  .p-column-title {
+    display: inline-block;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+}
+
+.p-button-success {
+  background: var(--ok) !important;
+  border-color: var(--ok) !important;
+  color: #ffffff !important;
+}
+
+.p-button-success:not(:disabled):hover {
+  background: color.adjust(#2f7d4e, $lightness: -7%) !important;
+  border-color: color.adjust(#2f7d4e, $lightness: -9%) !important;
+  color: #ffffff !important;
+}
+
+.p-button-success:not(:disabled):active {
+  background: color.adjust(#2f7d4e, $lightness: -11%) !important;
+  border-color: color.adjust(#2f7d4e, $lightness: -13%) !important;
+  color: #ffffff !important;
+}
+
+.p-button-success:focus-visible {
+  outline-color: rgba(47, 125, 78, 0.45) !important;
+  box-shadow: 0 0 0 0.2rem rgba(47, 125, 78, 0.45) !important;
+}
+
+.p-button-warning {
+  background: #f0bd58 !important;
+  border-color: #f0bd58 !important;
+  color: #21180b !important;
+}
+
+.p-button-warning:not(:disabled):hover {
+  background: color.adjust(#f0bd58, $lightness: -6%) !important;
+  border-color: color.adjust(#f0bd58, $lightness: -8%) !important;
+  color: #21180b !important;
+}
+
+.p-button-warning:not(:disabled):active {
+  background: color.adjust(#f0bd58, $lightness: -10%) !important;
+  border-color: color.adjust(#f0bd58, $lightness: -12%) !important;
+  color: #21180b !important;
+}
+
+.p-button-warning:focus-visible {
+  outline-color: rgba(240, 189, 88, 0.45) !important;
+  box-shadow: 0 0 0 0.2rem rgba(240, 189, 88, 0.45) !important;
+}

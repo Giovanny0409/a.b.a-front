@@ -1,4 +1,34 @@
-/* General */
-$scale:14px;                    /* main font size */ 
-$borderRadius:12px;             /* border radius of layout element e.g. card, sidebar */ 
-$transitionDuration:.2s;        /* transition duration of layout elements e.g. sidebar, overlay menus */ 
+:root {
+  color-scheme: light;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --surface-ground: #f5f7f3;
+  --surface-section: #ffffff;
+  --surface-card: #ffffff;
+  --surface-overlay: #ffffff;
+  --surface-border: #d9e1dd;
+  --surface-hover: #eef4ef;
+  --surface-200: #d9e1dd;
+  --surface-900: #17211e;
+  --text-color: #17211e;
+  --text-color-secondary: #64716d;
+  --primary-color: #17675a;
+  --primary-color-text: #ffffff;
+  --custom-primary: #c8892b;
+  --focus-ring: 0 0 0 0.2rem rgba(23, 103, 90, 0.28);
+  --card-shadow: 0 10px 30px rgba(23, 33, 30, 0.08);
+  --maskbg: rgba(23, 33, 30, 0.42);
+  --bg: #f5f7f3;
+  --surface: #ffffff;
+  --surface-soft: #eef4ef;
+  --ink: #17211e;
+  --muted: #64716d;
+  --line: #d9e1dd;
+  --brand: #17675a;
+  --brand-strong: #0f4d44;
+  --gold: #c8892b;
+  --blue: #315f8a;
+  --danger: #b63b3b;
+  --ok: #2f7d4e;
+  --shadow: 0 10px 30px rgba(23, 33, 30, 0.08);
+  font-family: var(--font-family);
+}

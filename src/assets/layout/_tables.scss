@@ -1,141 +1,24 @@
-@use 'colors' as colors;
-@use 'form' as form;
-
-// Global row/column dividers for PrimeNG tables across the app.
-.p-datatable {
-    // Keep table column header area white (Angular 19 look).
-    // This prevents gray bleed when some tables have fewer header cells
-    // than body/action columns.
-    .p-datatable-thead > tr {
-        background: var(--surface-card, #fff) !important;
-    }
-
-    .p-datatable-wrapper {
-        border-left: none;
-        border-right: none;
-    }
-
-    .p-datatable-thead > tr > th {
-        background: var(--surface-card, #fff) !important;
-        border-left: none;
-        border-right: none;
-        border-top: 1px solid var(--surface-200, var(--surface-border));
-        border-bottom: 1px solid var(--surface-200, var(--surface-border));
-    }
-
-    .p-datatable-tbody > tr > td {
-        border-left: none;
-        border-right: none;
-        border-bottom: 1px solid var(--surface-200, var(--surface-border));
-    }
+.table-wrap {
+  overflow-x: auto;
 }
 
-// Estilo base para aplicar a todos los componentes dentro de la tabla
-.table-custom-1 {
-    // Keep search box in table caption consistent with Angular 19.
-    .p-datatable-header {
-      // v18: p-input-icon-left wrapper | v20: p-iconfield component (.p-iconfield)
-      .p-input-icon-left,
-      .p-iconfield {
-        width: 18rem;
-        max-width: 100%;
-      }
+table {
+  border-collapse: collapse;
+  min-width: 760px;
+  width: 100%;
+}
 
-      .p-input-icon-left .p-inputtext,
-      .p-input-icon-left input[pInputText],
-      .p-iconfield .p-inputtext,
-      .p-iconfield input[pInputText] {
-        width: 100%;
-      }
-    }
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.72rem;
+  text-align: left;
+  vertical-align: middle;
+}
 
-    @media screen and (max-width: 768px) {
-      .p-datatable-header .p-input-icon-left,
-      .p-datatable-header .p-iconfield {
-        width: 100%;
-      }
-    }
-
-    // Table header sort icons customization
-    .p-datatable {
-        .p-sortable-column {
-            &:not(.p-highlight):not(.p-datatable-column-sorted):hover {
-                .p-sortable-column-icon {
-                    color: colors.$orange-primary !important;
-                }
-            }
-            &.p-highlight,
-            &.p-datatable-column-sorted {
-                color: colors.$orange-primary !important;
-                .p-sortable-column-icon {
-                    color: colors.$orange-primary !important;
-                }
-            }
-        }
-    }
-
-    // checkBox 
-    p-tableHeaderCheckbox, p-tableCheckbox, p-checkbox {
-        @extend .checklist-orange;
-    }
-    
-    // Inputs
-    input[pInputText],
-    .p-inputtext,
-    textarea[pTextarea],
-    textarea.p-textarea {
-        @extend .inputText-orange;
-    }
-
-    // Pagination styling
-    .p-paginator {
-        color: colors.$orange-primary !important;
-
-        .p-paginator-pages {
-            .p-paginator-page {
-                color: colors.$orange-primary !important;
-
-                &.p-paginator-page-selected {
-                    background: colors.$orange-primary !important;
-                    border-color: colors.$orange-primary !important;
-                    color: colors.$white !important;
-                }
-            }
-        }
-
-        .p-paginator-first,
-        .p-paginator-prev,
-        .p-paginator-next,
-        .p-paginator-last {
-            color: colors.$orange-primary !important;
-        }
-
-        .p-paginator-current {
-            color: colors.$orange-primary !important;
-        }
-
-        .p-paginator-rpp-options {
-            &.p-select {
-                &.p-focus {
-                    border-color: colors.$orange-primary !important;
-                    box-shadow: 0 0 0 2px colors.$orange-primary !important;
-                }
-            }
-            
-            .p-select-list {
-                .p-select-option-selected {
-                    background-color: colors.$orange-primary !important;
-                    color: colors.$white !important;
-                }
-            }
-        }
-    }
-
-    // Override PrimeNG default paginator text color
-    .p-paginator-bottom {
-        .p-paginator-current,
-        .p-paginator-rpp-label {
-            color: colors.$orange-primary !important;
-        }
-    }
+th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }

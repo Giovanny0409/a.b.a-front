@@ -1,0 +1,22 @@
+.field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field label,
+.field span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.field input,
+.field select {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  min-height: 2.55rem;
+  padding: 0.55rem 0.7rem;
+  width: 100%;
+}
