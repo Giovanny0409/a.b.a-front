@@ -1,20 +1,13 @@
-import { DecimalPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { AppTopbarStore } from './app-topbar.store';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'aba-app-topbar',
   standalone: true,
-  imports: [DecimalPipe],
   template: `
     <header class="topbar">
-      <div>
+      <div class="brand-line">
         <span class="eyebrow">A.B.A</span>
-        <h1>Control de bultos, kilos y ganancias</h1>
-      </div>
-      <div class="stock-strip">
-        <span><strong>{{ store.totalBags() }}</strong> bultos</span>
-        <span><strong>{{ store.openKg() | number: '1.1-2' }}</strong> kg abiertos</span>
+        <span>Alimentos Balanceados Alonso</span>
       </div>
     </header>
   `,
@@ -34,33 +27,15 @@ import { AppTopbarStore } from './app-topbar.store';
       font-weight: 900;
     }
 
-    h1 {
-      font-size: clamp(1.35rem, 2vw, 2rem);
-      line-height: 1.1;
-      margin: 0.2rem 0 0;
+    .brand-line {
+      display: grid;
+      gap: 0.1rem;
     }
 
-    .stock-strip {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      display: flex;
-      gap: 0.65rem;
-      padding: 0.65rem;
-    }
-
-    .stock-strip span {
-      background: var(--surface-soft);
-      border-radius: 8px;
+    .brand-line span:last-child {
       color: var(--muted);
-      min-width: 7rem;
-      padding: 0.55rem 0.7rem;
-    }
-
-    .stock-strip strong {
-      color: var(--ink);
-      display: block;
-      font-size: 1.15rem;
+      font-size: 0.9rem;
+      font-weight: 800;
     }
 
     @media (max-width: 880px) {
@@ -69,14 +44,6 @@ import { AppTopbarStore } from './app-topbar.store';
         flex-direction: column;
       }
     }
-
-    @media (max-width: 520px) {
-      .stock-strip {
-        flex-direction: column;
-      }
-    }
   `]
 })
-export class AppTopbarComponent {
-  readonly store = inject(AppTopbarStore);
-}
+export class AppTopbarComponent {}
