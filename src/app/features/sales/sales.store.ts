@@ -1,8 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, catchError, forkJoin, map, of, switchMap, tap, throwError } from 'rxjs';
-import { DataRefreshService } from '../../core/data-refresh.service';
-import { Product, SaleLine, SaleRecord, SaleUnit } from '../../core/pos.models';
+import { Injectable, inject } from '@angular/core';
+import { Actions, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import { Observable, catchError, filter, forkJoin, map, mergeMap, of, switchMap, take, throwError } from 'rxjs';
+import { SaleLine, SaleRecord, SaleUnit } from '../../core/pos.models';
 import { PosApiService } from '../../core/pos-api.service';
+import { SalesActions, SavedTicket } from './store/sales.actions';
+import { selectActiveSeller, selectSalesProducts, selectSalesRecords, selectSavedTickets } from './store/sales.selectors';
 
 export type SalesEntryMode = SaleUnit | 'money';
 
@@ -15,27 +18,16 @@ export interface PendingSaleLine {
 @Injectable()
 export class SalesStore {
   private readonly api = inject(PosApiService);
-  private readonly refresh = inject(DataRefreshService);
-  private readonly productsState = signal<Product[]>([]);
-  private readonly salesState = signal<SaleRecord[]>([]);
+  private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
 
-  readonly products = this.productsState.asReadonly();
-  readonly sales = this.salesState.asReadonly();
+  readonly products = this.store.selectSignal(selectSalesProducts);
+  readonly sales = this.store.selectSignal(selectSalesRecords);
+  readonly activeSeller = this.store.selectSignal(selectActiveSeller);
+  readonly savedTickets = this.store.selectSignal(selectSavedTickets);
 
   load(): void {
-    forkJoin({
-      products: this.api.getProducts(),
-      sales: this.api.getSales()
-    }).subscribe({
-      next: ({ products, sales }) => {
-        this.productsState.set(products);
-        this.salesState.set(sales);
-      },
-      error: () => {
-        this.productsState.set([]);
-        this.salesState.set([]);
-      }
-    });
+    this.store.dispatch(SalesActions.load());
   }
 
   quoteSale(productId: string, mode: SalesEntryMode, amount: number): Observable<SaleLine | null> {
@@ -53,57 +45,52 @@ export class SalesStore {
   }
 
   registerSale(customer: string, productId: string, mode: SalesEntryMode, amount: number): Observable<SaleRecord> {
-    const sellerId = sessionStorage.getItem('abaSellerId');
-
-    if (!sellerId) {
-      return throwError(() => new Error('Vendedor no autorizado para registrar ventas.'));
-    }
-
-    const request = mode === 'money'
-      ? this.moneyToKg(productId, amount).pipe(
-        switchMap((quantity) => this.api.registerSale({
-          customer: customer || 'Publico general',
-          sellerId,
-          productId,
-          unit: 'kg',
-          quantity
-        }))
-      )
-      : this.api.registerSale({
-        customer: customer || 'Publico general',
-        sellerId,
-        productId,
-        unit: mode,
-        quantity: amount
-      });
-
-    return request.pipe(
-      tap((sale) => {
-        this.salesState.update((sales) => [sale, ...sales]);
-        this.refresh.requestRefresh();
-      })
-    );
+    return this.registerSaleBatch(customer, [{ productId, mode, amount }]);
   }
 
   registerSaleBatch(customer: string, lines: PendingSaleLine[]): Observable<SaleRecord> {
     const normalizedCustomer = customer || 'Publico general';
-    const sellerId = sessionStorage.getItem('abaSellerId');
+    const sellerId = this.activeSeller()?.id;
 
     if (!sellerId) {
       return throwError(() => new Error('Vendedor no autorizado para registrar ventas.'));
     }
 
+    const requestId = crypto.randomUUID();
+
     return forkJoin(lines.map((line) => this.toBackendLine(line))).pipe(
-      switchMap((backendLines) => this.api.registerSaleBatch({
-        customer: normalizedCustomer,
-        sellerId,
-        lines: backendLines
-      })),
-      tap((sale) => {
-        this.salesState.update((sales) => [sale, ...sales]);
-        this.refresh.requestRefresh();
+      switchMap((backendLines) => {
+        this.store.dispatch(SalesActions.registerSaleBatch({
+          requestId,
+          input: {
+            customer: normalizedCustomer,
+            sellerId,
+            lines: backendLines
+          }
+        }));
+
+        return this.actions$.pipe(
+          ofType(SalesActions.registerSaleBatchSuccess, SalesActions.registerSaleBatchFailure),
+          filter((action) => action.requestId === requestId),
+          take(1),
+          mergeMap((action) => {
+            if (action.type === SalesActions.registerSaleBatchFailure.type) {
+              return throwError(() => new Error(action.error));
+            }
+
+            return [action.sale];
+          })
+        );
       })
     );
+  }
+
+  saveTicket(ticket: SavedTicket): void {
+    this.store.dispatch(SalesActions.saveTicket({ ticket }));
+  }
+
+  deleteSavedTicket(saleId: string): void {
+    this.store.dispatch(SalesActions.deleteSavedTicket({ saleId }));
   }
 
   private toBackendLine(line: PendingSaleLine): Observable<{ productId: string; unit: SaleUnit; quantity: number }> {

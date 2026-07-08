@@ -3,12 +3,16 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
 import {
   BagLot,
+  ExpenseRecord,
+  ExpenseArea,
   InventoryItem,
   Product,
   PurchaseRecord,
+  PurchaseLineInput,
   SaleLine,
   SaleRecord,
   SaleUnit,
+  Supplier,
   SellerAuthorization
 } from './pos.models';
 
@@ -34,17 +38,23 @@ export class PosApiService {
     return this.http.get<SaleRecord[]>(`${API_BASE_URL}/sales`);
   }
 
+  getExpenses(): Observable<ExpenseRecord[]> {
+    return this.http.get<ExpenseRecord[]>(`${API_BASE_URL}/expenses`);
+  }
+
   getSnapshot(): Observable<{
     products: Product[];
     lots: BagLot[];
     purchases: PurchaseRecord[];
     sales: SaleRecord[];
+    expenses: ExpenseRecord[];
   }> {
     return forkJoin({
       products: this.getProducts(),
       lots: this.getLots(),
       purchases: this.getPurchases(),
-      sales: this.getSales()
+      sales: this.getSales(),
+      expenses: this.getExpenses()
     });
   }
 
@@ -57,13 +67,20 @@ export class PosApiService {
   }
 
   registerPurchase(input: {
-    productId: string;
-    supplier: string;
-    bags: Array<{ markedKg: number; realKg: number; purchaseCost: number }>;
-    salePriceBag: number;
-    salePriceKg: number;
+    supplier: Supplier;
+    lines: PurchaseLineInput[];
   }): Observable<PurchaseRecord> {
     return this.http.post<PurchaseRecord>(`${API_BASE_URL}/purchases`, input);
+  }
+
+  registerExpense(input: {
+    concept: string;
+    category: string;
+    area: ExpenseArea;
+    amount: number;
+    notes?: string;
+  }): Observable<ExpenseRecord> {
+    return this.http.post<ExpenseRecord>(`${API_BASE_URL}/expenses`, input);
   }
 
   quoteSale(productId: string, unit: SaleUnit, quantity: number): Observable<SaleLine> {

@@ -1,65 +1,50 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { DataRefreshService } from '../../core/data-refresh.service';
-import { DashboardSummary, InventoryItem, PurchaseRecord, SaleRecord } from '../../core/pos.models';
-import { PosApiService } from '../../core/pos-api.service';
+import { Injectable, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { DashboardSummary } from '../../core/pos.models';
+import { DashboardActions } from './store/dashboard.actions';
+import {
+  selectDashboardImportance,
+  selectDashboardExpenses,
+  selectDashboardInventory,
+  selectDashboardLoading,
+  selectDashboardLots,
+  selectDashboardSales,
+  selectDashboardSummary
+} from './store/dashboard.selectors';
 
 const emptySummary: DashboardSummary = {
-  bagsAvailable: 0,
-  openKgAvailable: 0,
+  totalBags: 0,
+  sealedBags: 0,
+  openBags: 0,
   investment: 0,
   income: 0,
+  expenses: 0,
   profit: 0,
   lowStock: 0
 };
 
 @Injectable()
 export class DashboardStore {
-  private readonly api = inject(PosApiService);
-  private readonly refresh = inject(DataRefreshService);
-  private readonly inventoryState = signal<InventoryItem[]>([]);
-  private readonly purchasesState = signal<PurchaseRecord[]>([]);
-  private readonly salesState = signal<SaleRecord[]>([]);
-  private readonly loadingState = signal(false);
+  private readonly store = inject(Store);
 
-  readonly inventory = this.inventoryState.asReadonly();
-  readonly loading = this.loadingState.asReadonly();
-  readonly summary = computed<DashboardSummary>(() => ({
-    bagsAvailable: this.inventoryState().reduce((sum, item) => sum + item.sealedBags, 0),
-    openKgAvailable: this.inventoryState().reduce((sum, item) => sum + item.openKg, 0),
-    investment: this.purchasesState().reduce((sum, purchase) => sum + purchase.investment, 0),
-    income: this.salesState().reduce((sum, sale) => sum + sale.total, 0),
-    profit: this.salesState().reduce((sum, sale) => sum + sale.profit, 0),
-    lowStock: this.inventoryState().filter((item) => item.needsRestock).length
-  }));
+  readonly inventory = this.store.selectSignal(selectDashboardInventory);
+  readonly lots = this.store.selectSignal(selectDashboardLots);
+  readonly sales = this.store.selectSignal(selectDashboardSales);
+  readonly expenses = this.store.selectSignal(selectDashboardExpenses);
+  readonly importance = this.store.selectSignal(selectDashboardImportance);
+  readonly loading = this.store.selectSignal(selectDashboardLoading);
+  readonly summary = this.store.selectSignal(selectDashboardSummary);
 
   constructor() {
-    effect(() => {
-      this.refresh.revision();
-      this.load();
-    });
+    this.load();
   }
 
   load(): void {
-    this.loadingState.set(true);
-    forkJoin({
-      inventory: this.api.getInventory(),
-      purchases: this.api.getPurchases(),
-      sales: this.api.getSales()
-    }).subscribe({
-      next: ({ inventory, purchases, sales }) => {
-        this.inventoryState.set(inventory);
-        this.purchasesState.set(purchases);
-        this.salesState.set(sales);
-        this.loadingState.set(false);
-      },
-      error: () => {
-        this.inventoryState.set([]);
-        this.purchasesState.set([]);
-        this.salesState.set([]);
-        this.loadingState.set(false);
-      }
-    });
+    this.store.dispatch(DashboardActions.load());
+  }
+
+  setImportance(input: { productId: string; minBags: number; minOpenKg: number; minPieces: number }): void {
+    this.store.dispatch(DashboardActions.setImportance({ importance: input }));
   }
 
   fallbackSummary(): DashboardSummary {

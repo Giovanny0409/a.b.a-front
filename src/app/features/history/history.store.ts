@@ -1,35 +1,18 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { PurchaseRecord, SaleRecord } from '../../core/pos.models';
-import { PosApiService } from '../../core/pos-api.service';
+import { Injectable, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { HistoryActions } from './store/history.actions';
+import { selectHistoryExpenses, selectHistoryPurchases, selectHistorySales, selectHistorySummary } from './store/history.selectors';
 
 @Injectable()
 export class HistoryStore {
-  private readonly api = inject(PosApiService);
-  private readonly salesState = signal<SaleRecord[]>([]);
-  private readonly purchasesState = signal<PurchaseRecord[]>([]);
+  private readonly store = inject(Store);
 
-  readonly sales = this.salesState.asReadonly();
-  readonly purchases = this.purchasesState.asReadonly();
-  readonly summary = computed(() => ({
-    investment: this.purchasesState().reduce((sum, purchase) => sum + purchase.investment, 0),
-    income: this.salesState().reduce((sum, sale) => sum + sale.total, 0),
-    profit: this.salesState().reduce((sum, sale) => sum + sale.profit, 0)
-  }));
+  readonly sales = this.store.selectSignal(selectHistorySales);
+  readonly purchases = this.store.selectSignal(selectHistoryPurchases);
+  readonly expenses = this.store.selectSignal(selectHistoryExpenses);
+  readonly summary = this.store.selectSignal(selectHistorySummary);
 
   load(): void {
-    forkJoin({
-      sales: this.api.getSales(),
-      purchases: this.api.getPurchases()
-    }).subscribe({
-      next: ({ sales, purchases }) => {
-        this.salesState.set(sales);
-        this.purchasesState.set(purchases);
-      },
-      error: () => {
-        this.salesState.set([]);
-        this.purchasesState.set([]);
-      }
-    });
+    this.store.dispatch(HistoryActions.load());
   }
 }
