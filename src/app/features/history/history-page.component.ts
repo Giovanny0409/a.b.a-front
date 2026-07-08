@@ -18,6 +18,10 @@ import { HistoryStore } from './history.store';
         <strong>{{ store.summary().income | currency: 'MXN' }}</strong>
       </div>
       <div class="metric">
+        <span>Gastos</span>
+        <strong>{{ store.summary().expenses | currency: 'MXN' }}</strong>
+      </div>
+      <div class="metric">
         <span>Ganancia</span>
         <strong>{{ store.summary().profit | currency: 'MXN' }}</strong>
       </div>
@@ -63,9 +67,8 @@ import { HistoryStore } from './history.store';
                 <th>Fecha</th>
                 <th>Producto</th>
                 <th>Proveedor</th>
-                <th>Bultos</th>
-                <th>Kg etiqueta</th>
-                <th>Kg reales</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
                 <th>Inversion</th>
               </tr>
             </thead>
@@ -73,11 +76,38 @@ import { HistoryStore } from './history.store';
               <tr *ngFor="let purchase of store.purchases()">
                 <td>{{ purchase.purchasedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ purchase.productName }}</td>
-                <td>{{ purchase.supplier }}</td>
-                <td>{{ purchase.bags }}</td>
-                <td>{{ purchase.markedKg | number: '1.1-2' }}</td>
-                <td>{{ purchase.realKg | number: '1.1-2' }}</td>
+                <td>{{ supplierLabel(purchase) }}</td>
+                <td>{{ purchase.kind === 'unit' ? 'Producto' : 'Bulto' }}</td>
+                <td>{{ purchaseQuantityLabel(purchase) }}</td>
                 <td>{{ purchase.investment | currency: 'MXN' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>Gastos e insumos</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Categoria</th>
+                <th>Apartado</th>
+                <th>Monto</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let expense of store.expenses()">
+                <td>{{ expense.expenseAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ expense.concept }}</td>
+                <td>{{ expense.category }}</td>
+                <td>{{ expenseAreaLabel(expense.area) }}</td>
+                <td>{{ expense.amount | currency: 'MXN' }}</td>
+                <td>{{ expense.notes || '-' }}</td>
               </tr>
             </tbody>
           </table>
@@ -93,7 +123,7 @@ import { HistoryStore } from './history.store';
     }
 
     .metrics {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       margin-bottom: 1rem;
     }
 
@@ -113,5 +143,28 @@ export class HistoryPageComponent {
 
   constructor() {
     this.store.load();
+  }
+
+  supplierLabel(purchase: { supplier?: string; supplierName?: string; supplierPhone?: string }): string {
+    const name = purchase.supplierName || purchase.supplier || 'Sin proveedor';
+    return purchase.supplierPhone ? `${name} (${purchase.supplierPhone})` : name;
+  }
+
+  purchaseQuantityLabel(purchase: { kind?: string; quantity?: number; bags?: number; markedKg?: number }): string {
+    if (purchase.kind === 'unit') {
+      return `${purchase.quantity ?? purchase.bags ?? 0} piezas`;
+    }
+
+    return `${purchase.bags ?? 0} bultos / ${purchase.markedKg ?? 0} kg`;
+  }
+
+  expenseAreaLabel(area: string): string {
+    const labels: Record<string, string> = {
+      general: 'General',
+      guardadito: 'Guardadito',
+      camioneta: 'Camioneta'
+    };
+
+    return labels[area] ?? area;
   }
 }
