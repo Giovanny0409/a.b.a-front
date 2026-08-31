@@ -12,9 +12,10 @@
 ## Contexto del proyecto
 
 - Sistema de punto de venta para **Alimentos Balanceados Alonso** (forrajería): ventas, compras, inventario, tablero y gastos.
-- Este repositorio (`aba-punto-venta`) es el **frontend**. El backend vive por separado en
-  `C:\Users\carte\OneDrive\Desktop\backend aba` (ASP.NET Core 9 + EF Core + SQLite), corriendo en
-  `http://localhost:5028`. Ambos se arrancan juntos con `npm start` (`scripts/start-with-backend.ps1`).
+- Este repositorio (`aba-punto-venta`, remoto `a.b.a-front`) es el **frontend**. El backend vive por separado en
+  `C:\Users\carte\OneDrive\Desktop\backend aba` (ASP.NET Core 9 + EF Core + SQLite, remoto `a.b.a-back`), corriendo en
+  `http://localhost:5028`. Ambos se arrancan juntos con `npm start` (`scripts/start-with-backend.ps1`), pero son
+  **repos de Git independientes** — un cambio que toque ambos genera commits/PRs separados, uno por repo.
 - Cambios que requieran datos o endpoints nuevos casi siempre implican tocar **ambos** repos: valida el contrato
   (forma del JSON, nombres de propiedades) contra los controladores y modelos reales del backend, no solo contra
   lo que el frontend espera.
@@ -32,9 +33,15 @@
 
 ## Flujo de trabajo Git
 
+### Ramas base
+
+- **`main`**: rama estable. No se trabaja directo sobre ella.
+- **`dev`**: rama de integración. Toda rama de cambio se crea **a partir de `dev`**, nunca de `main`.
+- Este modelo (`main` / `dev` / rama de cambio) aplica **igual en `a.b.a-front` y en `a.b.a-back`**.
+
 ### Nomenclatura de ramas
 
-- Formato: `dev-<tipo>-<descripcion-en-kebab-case>`
+- Formato: `dev-<tipo>-<descripcion-en-kebab-case>`, creada desde `dev`.
 - `<tipo>`: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `perf`, `style`.
 - Ejemplos:
   - `dev-feat-alerta-stock-bajo`
