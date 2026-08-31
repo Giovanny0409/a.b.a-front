@@ -1,4 +1,4 @@
-export type SaleUnit = 'bag' | 'kg';
+export type SaleUnit = 'bag' | 'kg' | 'piece';
 export type PurchaseKind = 'bag' | 'unit';
 export type ExpenseArea = 'general' | 'guardadito' | 'camioneta';
 

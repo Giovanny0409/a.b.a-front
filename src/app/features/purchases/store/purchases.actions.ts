@@ -25,7 +25,7 @@ export const PurchasesActions = createActionGroup({
     'Load Products Failure': props<{ error: string }>(),
     'Add Supplier': props<{ supplier: PurchaseSupplier }>(),
     'Register Purchase': props<{ requestId: string; input: RegisterPurchaseInput }>(),
-    'Register Purchase Success': props<{ requestId: string; purchase: PurchaseRecord }>(),
+    'Register Purchase Success': props<{ requestId: string; purchases: PurchaseRecord[] }>(),
     'Register Purchase Failure': props<{ requestId: string; error: string }>(),
     'Register Expense': props<{ requestId: string; input: RegisterExpenseInput }>(),
     'Register Expense Success': props<{ requestId: string; expense: ExpenseRecord }>(),

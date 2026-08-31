@@ -54,6 +54,7 @@ interface TicketPreview {
             <select formControlName="mode">
               <option value="bag">Por bulto</option>
               <option value="kg">Por kilo</option>
+              <option value="piece">Por pieza</option>
               <option value="money">Por pesos</option>
             </select>
           </label>
@@ -576,7 +577,11 @@ export class SalesPageComponent {
       return 'Importe';
     }
 
-    return mode === 'kg' ? 'Kilos' : 'Bultos';
+    if (mode === 'kg') {
+      return 'Kilos';
+    }
+
+    return mode === 'piece' ? 'Piezas' : 'Bultos';
   }
 
   modeLabel(mode: SalesEntryMode): string {
@@ -584,7 +589,11 @@ export class SalesPageComponent {
       return 'Por pesos';
     }
 
-    return mode === 'kg' ? 'Por kilo' : 'Por bulto';
+    if (mode === 'kg') {
+      return 'Por kilo';
+    }
+
+    return mode === 'piece' ? 'Por pieza' : 'Por bulto';
   }
 
   quoteDetail(quote: SaleLine | null, mode: SalesEntryMode): string {
@@ -596,7 +605,15 @@ export class SalesPageComponent {
       return `${this.formatNumber(quote.quantity)} kg`;
     }
 
-    return `${this.formatNumber(quote.quantity)} ${quote.unit === 'kg' ? 'kg' : 'bulto'}`;
+    return `${this.formatNumber(quote.quantity)} ${this.unitLabel(quote.unit)}`;
+  }
+
+  private unitLabel(unit: SaleLine['unit']): string {
+    if (unit === 'kg') {
+      return 'kg';
+    }
+
+    return unit === 'piece' ? 'pieza(s)' : 'bulto';
   }
 
   lineDetail(line: CartLine): string {

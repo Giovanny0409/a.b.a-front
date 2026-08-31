@@ -35,10 +35,10 @@ export const purchasesReducer = createReducer(
     ...state,
     suppliers: mergeSuppliers(state.suppliers, [supplier])
   })),
-  on(PurchasesActions.registerPurchaseSuccess, (state, { purchase }) => ({
+  on(PurchasesActions.registerPurchaseSuccess, (state, { purchases }) => ({
     ...state,
-    purchases: [purchase, ...state.purchases],
-    suppliers: mergeSuppliers(state.suppliers, [supplierFromPurchase(purchase)]),
+    purchases: [...purchases, ...state.purchases],
+    suppliers: mergeSuppliers(state.suppliers, purchases.map((purchase) => supplierFromPurchase(purchase))),
     error: null
   })),
   on(PurchasesActions.registerPurchaseFailure, (state, { error }) => ({ ...state, error })),
