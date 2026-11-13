@@ -35,8 +35,8 @@
 `webServer: { command: 'npm start', url: 'http://127.0.0.1:4200', reuseExistingServer: true, timeout: 180_000 }`
 y `baseURL: 'http://127.0.0.1:4200'`. Alternativa descartada: levantar back y front por separado en otros
 puertos con otra base. Eso es P-08 y exige volver configurable la URL de la API y el CORS; hoy no aporta
-porque todos los datos son de prueba. Trampa: si Playwright arranca `npm start`, al terminar cierra
-`ng serve`, pero el backend sigue vivo en su ventana oculta. Es lo mismo que pasa con `npm start` a mano.
+porque todos los datos son de prueba. Si Playwright arranca `npm start`, al terminar cierra todo el árbol
+de procesos, backend incluido (verificado en la tarea 3.4); si la app ya corría, no la toca.
 
 **D2. Un worker, Chromium, ventana de escritorio.** `workers: 1`, `fullyParallel: false`, un solo proyecto
 `chromium` con `viewport: { width: 1440, height: 900 }` repetido después del spread de
@@ -79,4 +79,3 @@ del proyecto es compatible.
   `<suite>.locators.ts`; al migrar a `es.json` se actualizan ahí.
 - [El primer `npm start` tarda: `dotnet run` compila y `ng serve` construye] → `timeout` de 180 s en
   `webServer`.
-- [El backend oculto queda vivo al terminar] → documentado en `e2e/README.md`, igual que con `npm start`.

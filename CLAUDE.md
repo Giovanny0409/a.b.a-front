@@ -35,6 +35,7 @@
 - **ngx-translate** para internacionalización — **solo español** (ver Principio 1).
 - **OpenSpec** (`schema: spec-driven`) para gestionar cambios en `openspec/`.
 - Pruebas de componentes con specs (`*.spec.ts`).
+- Pruebas de punta a punta con **Playwright** en `e2e/` (`npm run test:e2e`), contra la app local.
 
 ---
 
@@ -74,7 +75,8 @@ sobre la rama que los tiene y lo anota en `docs/PENDIENTES.md`.
 - Cada commit hace una sola cosa. Un cambio que toca los dos repos lleva un commit en cada uno.
 
 **Comportamiento de Claude:** hace los commits él mismo, en la rama del change, cuando una unidad de
-trabajo queda completa y sus compuertas pasan (`npm run build`, `npm test`, `dotnet build` si tocó el back).
+trabajo queda completa y sus compuertas pasan (`npm run build`, `npm test`, `npm run test:e2e` si tocó una
+pantalla, `dotnet build` si tocó el back).
 
 ### Formato de Pull Request
 
@@ -178,6 +180,9 @@ Al generar o actualizar artefactos en `openspec/changes/<id>/` (`proposal.md`, `
   - Crear/actualizar el `*.spec.ts` correspondiente.
   - Actualizar `docs/PENDIENTES.md` al inicio (en el mismo commit que los artefactos) y cerrar sus registros con
     evidencia al final.
+  - Si el change toca una pantalla, probarla en la app con la skill **`qa-playwright`** antes del PR: las suites
+    de `e2e/` de las pantallas que toca, más la suite de lo nuevo con los escenarios de sus specs, y la
+    evidencia en la tarea de QA (ver `e2e/README.md`).
 - Las reglas de `openspec/config.yaml` repiten lo esencial de esta sección para que los artefactos lo hereden;
   si se cambia aquí, se cambia allá.
 - Para implementar un change aprobado en una conversación nueva, con el contexto limpio, se usa la skill

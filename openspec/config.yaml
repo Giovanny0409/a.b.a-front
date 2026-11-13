@@ -38,5 +38,9 @@ rules:
     - Verificar que no queden elementos huérfanos ni NgModule residual, también en ../a.b.a-back.
     - Si el change toca el backend, separar sus tareas (dotnet build, migración de EF Core) y su
       commit, que va en el repo a.b.a-back.
+    - Si el change toca una pantalla, incluir una tarea de QA con la skill qa-playwright antes del
+      PR: las suites de e2e/ de las pantallas que toca, la suite de lo nuevo con los escenarios de
+      sus specs, y la evidencia (suites, resultado, marca de los datos). Si no toca ninguna, la tarea
+      se marca como no aplicable diciendo por qué.
     - Cerrar con las compuertas npm run build (incluye logs:check) y npm test, y dotnet build si se
       tocó el backend.
