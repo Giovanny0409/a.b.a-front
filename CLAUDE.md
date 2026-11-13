@@ -13,8 +13,9 @@
 
 - Sistema de punto de venta para **Alimentos Balanceados Alonso** (forrajería): ventas, compras, inventario, tablero y gastos.
 - Este repositorio (`aba-punto-venta`, remoto `a.b.a-front`) es el **frontend**. El backend vive por separado en
-  `C:\Users\carte\OneDrive\Desktop\backend aba` (ASP.NET Core 9 + EF Core + SQLite, remoto `a.b.a-back`), corriendo en
-  `http://localhost:5028`. Ambos se arrancan juntos con `npm start` (`scripts/start-with-backend.ps1`), pero son
+  el repo hermano `../a.b.a-back` (ASP.NET Core 9 + EF Core + SQLite, remoto `a.b.a-back`), corriendo en
+  `http://localhost:5028`. Ambos se arrancan juntos con `npm start` (`scripts/start-with-backend.ps1`, que busca el
+  backend en `../a.b.a-back` o en la ruta de la variable de entorno `ABA_BACKEND_PATH`), pero son
   **repos de Git independientes** — un cambio que toque ambos genera commits/PRs separados, uno por repo.
 - Cambios que requieran datos o endpoints nuevos casi siempre implican tocar **ambos** repos: valida el contrato
   (forma del JSON, nombres de propiedades) contra los controladores y modelos reales del backend, no solo contra
