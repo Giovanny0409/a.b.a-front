@@ -6,6 +6,12 @@
 > - Generar o modificar artefactos de OpenSpec (`proposal.md`, `design.md`, `tasks.md`, `spec.md`).
 >
 > Si un cambio contradice algún principio de aquí, primero avísalo y propón cómo alinearlo.
+>
+> **Antes de empezar, `docs/PENDIENTES.md`.** Lo identificado y no cerrado de los dos repos vive ahí:
+> pendientes, decisiones y deuda. Se lee antes de trabajar, para no redescubrir un problema conocido ni
+> actuar sobre una decisión que no se ha tomado. Lo que aparezca y no sea del change en curso **se
+> registra en el mismo commit en que se descubre y no se corrige ahí**. Ampliar el alcance es una
+> decisión que se pregunta.
 
 ---
 
@@ -49,9 +55,10 @@
   - `dev-refactor-limpieza-compras`
   - `dev-fix-formato-kilos-abiertos`
 
-**IMPORTANTE — Comportamiento de Claude:**
-- **NO crear ramas automáticamente.**
-- Solo **generar en el chat el nombre de la rama** para que el usuario lo copie y pegue.
+**Comportamiento de Claude:** crea la rama él mismo, desde `dev` actualizado
+(`git fetch -q origin && git checkout -b dev-<tipo>-<descripcion> origin/dev`), antes de tocar código.
+Nunca empieza un change en la rama de otro. Si la rama necesita commits que aún no están en `dev`, la apila
+sobre la rama que los tiene y lo anota en `docs/PENDIENTES.md`.
 
 ### Mensajes de commit (formato commitlint / Conventional Commits)
 
@@ -63,10 +70,11 @@
   - `refactor(compras): eliminar kilos reales y costo real huerfanos`
   - `chore(inventario): limpiar codigo muerto de la tabla de inventario neto`
 
-**IMPORTANTE — Comportamiento de Claude:**
-- **NO hacer commits automáticamente.**
-- Solo **generar en el chat el mensaje de commit** para que el usuario lo copie y pegue.
-- Siempre deben de ir en **inglés**.
+- Siempre en **inglés**, con un cuerpo que explique el porqué cuando no sea obvio.
+- Cada commit hace una sola cosa. Un cambio que toca los dos repos lleva un commit en cada uno.
+
+**Comportamiento de Claude:** hace los commits él mismo, en la rama del change, cuando una unidad de
+trabajo queda completa y sus compuertas pasan (`npm run build`, `npm test`, `dotnet build` si tocó el back).
 
 ### Formato de Pull Request
 
@@ -78,9 +86,12 @@
   3. `## Pruebas` — comandos ejecutados (build, lint, tests) y su resultado; QA manual realizado (dispositivo/navegador, escenarios cubiertos).
   4. `## Nota / deuda` — *(opcional)* caveats, deuda técnica conocida o seguimientos pendientes antes de producción. Omitir la sección si no aplica.
 
-**IMPORTANTE — Comportamiento de Claude:**
-- **NO crear el PR automáticamente** (ni con `gh pr create` ni de otra forma) salvo que el usuario lo pida explícitamente.
-- Solo **generar en el chat el título y la descripción** para que el usuario los copie y pegue.
+- El change de OpenSpec se **archiva antes del PR** (`/opsx:archive`), para que el PR revise el mismo árbol
+  que se fusiona.
+
+**Comportamiento de Claude:** prepara el título y la descripción, y **pregunta antes** de hacer push y de
+abrir el PR con `gh pr create` hacia `dev`. Una aprobación vale para ese paso, no para los siguientes. Nunca
+fusiona un PR.
 
 ---
 
@@ -123,12 +134,15 @@
 
 ### 5. Sin código basura ni elementos huérfanos
 - No dejar código muerto, imports sin usar, comentarios de scaffolding ni logs de depuración.
+- `npm run logs:check` (`scripts/logs/check-debug-logs.mjs`) corre solo antes de `npm run build` y `npm test`.
+  Falla si un `.ts` de `src/`, salvo los `*.spec.ts`, llama a `console.log`, `console.debug`, `console.info` o
+  `console.trace`, aunque esté comentado. `console.warn` y `console.error` se permiten, porque reportan errores.
 - No dejar componentes, métodos, servicios, actions/effects/selectors ni claves i18n huérfanas (sin uso).
 - Al eliminar una funcionalidad, limpiar todas sus referencias — **incluyendo el backend** cuando el campo o endpoint ya no se use desde el frontend (por ejemplo, campos que el frontend dejó de usar pero siguen vivos en los `record` de `backend aba`).
 
 ### 6. Documentación `.md` por componente
 - En cada **creación o cambio** de un componente, **crear o actualizar** su `README.md`.
-- Este repo aún no tiene ningún `README.md` de feature — al crear el primero, usar las secciones estándar de abajo como plantilla de referencia para los siguientes.
+- Ejemplos de referencia: `src/app/features/sales/README.md` y `src/app/features/purchases/README.md`.
 - Secciones estándar del README (usar las que apliquen, en este orden):
   1. `# <Nombre del feature>`
   2. `## Descripción`
@@ -162,6 +176,12 @@ Al generar o actualizar artefactos en `openspec/changes/<id>/` (`proposal.md`, `
   - Verificar que no queden elementos huérfanos ni `NgModule` residual, tanto en el frontend como en `backend aba` cuando aplique (Principio 5).
   - Crear/actualizar el `README.md` del feature con el formato estándar (Principio 6).
   - Crear/actualizar el `*.spec.ts` correspondiente.
+  - Actualizar `docs/PENDIENTES.md` al inicio (en el mismo commit que los artefactos) y cerrar sus registros con
+    evidencia al final.
+- Las reglas de `openspec/config.yaml` repiten lo esencial de esta sección para que los artefactos lo hereden;
+  si se cambia aquí, se cambia allá.
+- Para implementar un change aprobado en una conversación nueva, con el contexto limpio, se usa la skill
+  `handoff-approved-openspec-change`.
 - Reutilizar servicios/catálogos existentes en lugar de duplicarlos.
 - Confirmar rutas, permisos (`Permits`), menú y guards afectados.
 - Cuando el cambio requiera datos o comportamiento nuevo del lado del servidor, dejar explícito en `design.md` qué controlador/`record` de `backend aba` se toca o se crea.
@@ -171,5 +191,10 @@ Al generar o actualizar artefactos en `openspec/changes/<id>/` (`proposal.md`, `
 
 ## Recordatorio de comportamiento de Claude
 
-- Antes de cualquier cambio o de generar tareas OpenSpec: **consultar este archivo**.
-- Ramas, commits y Pull Requests: **solo generar el texto para copiar/pegar**, nunca ejecutarlos.
+- Antes de cualquier cambio o de generar tareas OpenSpec: **consultar este archivo y `docs/PENDIENTES.md`**.
+- **Claude crea las ramas y hace los commits.** **Pregunta antes** de hacer push, abrir un PR y cualquier acción
+  difícil de revertir (borrar `aba.db`, reescribir historia). Una aprobación vale para ese paso, no para los
+  siguientes.
+- **La memoria del agente es solo para hechos de la máquina** (rutas, herramientas instaladas). Lo que es del
+  proyecto (decisiones, pendientes, contexto de un change) va al repositorio, para que sobreviva a un cambio de
+  laptop.

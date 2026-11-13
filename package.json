@@ -6,8 +6,11 @@
     "ng": "ng",
     "start": "powershell -ExecutionPolicy Bypass -File ./scripts/start-with-backend.ps1",
     "start:frontend": "ng serve",
+    "logs:check": "node scripts/logs/check-debug-logs.mjs",
+    "prebuild": "npm run logs:check",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
+    "pretest": "npm run logs:check",
     "test": "ng test"
   },
   "dependencies": {
