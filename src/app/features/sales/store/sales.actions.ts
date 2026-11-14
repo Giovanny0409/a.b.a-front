@@ -23,6 +23,7 @@ export const SalesActions = createActionGroup({
     'Authorize Seller': props<{ requestId: string; sellerId: string }>(),
     'Authorize Seller Success': props<{ requestId: string; authorization: SellerAuthorization }>(),
     'Authorize Seller Failure': props<{ requestId: string; error: string }>(),
+    'Clear Seller': emptyProps(),
     'Register Sale Batch': props<{ requestId: string; input: RegisterSaleBatchInput }>(),
     'Register Sale Batch Success': props<{ requestId: string; sale: SaleRecord }>(),
     'Register Sale Batch Failure': props<{ requestId: string; error: string }>(),

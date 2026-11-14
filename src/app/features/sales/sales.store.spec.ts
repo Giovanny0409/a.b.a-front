@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
@@ -31,6 +32,7 @@ describe('SalesStore', () => {
           ]
         }),
         provideMockActions(() => actions$),
+        provideRouter([]),
         { provide: PosApiService, useValue: api }
       ]
     });
@@ -51,6 +53,15 @@ describe('SalesStore', () => {
     expect(facade.sales()).toEqual([aSale()]);
     expect(facade.activeSeller()).toEqual({ id: '0409', name: 'Aurelio' });
     expect(facade.savedTickets()).toEqual([]);
+  });
+
+  it('para cambiar de vendedor quita al activo y vuelve a entrar a Ventas para que el guard pida el ID', async () => {
+    const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+
+    await facade.changeSeller();
+
+    expect(store.dispatch).toHaveBeenCalledWith(SalesActions.clearSeller());
+    expect(navigate).toHaveBeenCalledWith('/ventas', { onSameUrlNavigation: 'reload' });
   });
 
   it('despacha la carga', () => {

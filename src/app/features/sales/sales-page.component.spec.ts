@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { Seller } from '../../core/pos.models';
 import { aProduct, aSale, aSaleLine } from '../../testing/fixtures';
 import { SalesPageComponent } from './sales-page.component';
 import { SalesStore } from './sales.store';
@@ -12,6 +13,8 @@ describe('SalesPageComponent', () => {
   let store: {
     products: ReturnType<typeof signal>;
     savedTickets: ReturnType<typeof signal>;
+    activeSeller: ReturnType<typeof signal<Seller | null>>;
+    changeSeller: ReturnType<typeof vi.fn>;
     load: ReturnType<typeof vi.fn>;
     quoteSale: ReturnType<typeof vi.fn>;
     registerSaleBatch: ReturnType<typeof vi.fn>;
@@ -24,6 +27,8 @@ describe('SalesPageComponent', () => {
     store = {
       products: signal([aProduct({ id: 'p-1', name: 'Maiz quebrado' }), aProduct({ id: 'p-2', name: 'Correa' })]),
       savedTickets: signal<SavedTicket[]>([]),
+      activeSeller: signal<Seller | null>({ id: '0409', name: 'Aurelio' }),
+      changeSeller: vi.fn(),
       load: vi.fn(),
       quoteSale: vi.fn(() => of(bagQuote)),
       registerSaleBatch: vi.fn(() => of(aSale({ total: 400 }))),
@@ -43,6 +48,27 @@ describe('SalesPageComponent', () => {
   async function quoted(): Promise<void> {
     await vi.waitFor(() => expect(component.quote()).not.toBeNull());
   }
+
+  it('muestra al vendedor activo y al pulsar «Cambiar vendedor» pide el cambio a la fachada', () => {
+    const element: HTMLElement = fixture.nativeElement;
+    expect(element.querySelector('.sales-toolbar .badge')?.textContent?.trim()).toBe('Vendedor: Aurelio');
+
+    store.activeSeller.set({ id: '2002', name: 'Ana' });
+    fixture.detectChanges();
+    expect(element.querySelector('.sales-toolbar .badge')?.textContent?.trim()).toBe('Vendedor: Ana');
+
+    const boton = [...element.querySelectorAll<HTMLButtonElement>('.sales-toolbar button')]
+      .find((button) => button.textContent?.includes('Cambiar vendedor'));
+    boton?.click();
+    expect(store.changeSeller).toHaveBeenCalled();
+  });
+
+  it('no muestra vendedor si no hay uno activo', () => {
+    store.activeSeller.set(null);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.sales-toolbar .badge')).toBeNull();
+  });
 
   it('se crea, carga y elige el primer producto', () => {
     expect(store.load).toHaveBeenCalled();

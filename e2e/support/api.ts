@@ -1,4 +1,5 @@
 import { APIRequestContext, expect } from '@playwright/test';
+import { ProductoDeBulto, Proveedor } from './catalogo';
 
 // Lecturas directas del backend para preparar y verificar las pruebas. Con nombres fijos (catalogo.ts),
 // el inventario se compara contra lo que había antes de la prueba, nunca contra un valor absoluto.
@@ -27,6 +28,31 @@ export async function existencia(request: APIRequestContext, producto: string): 
   expect(respuesta.ok()).toBe(true);
   const item = (await respuesta.json() as InventarioApi[]).find((entrada) => entrada.product.name === producto);
   return { bultosSellados: item?.sealedBags ?? 0, piezas: item?.quantityTotal ?? 0 };
+}
+
+/** Compra bultos por la API, para preparar existencia en suites que no prueban Compras. */
+export async function comprarBultos(
+  request: APIRequestContext,
+  proveedor: Proveedor,
+  producto: ProductoDeBulto,
+  bultos: number
+): Promise<void> {
+  const respuesta = await request.post(`${API_URL}/purchases`, {
+    data: {
+      supplier: { name: proveedor.nombre, phone: proveedor.telefono },
+      lines: [{
+        kind: 'bag',
+        productName: producto.nombre,
+        category: producto.categoria,
+        quantity: bultos,
+        markedKg: producto.kgPorBulto,
+        purchaseCost: producto.costoPorBulto * bultos,
+        salePriceBag: producto.ventaBulto,
+        salePriceKg: producto.ventaKg
+      }]
+    }
+  });
+  expect(respuesta.ok()).toBe(true);
 }
 
 /** La compra más reciente de un producto (GET /api/purchases viene de la más nueva a la más vieja). */

@@ -57,6 +57,16 @@ describe('salesReducer', () => {
     expect(state).toMatchObject({ activeSeller: null, error: 'No autorizado' });
   });
 
+  it('quita al vendedor activo y conserva los tickets guardados', () => {
+    const state = salesReducer(
+      { ...initialSalesState, activeSeller: seller, savedTickets: [ticket('a')] },
+      SalesActions.clearSeller()
+    );
+
+    expect(state.activeSeller).toBeNull();
+    expect(state.savedTickets.map((saved) => saved.sale.id)).toEqual(['a']);
+  });
+
   it('pone primero la venta registrada', () => {
     const state = salesReducer({ ...initialSalesState, sales: [aSale({ id: 'vieja' })] }, SalesActions.registerSaleBatchSuccess({
       requestId: 'r',

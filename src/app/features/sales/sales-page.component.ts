@@ -26,6 +26,11 @@ interface TicketPreview {
   providers: [SalesStore],
   template: `
     <div class="sales-toolbar">
+      <span class="badge ok" *ngIf="store.activeSeller() as seller">Vendedor: {{ seller.name }}</span>
+      <button class="btn secondary" type="button" (click)="changeSeller()">
+        <i class="pi pi-user-edit"></i>
+        Cambiar vendedor
+      </button>
       <button class="btn secondary" type="button" (click)="openSavedTicketsDialog()">
         <i class="pi pi-ticket"></i>
         Tickets guardados
@@ -240,7 +245,9 @@ interface TicketPreview {
   `,
   styles: [`
     .sales-toolbar {
+      align-items: center;
       display: flex;
+      gap: 0.75rem;
       justify-content: flex-end;
       margin-bottom: 1rem;
     }
@@ -718,6 +725,10 @@ export class SalesPageComponent {
 
     this.store.saveTicket(savedTicket);
     this.message.set('Ticket guardado correctamente.');
+  }
+
+  changeSeller(): void {
+    this.store.changeSeller();
   }
 
   openSavedTicketsDialog(): void {

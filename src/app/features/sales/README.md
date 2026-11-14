@@ -38,6 +38,8 @@ Usa los modelos compartidos en `core/pos.models.ts`: `Product`, `SaleUnit` (`'ba
 
 `SalesState { products, sales, activeSeller, savedTickets, error }`, expuesto vía `SalesStore` (fachada con signals `products()`, `sales()`, `activeSeller()`, `savedTickets()`).
 
+- `activeSeller` se fija con `authorizeSellerSuccess` y vuelve a `null` con `authorizeSellerFailure` o con `clearSeller`. `SalesStore.changeSeller()` despacha `clearSeller` y navega a `/ventas` con `onSameUrlNavigation: 'reload'` para que el guard vuelva a pedir el ID; `savedTickets` no se toca.
+
 ## Efectos y flujo de datos
 
 - `load$`: `forkJoin` de `products` y `sales`.
@@ -58,11 +60,11 @@ Ruta `/ventas` (`app.routes.ts`), con `canMatch: [salesAuthorizationGuard]` — 
 
 ## Permisos y guards
 
-`salesAuthorizationGuard` (`core/sales-auth.guard.ts`): pide el ID de vendedor por `window.prompt`, lo valida contra el backend y redirige a `/tablero` si no está autorizado.
+`salesAuthorizationGuard` (`core/sales-auth.guard.ts`): pide el ID de vendedor por `window.prompt`, lo valida contra el backend y redirige a `/tablero` si no está autorizado o si se cancela. Con un vendedor activo deja pasar sin preguntar; para cambiarlo se usa «Cambiar vendedor».
 
 ## UI/UX
 
-Reutiliza estilos de `src/assets/layout/`. El ticket imprimible usa estilos `@media print` dedicados dentro del propio componente para aislar solo el ticket al imprimir.
+Reutiliza estilos de `src/assets/layout/`. La barra superior muestra el vendedor activo («Vendedor: Aurelio», `.badge.ok`), el botón «Cambiar vendedor» y «Tickets guardados». El ticket imprimible usa estilos `@media print` dedicados dentro del propio componente para aislar solo el ticket al imprimir.
 
 ## Internacionalización
 
@@ -78,7 +80,7 @@ Errores de red o de negocio (ej. dinero recibido insuficiente, inventario insufi
   cobro insuficiente, venta con y sin ticket, error, tickets guardados), `sales.store.spec.ts` (cotización por
   bulto, kilo, pieza y pesos; venta en lote por `requestId`; venta sin vendedor), `store/sales.reducer.spec.ts` y
   `store/sales.effects.spec.ts`. El guard de vendedor se prueba en `core/sales-auth.guard.spec.ts`.
-- E2E: todavía no hay suite de Ventas en `e2e/`.
+- E2E (Playwright, `npm run test:e2e`): `e2e/ventas/` recorre el vendedor activo como lo usa una persona: ID desconocido, cobro a nombre del vendedor, salir y volver, cambiar de vendedor conservando los tickets, y cancelar el cambio.
 
 ## Dependencias
 

@@ -15,8 +15,12 @@ salvo el ID de vendedor de Ventas.
   teléfono, y que en Inventario las dos marcas son productos distintos y cada una sube exactamente lo
   comprado.
 - Solo Chromium, con un solo worker: todas las suites comparten el mismo backend y la misma base.
-- Fuera de alcance por ahora: Ventas, Gastos, Historial y Tablero (cada suite llega con el change que
-  toque esa pantalla), CI y otros navegadores.
+- `ventas`: el vendedor activo. Un ID desconocido no entra; cada vendedor ve su nombre y cobra a su nombre
+  (lo verifica en la respuesta de `POST /api/sales/batch`); salir y volver no vuelve a pedir el ID;
+  «Cambiar vendedor» pasa al otro sin perder los tickets guardados; cancelar el cambio regresa al tablero.
+  Prepara existencia comprando por la API (`comprarBultos`).
+- Fuera de alcance por ahora: Gastos, Historial y Tablero (cada suite llega con el change que toque esa
+  pantalla), CI y otros navegadores.
 
 ## Estructura de archivos
 
@@ -26,10 +30,13 @@ e2e/
 ├── tsconfig.json                          # tipos de Node; ../tsconfig.json fija rootDir en src/
 ├── support/
 │   ├── catalogo.ts                        # PROVEEDORES y PRODUCTOS con nombres reales
-│   └── api.ts                             # existencia() y ultimaCompra(): lecturas del backend
-└── compras-inventario/
-    ├── compras-inventario.locators.ts     # locators de Compras e Inventario
-    └── compras-inventario.spec.ts
+│   └── api.ts                             # existencia(), ultimaCompra() y comprarBultos()
+├── compras-inventario/
+│   ├── compras-inventario.locators.ts     # locators de Compras e Inventario
+│   └── compras-inventario.spec.ts
+└── ventas/
+    ├── ventas.locators.ts                 # locators de Ventas y textos de los diálogos del vendedor
+    └── ventas.spec.ts
 ```
 
 Cada suite vive en su carpeta con `<suite>.locators.ts` y `<suite>.spec.ts`. La configuración está en
