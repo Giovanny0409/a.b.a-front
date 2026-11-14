@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { InventoryItem, Product, SaleRecord, SaleUnit, SellerAuthorization } from '../../../core/pos.models';
+import { InventoryItem, Product, SaleRecord, SaleUnit, SellerAuthorization } from '@core/pos.models';
 
 export interface RegisterSaleBatchInput {
   customer: string;

@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { InventoryItem } from '../../core/pos.models';
+import { InventoryItem } from '@core/pos.models';
 
 export const AppTopbarActions = createActionGroup({
   source: 'App Topbar',

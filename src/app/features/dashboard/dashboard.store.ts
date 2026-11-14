@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { DashboardSummary } from '../../core/pos.models';
+import { DashboardSummary } from '@core/pos.models';
 import { DashboardActions } from './store/dashboard.actions';
 import {
   selectDashboardImportance,

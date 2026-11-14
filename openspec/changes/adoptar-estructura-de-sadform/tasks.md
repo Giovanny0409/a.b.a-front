@@ -34,10 +34,15 @@
 
 ## 4. Importaciones con alias (commit aparte)
 
-- [ ] 4.1 Reemplazar en `src/app/**` (código y `*.spec.ts`) las importaciones que cruzan de una carpeta de
+- [x] 4.1 Reemplazar en `src/app/**` (código y `*.spec.ts`) las importaciones que cruzan de una carpeta de
   primer nivel a otra por su alias, y dejar relativas las de la misma carpeta (D1). Comprobar que no quedan
   `../../` hacia carpetas con alias.
-- [ ] 4.2 `npm run build` (con `logs:check` e `i18n:check`), `npm test` y `npx tsc -p e2e/tsconfig.json`.
+  - **Evidencia:** 105 importaciones reescritas en `src/app` con un script que resuelve cada ruta y solo cambia
+    las que cruzan de carpeta. Quedan tres `../../`, todas hacia `src/assets/i18n/es.json` (fuera de los alias).
+    No había importaciones entre features.
+- [x] 4.2 `npm run build` (con `logs:check` e `i18n:check`), `npm test` y `npx tsc -p e2e/tsconfig.json`.
+  - **Evidencia:** build sin advertencias (`logs:check` 56 archivos, `i18n:check` 186 claves); `npm test` 32
+    archivos y 199 pruebas; `tsc` de la E2E sin errores.
 
 ## 5. Documentación
 

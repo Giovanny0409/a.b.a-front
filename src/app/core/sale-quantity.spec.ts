@@ -1,4 +1,4 @@
-import { t } from '../testing/translate';
+import { t } from '@testing/translate';
 import { saleQuantityKey } from './sale-quantity';
 
 describe('saleQuantityKey', () => {

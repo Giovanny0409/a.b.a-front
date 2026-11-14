@@ -1,7 +1,7 @@
 // PosApiService falso para los *.spec.ts: cada método es un vi.fn() que la prueba programa con
 // mockReturnValue(of(...)) o mockReturnValue(throwError(...)).
 import { Mock } from 'vitest';
-import { PosApiService } from '../core/pos-api.service';
+import { PosApiService } from '@core/pos-api.service';
 
 export type FakePosApi = { [K in keyof PosApiService]: Mock };
 

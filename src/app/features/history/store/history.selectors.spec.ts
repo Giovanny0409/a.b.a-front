@@ -1,4 +1,4 @@
-import { aPurchase, aSale, anExpense } from '../../../testing/fixtures';
+import { aPurchase, aSale, anExpense } from '@testing/fixtures';
 import { HistoryState, historyFeatureKey } from './history.reducer';
 import {
   selectHistoryExpenses,

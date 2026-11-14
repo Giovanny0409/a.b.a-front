@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AppShellComponent } from './layout/app-shell.component';
+import { AppShellComponent } from '@layout/app-shell.component';
 
 @Component({
   selector: 'aba-root',

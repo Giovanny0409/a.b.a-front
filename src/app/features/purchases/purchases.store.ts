@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, filter, mergeMap, take, throwError } from 'rxjs';
-import { ExpenseRecord, PurchaseLineInput, PurchaseRecord } from '../../core/pos.models';
+import { ExpenseRecord, PurchaseLineInput, PurchaseRecord } from '@core/pos.models';
 import { PurchasesActions, RegisterExpenseInput } from './store/purchases.actions';
 import { selectPurchaseDefaults, selectPurchaseProducts, selectPurchaseSuppliers } from './store/purchases.selectors';
 

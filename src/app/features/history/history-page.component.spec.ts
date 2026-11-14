@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideI18n } from '../../core/i18n/provide-i18n';
-import { aPurchase, aSale, aSaleLine, anExpense } from '../../testing/fixtures';
-import { t } from '../../testing/translate';
+import { provideI18n } from '@core/i18n/provide-i18n';
+import { aPurchase, aSale, aSaleLine, anExpense } from '@testing/fixtures';
+import { t } from '@testing/translate';
 import { HistoryPageComponent } from './history-page.component';
 import { HistoryStore } from './history.store';
 
