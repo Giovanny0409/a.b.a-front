@@ -4,6 +4,22 @@
       "name": "Alimentos Balanceados Alonso",
       "mark": "ABA",
       "initials": "A.B.A"
+    },
+    "actions": {
+      "save": "Guardar"
+    },
+    "fields": {
+      "product": "Producto",
+      "sales": "Ventas",
+      "total": "Total",
+      "expenses": "Gastos",
+      "profit": "Ganancia",
+      "status": "Estado"
+    },
+    "units": {
+      "bagsCount": "{{count}} bultos",
+      "piecesCount": "{{count}} piezas",
+      "bagsAndOpenKg": "{{bags}} bultos / {{kg}} kg abiertos"
     }
   },
   "menu": {
@@ -13,5 +29,46 @@
     "purchases": "Compras",
     "inventory": "Inventario",
     "history": "Historial"
+  },
+  "dashboard": {
+    "metrics": {
+      "totalBags": "Bultos totales",
+      "sealedBags": "Bultos sellados",
+      "openBags": "Bultos abiertos",
+      "expenses": "Gastos registrados"
+    },
+    "cashCut": {
+      "title": "Corte de caja diario",
+      "shift": "Turno",
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "day": "Total día"
+    },
+    "week": {
+      "title": "Semana actual",
+      "detail": "Ganancia neta {{profit}} / Gastos {{expenses}} / {{sales}} ventas"
+    },
+    "quickWork": {
+      "title": "Trabajo rápido",
+      "newSale": "Nueva venta",
+      "registerPurchase": "Registrar compra",
+      "reviewInventory": "Revisar inventario"
+    },
+    "importance": {
+      "title": "Niveles de importancia",
+      "bags": "Bultos",
+      "units": "Productos varios",
+      "current": "Actual",
+      "minBags": "Mín. bultos",
+      "minOpenKg": "Mín. kg abiertos",
+      "minPieces": "Mín. piezas",
+      "status": {
+        "covered": "Cubierto",
+        "review": "Revisar"
+      }
+    },
+    "errors": {
+      "load": "No fue posible cargar el tablero."
+    }
   }
 }

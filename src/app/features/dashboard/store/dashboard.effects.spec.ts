@@ -56,7 +56,7 @@ describe('DashboardEffects', () => {
     api.getInventory.mockReturnValue(throwError(() => new Error('red')));
 
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      DashboardActions.loadFailure({ error: 'No fue posible cargar el tablero.' })
+      DashboardActions.loadFailure({ error: 'dashboard.errors.load' })
     );
   });
 });

@@ -1,8 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideI18n } from '../../core/i18n/provide-i18n';
 import { ExpenseRecord, InventoryItem, SaleRecord } from '../../core/pos.models';
 import { aProduct, aSale, anExpense, anInventoryItem } from '../../testing/fixtures';
+import { t } from '../../testing/translate';
 import { DashboardPageComponent } from './dashboard-page.component';
 import { DashboardStore } from './dashboard.store';
 import { ProductImportance } from './store/dashboard.actions';
@@ -47,7 +49,7 @@ describe('DashboardPageComponent', () => {
       summary: signal({ totalBags: 5, sealedBags: 5, openBags: 1, investment: 0, income: 0, expenses: 0, profit: 0, lowStock: 0 }),
       setImportance: vi.fn()
     };
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.configureTestingModule({ providers: [provideRouter([]), provideI18n()] });
     TestBed.overrideComponent(DashboardPageComponent, {
       set: { providers: [{ provide: DashboardStore, useValue: store }] }
     });
@@ -64,9 +66,9 @@ describe('DashboardPageComponent', () => {
 
   it('corta la caja de hoy en mañana (antes de las 14:00), tarde y total', () => {
     expect(component.dailyCashCuts()).toEqual([
-      { label: 'Mañana', sales: 1, total: 400, expenses: 20, profit: 60 },
-      { label: 'Tarde', sales: 1, total: 150, expenses: 5, profit: 25 },
-      { label: 'Total dia', sales: 2, total: 550, expenses: 25, profit: 85 }
+      { labelKey: 'dashboard.cashCut.morning', sales: 1, total: 400, expenses: 20, profit: 60 },
+      { labelKey: 'dashboard.cashCut.afternoon', sales: 1, total: 150, expenses: 5, profit: 25 },
+      { labelKey: 'dashboard.cashCut.day', sales: 2, total: 550, expenses: 25, profit: 85 }
     ]);
   });
 
@@ -82,17 +84,30 @@ describe('DashboardPageComponent', () => {
     expect(component.weekStart()).toEqual(new Date(2026, 10, 9, 0, 0, 0, 0));
   });
 
-  it('separa productos de bulto y de piezas', () => {
+  it('separa productos de bulto y de piezas, y muestra su existencia', () => {
     expect(component.bagInventory()).toEqual([bags, empty]);
     expect(component.unitInventory()).toEqual([pieces]);
-    expect(component.bagInventoryLabel(bags)).toBe('5 bultos / 12.5 kg abiertos');
-    expect(component.unitInventoryLabel(pieces)).toBe('3 piezas');
+
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(text).toContain(t('common.units.bagsAndOpenKg', { bags: 5, kg: '12.5' }));
+    expect(text).toContain(t('common.units.piecesCount', { count: 3 }));
+  });
+
+  it('muestra los textos del diccionario, con acentos, y los pesos con «$»', () => {
+    const text = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(text).toContain(t('dashboard.quickWork.title'));
+    expect(text).toContain(t('dashboard.cashCut.day'));
+    expect(text).toContain(t('dashboard.importance.minBags'));
+    expect(text).toContain(t('common.units.bagsCount', { count: 5 }));
+    expect(text).toContain(t('dashboard.week.detail', { profit: '$185.00', expenses: '$125.00', sales: 3 }));
+    expect(text).not.toContain('MX$');
   });
 
   it('usa el mínimo de bultos del producto cuando no hay importancia guardada', () => {
     expect(component.importanceFor(bags)).toEqual({ productId: 'p-1', minBags: 4, minOpenKg: 0, minPieces: 0 });
-    expect(component.importanceStatus(bags)).toBe('Cubierto');
-    expect(component.importanceStatus(empty)).toBe('Revisar');
+    expect(component.importanceStatus(bags)).toBe('covered');
+    expect(component.importanceStatus(empty)).toBe('review');
     expect(component.productsToReview()).toEqual([empty]);
   });
 
@@ -102,11 +117,17 @@ describe('DashboardPageComponent', () => {
       { productId: 'p-2', minBags: 0, minOpenKg: 0, minPieces: 5 }
     ]);
 
-    expect(component.importanceStatus(bags)).toBe('Revisar');
-    expect(component.importanceStatus(pieces)).toBe('Revisar');
+    expect(component.importanceStatus(bags)).toBe('review');
+    expect(component.importanceStatus(pieces)).toBe('review');
 
     store.importance.set([{ productId: 'p-2', minBags: 0, minOpenKg: 0, minPieces: 3 }]);
-    expect(component.importanceStatus(pieces)).toBe('Cubierto');
+    expect(component.importanceStatus(pieces)).toBe('covered');
+
+    fixture.detectChanges();
+    const badges = [...(fixture.nativeElement as HTMLElement).querySelectorAll('.importance-panel .badge')]
+      .map((badge) => badge.textContent?.trim());
+    expect(badges).toContain(t('dashboard.importance.status.covered'));
+    expect(badges).toContain(t('dashboard.importance.status.review'));
   });
 
   it('guarda la importancia de un producto de bulto o de piezas', () => {

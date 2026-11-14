@@ -20,7 +20,7 @@ export class DashboardEffects {
     }).pipe(
       map(({ inventory, lots, purchases, sales, expenses }) => DashboardActions.loadSuccess({ inventory, lots, purchases, sales, expenses })),
       catchError((error) => of(DashboardActions.loadFailure({
-        error: error?.error?.message ?? 'No fue posible cargar el tablero.'
+        error: error?.error?.message ?? 'dashboard.errors.load'
       })))
     ))
   ));
