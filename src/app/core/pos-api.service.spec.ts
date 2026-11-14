@@ -22,6 +22,7 @@ describe('PosApiService', () => {
 
   it.each([
     ['getProducts', `${API}/products`],
+    ['getPurchaseDefaults', `${API}/products/purchase-defaults`],
     ['getLots', `${API}/inventory/lots`],
     ['getPurchases', `${API}/purchases`],
     ['getSales', `${API}/sales`],

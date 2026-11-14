@@ -8,6 +8,7 @@ export type FakePosApi = { [K in keyof PosApiService]: Mock };
 export function fakePosApi(): FakePosApi {
   return {
     getProducts: vi.fn(),
+    getPurchaseDefaults: vi.fn(),
     getLots: vi.fn(),
     getPurchases: vi.fn(),
     getSales: vi.fn(),

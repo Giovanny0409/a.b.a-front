@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { Product, SaleRecord, Seller } from '../../../core/pos.models';
+import { InventoryItem, Product, SaleRecord, Seller } from '../../../core/pos.models';
 import { SalesActions, SavedTicket } from './sales.actions';
 
 export const salesFeatureKey = 'sales';
@@ -7,6 +7,8 @@ export const salesFeatureKey = 'sales';
 export interface SalesState {
   products: Product[];
   sales: SaleRecord[];
+  /** Existencia de cada producto, para mostrarla antes de cotizar. */
+  inventory: InventoryItem[];
   activeSeller: Seller | null;
   savedTickets: SavedTicket[];
   error: string | null;
@@ -15,6 +17,7 @@ export interface SalesState {
 export const initialSalesState: SalesState = {
   products: [],
   sales: [],
+  inventory: [],
   activeSeller: null,
   savedTickets: [],
   error: null
@@ -22,8 +25,8 @@ export const initialSalesState: SalesState = {
 
 export const salesReducer = createReducer(
   initialSalesState,
-  on(SalesActions.loadSuccess, (state, { products, sales }) => ({ ...state, products, sales, error: null })),
-  on(SalesActions.loadFailure, (state, { error }) => ({ ...state, products: [], sales: [], error })),
+  on(SalesActions.loadSuccess, (state, { products, sales, inventory }) => ({ ...state, products, sales, inventory, error: null })),
+  on(SalesActions.loadFailure, (state, { error }) => ({ ...state, products: [], sales: [], inventory: [], error })),
   on(SalesActions.authorizeSellerSuccess, (state, { authorization }) => ({
     ...state,
     activeSeller: authorization.authorized ? authorization.seller : null,

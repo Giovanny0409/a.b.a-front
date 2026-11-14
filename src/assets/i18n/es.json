@@ -109,8 +109,10 @@
     },
     "quantity": {
       "bag": "{{quantity}} bulto",
+      "bags": "{{quantity}} bultos",
       "kg": "{{quantity}} kg",
-      "piece": "{{quantity}} pieza(s)",
+      "piece": "{{quantity}} pieza",
+      "pieces": "{{quantity}} piezas",
       "money": "{{amount}} = {{quantity}} kg"
     },
     "quote": {
@@ -143,14 +145,17 @@
     "ticket": {
       "print": "Imprimir",
       "customer": "Cliente: {{name}}",
+      "seller": "Vendedor: {{name}}",
       "received": "Recibido",
       "change": "Cambio",
       "thanks": "Gracias por su compra"
     },
     "messages": {
       "insufficientPayment": "El dinero recibido no cubre el total de la venta.",
-      "charged": "Venta cobrada por {{total}}. Cambio: {{change}}.",
-      "askTicket": "Venta finalizada. ¿Requiere ticket?",
+      "charged": "Venta cobrada",
+      "chargedDetail": "Total {{total}}. Cambio: {{change}}.",
+      "viewTicket": "Ver ticket",
+      "newSale": "Nueva venta",
       "ticketSaved": "Ticket guardado correctamente.",
       "confirmDeleteTicket": "¿Eliminar este ticket guardado?"
     },
@@ -191,7 +196,7 @@
     "save": "Guardar compra",
     "messages": {
       "missingKgPrice": "Captura el precio de venta por kilo en todos los bultos.",
-      "registered": "Compra registrada en el backend e inventario actualizado."
+      "registered": "Compra registrada"
     },
     "errors": {
       "loadProducts": "No fue posible cargar productos.",
@@ -224,7 +229,7 @@
     "deducted": "Se descuenta de ganancias:",
     "save": "Guardar gasto",
     "messages": {
-      "registered": "Gasto registrado y descontado de ganancias."
+      "registered": "Gasto registrado"
     },
     "errors": {
       "register": "No fue posible registrar el gasto."
@@ -277,6 +282,19 @@
     },
     "errors": {
       "load": "No fue posible cargar historial."
+    }
+  },
+  "notifications": {
+    "actions": {
+      "accept": "Aceptar",
+      "cancel": "Cancelar",
+      "close": "Cerrar",
+      "delete": "Eliminar",
+      "retry": "Reintentar"
+    },
+    "connection": {
+      "title": "Sin conexión con el servidor",
+      "text": "Revisa que el servidor esté encendido y vuelve a intentar."
     }
   }
 }

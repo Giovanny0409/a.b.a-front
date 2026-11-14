@@ -1,5 +1,5 @@
 import { APIRequestContext, expect } from '@playwright/test';
-import { ProductoDeBulto, Proveedor } from './catalogo';
+import { ProductoDeBulto, ProductoDePieza, Proveedor } from './catalogo';
 
 // Lecturas directas del backend para preparar y verificar las pruebas. Con nombres fijos (catalogo.ts),
 // el inventario se compara contra lo que había antes de la prueba, nunca contra un valor absoluto.
@@ -49,6 +49,31 @@ export async function comprarBultos(
         purchaseCost: producto.costoPorBulto * bultos,
         salePriceBag: producto.ventaBulto,
         salePriceKg: producto.ventaKg
+      }]
+    }
+  });
+  expect(respuesta.ok()).toBe(true);
+}
+
+/** Compra piezas por la API, para preparar existencia de un producto de pieza. */
+export async function comprarPiezas(
+  request: APIRequestContext,
+  proveedor: Proveedor,
+  producto: ProductoDePieza,
+  piezas: number
+): Promise<void> {
+  const respuesta = await request.post(`${API_URL}/purchases`, {
+    data: {
+      supplier: { name: proveedor.nombre, phone: proveedor.telefono },
+      lines: [{
+        kind: 'unit',
+        productName: producto.nombre,
+        category: producto.categoria,
+        quantity: piezas,
+        purchaseCost: producto.costoPorPieza * piezas,
+        // En Compras, «Venta bulto/u.» es el precio de la pieza.
+        salePriceBag: producto.ventaPieza,
+        salePriceKg: producto.ventaPieza
       }]
     }
   });

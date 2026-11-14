@@ -88,8 +88,18 @@ Playwright reutiliza el que tiene el código anterior y la QA prueba lo que no e
 - **`input` con `datalist`**: es un `input` normal; `fill()` basta, no hay overlay que elegir.
 - **Campos que aparecen según otro** (`markedKg` y `salePriceKg` solo en líneas «Bultos»): cambia primero
   el tipo de la línea y luego llena sus campos.
-- **ID de vendedor de Ventas**: el guard lo pide con `window.prompt`. Regístrate antes de navegar:
-  `page.once('dialog', (dialog) => dialog.accept('<id>'))`.
+- **Diálogos de la app (SweetAlert2)**: el ID de vendedor, el fin de venta («Ver ticket» / «Nueva venta»),
+  las confirmaciones y los avisos de éxito o error son `.swal2-popup` dentro de la página, no diálogos del
+  navegador: `page.on('dialog')` ya no los ve. Usa `e2e/support/avisos.ts`: `darIdDeVendedor(page, id)`
+  después de entrar a Ventas, `terminarVenta()`, `esperarExito()` y `cerrarError()`.
+- **Un aviso tapa la pantalla**: mientras se ve (un éxito dura 2.5 s), su fondo recibe los clics. Espera a que
+  se cierre (`esperarExito`) antes de pulsar lo de abajo.
+- **Un aviso que sigue a otro** (ID rechazado → error) ocupa la misma ventana: no esperes a que se oculte la
+  ventana, sino el campo o el botón del aviso anterior.
+- **Autollenado de Compras**: un producto existente llena su línea 150 ms después de escribirlo y fija su
+  tipo. Espera antes de capturar el resto, o lo sobrescribe; el tipo ya no se puede elegir.
+- **Sin conexión**: `page.route('http://localhost:5028/api/**', (route) => route.abort())` antes de navegar.
+  Para contar avisos, `vigilarAvisos(page)` antes de `goto` y `contarAvisos(page)` después.
 - **Columnas de una tabla**: localiza la fila por el texto de su primera celda y la columna por índice,
   con el índice como constante con nombre en el `.locators.ts`.
 

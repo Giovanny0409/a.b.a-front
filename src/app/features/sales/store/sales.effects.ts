@@ -13,9 +13,10 @@ export class SalesEffects {
     ofType(SalesActions.load),
     switchMap(() => forkJoin({
       products: this.api.getProducts(),
-      sales: this.api.getSales()
+      sales: this.api.getSales(),
+      inventory: this.api.getInventory()
     }).pipe(
-      map(({ products, sales }) => SalesActions.loadSuccess({ products, sales })),
+      map((loaded) => SalesActions.loadSuccess(loaded)),
       catchError((error) => of(SalesActions.loadFailure({
         error: error?.error?.message ?? 'sales.errors.load'
       })))

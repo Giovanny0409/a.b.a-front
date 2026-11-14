@@ -70,6 +70,10 @@ Los textos salen de `es.json`, en `history.*`, y comparte claves con otras panta
 `common.*`, `expenses.fields.*` y `expenses.areas.*` con el panel de gastos de Compras,
 `purchases.lines.kind`, y `sales.quantity.*` para la cantidad vendida.
 
+- **Cantidad vendida:** `quantityKey()` usa `saleQuantityKey()` (`core/sale-quantity.ts`), el mismo mapa
+  que el ticket de Ventas: la unidad real de la línea («1 pieza», «2 bultos», «2.5 kg»), en singular solo
+  con cantidad 1.
+
 - **Textos con datos:** `supplierLabel()` y `purchaseQuantityLabel()` se traducen con `instant()`. El
   proveedor sin nombre se muestra como «Sin proveedor» (`history.purchases.noSupplier`), que aquí es
   solo un texto de pantalla.
@@ -78,13 +82,15 @@ Los textos salen de `es.json`, en `history.*`, y comparte claves con otras panta
 
 ## Manejo de errores y observabilidad
 
-El error de carga queda en `HistoryState.error`, pero la pantalla todavía no lo muestra (P-16).
+El error de carga queda en `HistoryState.error`, pero la pantalla todavía no lo muestra. Si el backend no
+responde, `connectionInterceptor` (`core/notify/`) avisa «Sin conexión con el servidor».
 
 ## Pruebas
 
-Unitarias (Vitest, `npm test`): `history-page.component.spec.ts` (proveedor, cantidad comprada, apartado,
-textos del diccionario y «$» sin «MX$»), `history.store.spec.ts` y `store/history.*.spec.ts`. Los
-textos se comparan con `t()`. No hay suite E2E propia (P-15); `e2e/i18n/` recorre sus textos.
+Unitarias (Vitest, `npm test`): `history-page.component.spec.ts` (proveedor, cantidad comprada y vendida con
+su unidad real, apartado, textos del diccionario y «$» sin «MX$»), `history.store.spec.ts` y `store/history.*.spec.ts`. Los
+textos se comparan con `t()`. No hay suite E2E propia (P-15); `e2e/i18n/` recorre sus textos y
+`e2e/compras-ventas-guiadas/` verifica que una venta por pieza se lee «1 pieza».
 
 ## Dependencias
 
@@ -92,8 +98,7 @@ NgRx (`@ngrx/store`, `@ngrx/effects`), `@ngx-translate/core`, `core/pos-api.serv
 
 ## Limitaciones y trabajo pendiente
 
-- Una venta con varios productos muestra solo el primero (`sale.lines[0]`), y su cantidad sale como
-  «bulto» si no es por kilo, igual que el ticket (P-19, P-25).
+- Una venta con varios productos muestra solo el primero (`sale.lines[0]`) (P-25).
 - Sin vendedor, filtros, pestañas, paginación ni exportación (P-25).
 
 ## Notas de mantenimiento

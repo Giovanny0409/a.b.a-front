@@ -1,5 +1,13 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { ExpenseArea, ExpenseRecord, Product, PurchaseLineInput, PurchaseRecord, Supplier } from '../../../core/pos.models';
+import {
+  ExpenseArea,
+  ExpenseRecord,
+  Product,
+  ProductPurchaseDefaults,
+  PurchaseLineInput,
+  PurchaseRecord,
+  Supplier
+} from '../../../core/pos.models';
 
 export interface RegisterPurchaseInput {
   supplierName: string;
@@ -21,7 +29,12 @@ export const PurchasesActions = createActionGroup({
   source: 'Purchases',
   events: {
     'Load Products': emptyProps(),
-    'Load Products Success': props<{ products: Product[]; purchases: PurchaseRecord[]; expenses: ExpenseRecord[] }>(),
+    'Load Products Success': props<{
+      products: Product[];
+      purchaseDefaults: ProductPurchaseDefaults[];
+      purchases: PurchaseRecord[];
+      expenses: ExpenseRecord[];
+    }>(),
     'Load Products Failure': props<{ error: string }>(),
     'Add Supplier': props<{ supplier: PurchaseSupplier }>(),
     'Register Purchase': props<{ requestId: string; input: RegisterPurchaseInput }>(),

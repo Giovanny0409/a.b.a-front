@@ -1,7 +1,13 @@
-import { aProduct, aSale } from '../../../testing/fixtures';
+import { aProduct, aSale, anInventoryItem } from '../../../testing/fixtures';
 import { SalesActions, SavedTicket } from './sales.actions';
 import { initialSalesState, salesFeatureKey, salesReducer } from './sales.reducer';
-import { selectActiveSeller, selectSalesProducts, selectSalesRecords, selectSavedTickets } from './sales.selectors';
+import {
+  selectActiveSeller,
+  selectSalesInventory,
+  selectSalesProducts,
+  selectSalesRecords,
+  selectSavedTickets
+} from './sales.selectors';
 
 describe('salesReducer', () => {
   const seller = { id: '0409', name: 'Aurelio' };
@@ -9,25 +15,27 @@ describe('salesReducer', () => {
     sale: aSale({ id: saleId }),
     received,
     change: received - 400,
+    seller: 'Aurelio',
     savedAt: '2026-11-10T15:00:00Z'
   });
 
-  it('guarda productos y ventas al cargar con éxito', () => {
+  it('guarda productos, ventas y existencia al cargar con éxito', () => {
     const state = salesReducer({ ...initialSalesState, error: 'antes' }, SalesActions.loadSuccess({
       products: [aProduct()],
-      sales: [aSale()]
+      sales: [aSale()],
+      inventory: [anInventoryItem()]
     }));
 
-    expect(state).toMatchObject({ products: [aProduct()], sales: [aSale()], error: null });
+    expect(state).toMatchObject({ products: [aProduct()], sales: [aSale()], inventory: [anInventoryItem()], error: null });
   });
 
-  it('vacía productos y ventas al fallar la carga', () => {
+  it('vacía productos, ventas y existencia al fallar la carga', () => {
     const state = salesReducer(
-      { ...initialSalesState, products: [aProduct()], sales: [aSale()] },
+      { ...initialSalesState, products: [aProduct()], sales: [aSale()], inventory: [anInventoryItem()] },
       SalesActions.loadFailure({ error: 'Sin red' })
     );
 
-    expect(state).toMatchObject({ products: [], sales: [], error: 'Sin red' });
+    expect(state).toMatchObject({ products: [], sales: [], inventory: [], error: 'Sin red' });
   });
 
   it('activa al vendedor autorizado', () => {
@@ -99,12 +107,20 @@ describe('salesReducer', () => {
     expect(state.savedTickets.map((saved) => saved.sale.id)).toEqual(['b']);
   });
 
-  it('los selectors exponen productos, ventas, vendedor y tickets', () => {
-    const state = { ...initialSalesState, products: [aProduct()], sales: [aSale()], activeSeller: seller, savedTickets: [ticket('a')] };
+  it('los selectors exponen productos, ventas, existencia, vendedor y tickets', () => {
+    const state = {
+      ...initialSalesState,
+      products: [aProduct()],
+      sales: [aSale()],
+      inventory: [anInventoryItem()],
+      activeSeller: seller,
+      savedTickets: [ticket('a')]
+    };
     const root = { [salesFeatureKey]: state };
 
     expect(selectSalesProducts(root)).toBe(state.products);
     expect(selectSalesRecords(root)).toBe(state.sales);
+    expect(selectSalesInventory(root)).toBe(state.inventory);
     expect(selectActiveSeller(root)).toBe(seller);
     expect(selectSavedTickets(root)).toBe(state.savedTickets);
   });
