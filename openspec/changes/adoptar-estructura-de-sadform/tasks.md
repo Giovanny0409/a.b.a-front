@@ -6,24 +6,31 @@
 
 ## 2. Configuración base
 
-- [ ] 2.1 `.editorconfig`: `[*.ts] quote_type = single` (D5).
-- [ ] 2.2 `src/environments/environment.ts` y `environment.development.ts` con `production` y `apiBaseUrl`,
+- [x] 2.1 `.editorconfig`: `[*.ts] quote_type = single` (D5).
+- [x] 2.2 `src/environments/environment.ts` y `environment.development.ts` con `production` y `apiBaseUrl`,
   y `fileReplacements` en la configuración `development` de `angular.json` (D4).
-- [ ] 2.3 `tsconfig.json` con `paths` para `@core/*`, `@features/*`, `@layout/*`, `@testing/*` y `@env/*`
+- [x] 2.3 `tsconfig.json` con `paths` para `@core/*`, `@features/*`, `@layout/*`, `@testing/*` y `@env/*`
   (D1). Comprobar que `npm run build`, `npm test` y `npx tsc -p e2e/tsconfig.json` siguen pasando antes de
   tocar importaciones.
 
 ## 3. Composición de la app
 
-- [ ] 3.1 `src/app/app.config.ts` con los providers de `main.ts` agrupados por secciones; `main.ts` solo
+- [x] 3.1 `src/app/app.config.ts` con los providers de `main.ts` agrupados por secciones; `main.ts` solo
   arranca (D2). Agregar `app.config.spec.ts`: `Notifier` es `SwalNotifier`, el store tiene los seis
   features y `HttpClient` pasa por `connectionInterceptor`.
-- [ ] 3.2 `provideStore` con los cuatro `runtimeChecks` estrictos y `provideStoreDevtools({ maxAge: 25 })` solo
+- [x] 3.2 `provideStore` con los cuatro `runtimeChecks` estrictos y `provideStoreDevtools({ maxAge: 25 })` solo
   si `!environment.production` (D3). Probar en `app.config.spec.ts` que un reducer que muta el estado lanza
   error. Si `npm test` o la E2E encuentran una mutación existente, corregirla aquí con su prueba, o registrarla
   si es grande.
-- [ ] 3.3 `PosApiService` toma la URL de `environment.apiBaseUrl` (`@env/environment`) y desaparece la
+  - **Evidencia:** `app.config.spec.ts` (5 pruebas): `SwalNotifier`, los seis features, `push` sobre el estado
+    lanza `TypeError`, las DevTools en desarrollo y el interceptor. Las DevTools se movieron a
+    `environment.development.ts` (`devProviders`) porque, con la condición en `app.config.ts`, el build de
+    producción las seguía trayendo: `__REDUX_DEVTOOLS_EXTENSION__` aparece en 0 archivos del build de
+    producción y en 1 del de desarrollo. `npm test`: 32 archivos, 199 pruebas; ninguna mutación encontrada.
+- [x] 3.3 `PosApiService` toma la URL de `environment.apiBaseUrl` (`@env/environment`) y desaparece la
   constante fija; `pos-api.service.spec.ts` compara contra `environment.apiBaseUrl` (D4).
+  - `API_BASE_URL` pasó a `private readonly baseUrl` del servicio; `localhost:5028` solo queda en
+    `src/environments/`.
 
 ## 4. Importaciones con alias (commit aparte)
 

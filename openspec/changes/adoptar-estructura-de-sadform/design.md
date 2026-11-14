@@ -59,10 +59,13 @@
 ### D3. NgRx estricto y DevTools fuera de producción
 - **Qué:** `provideStore(reducers, { runtimeChecks: { strictStateImmutability: true,
   strictActionImmutability: true, strictStateSerializability: true, strictActionSerializability: true } })`
-  y, si `!environment.production`, `provideStoreDevtools({ maxAge: 25 })`.
-- **Por qué con `environment` y no con `isDevMode()`:** `isDevMode()` solo se conoce en tiempo de ejecución,
-  así que DevTools quedaría en el bundle de producción. Con `environment.production` y `fileReplacements`, el
-  provider de producción ni siquiera se arma.
+  y `...environment.devProviders`: `environment.development.ts` lleva `[provideStoreDevtools({ maxAge: 25 })]`
+  y `environment.ts`, `[]`.
+- **Por qué en `environment` y no con una condición en `app.config.ts`:** con
+  `environment.production ? [] : [provideStoreDevtools(...)]` las DevTools no se registraban en producción,
+  pero el `import` estático las dejaba en el bundle (se comprobó buscando `__REDUX_DEVTOOLS_EXTENSION__`).
+  Importadas solo desde `environment.development.ts`, `fileReplacements` las saca del build de producción.
+  `isDevMode()` tiene el mismo problema que la condición.
 - **Riesgo conocido:** un reducer o un componente que hoy mute el estado empezará a fallar en desarrollo.
   Es justo lo que se busca; se corrige en la tarea donde aparezca y, si es anterior y grande, se registra.
 
@@ -71,9 +74,9 @@
   `environment.development.ts` (`production: false`, misma URL). En `angular.json`, la configuración
   `development` reemplaza el primero por el segundo. `PosApiService` usa `environment.apiBaseUrl` desde
   `@env/environment`.
-- **Pruebas unitarias:** el builder `unit-test` compila sin `fileReplacements`, así que las pruebas ven
-  `environment.ts`; como la URL es igual, `pos-api.service.spec.ts` compara contra `environment.apiBaseUrl`
-  en lugar del literal.
+- **Pruebas unitarias:** el builder `unit-test` compila con la configuración `development` del build, así que
+  las pruebas ven `environment.development.ts` (con las DevTools). `pos-api.service.spec.ts` compara contra
+  `environment.apiBaseUrl` en lugar del literal, y el bundle de producción se revisa aparte.
 - **Alternativa descartada:** `InjectionToken<string>` para la URL. Agrega una capa sin necesidad mientras haya
   un solo valor por build; se puede agregar cuando P-08 lo pida.
 
