@@ -1,0 +1,33 @@
+## 1. Registros
+
+- [x] 1.1 En `docs/PENDIENTES.md`, en el mismo commit que los artefactos: P-01 pasa a «En curso» con este change; registrar como pendientes nuevos las mejoras de la revisión de pantallas del 2026-11-14 (P-16 a P-25: aviso de conexión, mínimos unificados y persistidos, tickets guardados en memoria, ticket con unidad equivocada, Historial, Ventas, Compras, Gastos, Inventario y Tablero) y el error de YAML de `openspec/config.yaml` que impide a `openspec` leer las reglas (P-26), sin corregirlos aquí.
+
+## 2. Infraestructura
+
+- [ ] 2.1 Instalar `@ngx-translate/core` con la versión fija en `package.json` y habilitar `resolveJsonModule` en `tsconfig.json` si hace falta.
+- [ ] 2.2 Crear `src/assets/i18n/es.json` con la estructura de claves de D2, y `src/app/core/i18n/es-json.loader.ts` con el cargador de D1, más su `*.spec.ts` (entrega el diccionario sin peticiones HTTP).
+- [ ] 2.3 En `src/main.ts`, registrar `provideTranslateService` (con `lang` y `fallbackLang` en `'es'`, validado contra la versión instalada), `registerLocaleData(localeEsMx)`, `LOCALE_ID: 'es-MX'` y `DEFAULT_CURRENCY_CODE: 'MXN'` (D4).
+- [ ] 2.4 Crear `scripts/i18n/check-i18n-keys.mjs` (D5) y el script `i18n:check`, encadenado en `prebuild` y `pretest` después de `logs:check`. Comprobar a mano que falla con una clave faltante y con una huérfana, y que pasa con el diccionario al día. Anotar aquí cómo falló.
+- [ ] 2.5 Crear `src/app/testing/translate.ts` con `provideTranslateForTests()`, y `e2e/support/textos.ts` con `t(clave, params)` (D6).
+- [ ] 2.6 Pasar a claves los textos de `layout/` (`app-menu`, `app-topbar`) y actualizar `app.component.spec.ts` si comprueba textos.
+
+## 3. Pantallas (una tarea por pantalla: plantilla, TS, `*.spec.ts`, locators E2E y README)
+
+- [ ] 3.1 **Tablero:** plantilla de `dashboard-page.component.ts`, etiquetas de turno, `bagInventoryLabel`/`unitInventoryLabel` y el estado `'covered' | 'review'` (D3). Actualizar `dashboard-page.component.spec.ts` y los specs del store si comparan textos. Crear `features/dashboard/README.md` con el formato estándar, con la sección de Internacionalización.
+- [ ] 3.2 **Ventas y vendedor:** plantilla de `sales-page.component.ts` (incluido el ticket), `amountLabel`, `modeLabel`, `quoteDetail`, `lineDetail`, los `confirm` y los mensajes; los `prompt`/`alert` de `core/sales-auth.guard.ts` con `TranslateService.instant()`; los respaldos de `sales.effects.ts` y `sales.store.ts`. Actualizar `sales-page.component.spec.ts`, `sales-auth.guard.spec.ts` y los specs de effects y store; `e2e/ventas/ventas.locators.ts` con `t(...)`; `features/sales/README.md` (Internacionalización).
+- [ ] 3.3 **Compras y gastos:** plantilla de `purchases-page.component.ts` (las etiquetas de las opciones de categoría, apartado y tipo pasan a claves, pero sus `value` se quedan como datos), mensajes y respaldos de `purchases.effects.ts`. Actualizar `purchases-page.component.spec.ts` y los specs de effects; `e2e/compras-inventario/compras-inventario.locators.ts` (Compras) con `t(...)`; `features/purchases/README.md`.
+- [ ] 3.4 **Inventario:** plantilla de `inventory-page.component.ts`, `inventoryTotalLabel` y el respaldo de `inventory.effects.ts`. Actualizar `inventory-page.component.spec.ts`; locators de Inventario con `t(...)` (`Filtrar producto`); crear `features/inventory/README.md`.
+- [ ] 3.5 **Historial:** plantilla de `history-page.component.ts`, `supplierLabel` (solo el texto visible «Sin proveedor»), `purchaseQuantityLabel`, `expenseAreaLabel` y el respaldo de `history.effects.ts`. Actualizar `history-page.component.spec.ts`; crear `features/history/README.md`.
+- [ ] 3.6 Revisión final de literales: buscar con `grep` en las plantillas y atributos (`placeholder`, `title`) y en los `.ts` de `src/app` las cadenas en español que quedaron fijas. Fuera de los valores de datos de los Non-Goals no debe quedar ninguna. Anotar aquí el comando y su resultado.
+
+## 4. QA y reglas
+
+- [ ] 4.1 Crear la suite `e2e/i18n/` con los escenarios de `specs/i18n/spec.md`: cada pantalla muestra sus textos sin claves visibles, textos con acento, «¿Requiere ticket?», «$0.00» sin «MX$», y el mensaje del backend tal cual.
+- [ ] 4.2 QA con la skill `qa-playwright`: `npm run test:e2e` completo (`compras-inventario`, `ventas` e `i18n`), con la evidencia aquí (suites, resultado y marca de los datos).
+- [ ] 4.3 Quitar de `CLAUDE.md` y de `openspec/config.yaml` la nota «ngx-translate aún no está instalado (P-01)», y agregar `i18n:check` donde se describe `logs:check`. Actualizar `e2e/README.md` para que los textos salgan de `t(...)`.
+
+## 5. Cierre
+
+- [ ] 5.1 `npm run build` (incluye `logs:check` e `i18n:check`), `npm test` y `npx tsc -p e2e/tsconfig.json`; revisar que no queden imports, claves, constantes de locators ni métodos huérfanos.
+- [ ] 5.2 `openspec validate instalar-i18n-espanol --strict`.
+- [ ] 5.3 En `docs/PENDIENTES.md`, cerrar P-01 con su evidencia y registrar lo que haya aparecido.
