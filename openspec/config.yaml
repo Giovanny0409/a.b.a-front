@@ -44,5 +44,8 @@ rules:
       se marca como no aplicable diciendo por qué.
     - Si el change toca el backend, incluir sus pruebas en tests/BackendAba.Tests (PosStore y, si
       cambia el contrato, la API por HTTP).
+    - Si el change corrige un defecto, la primera tarea de implementación escribe la prueba que lo
+      reproduce (unitaria o E2E, según dónde lo vio la persona) y deja anotado cómo falló antes de
+      corregir.
     - Cerrar con las compuertas npm run build (incluye logs:check) y npm test, y dotnet test si se
       tocó el backend.

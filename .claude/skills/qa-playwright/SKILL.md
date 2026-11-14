@@ -28,6 +28,10 @@ Playwright reutiliza el que tiene el código anterior y la QA prueba lo que no e
 - **Al terminar de implementar** un change que toque `src/app/features/<pantalla>/`, `src/app/core/` o
   `src/app/layout/`, antes de marcar su tarea de QA en `tasks.md`.
 - **Antes de abrir el PR**, si hubo commits desde la última corrida.
+- **Antes de corregir un defecto reportado**: primero se escribe la prueba que lo reproduce y se corre para
+  verla fallar por el defecto; la corrección es lo que la hace pasar. La prueba recorre lo que hizo la
+  persona (entrar, salir, volver, cambiar), no solo una pieza aislada: así se escribió `e2e/ventas/` para
+  P-14, que las unitarias del guard no veían.
 - **No aplica** en un change solo de documentación, de scripts o del backend que no cambie lo que ve la
   persona. Se marca la tarea diciendo por qué.
 

@@ -82,6 +82,11 @@ pantalla, `dotnet test` si tocó el back). Lo que cambia lleva sus pruebas nueva
 commit; una prueba que falla por algo anterior al change se registra en `docs/PENDIENTES.md` y se marca como
 omitida citando su ID, nunca se debilita.
 
+**Todo defecto se detecta con una prueba automática.** Antes de corregir un defecto reportado, Claude escribe
+la prueba que lo reproduce (unitaria si es de una pieza, E2E si es de lo que hace la persona en la app), la
+corre y la ve fallar por el defecto; la corrección es lo que la hace pasar, y la prueba se queda como
+regresión. Si un defecto llegó sin que ninguna prueba fallara, el change también cierra ese hueco.
+
 ### Formato de Pull Request
 
 - **Título**: mismo formato que el commit — `tipo(scope): descripción en minúscula`.
