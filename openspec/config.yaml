@@ -42,5 +42,7 @@ rules:
       PR: las suites de e2e/ de las pantallas que toca, la suite de lo nuevo con los escenarios de
       sus specs, y la evidencia (suites, resultado, marca de los datos). Si no toca ninguna, la tarea
       se marca como no aplicable diciendo por qué.
-    - Cerrar con las compuertas npm run build (incluye logs:check) y npm test, y dotnet build si se
+    - Si el change toca el backend, incluir sus pruebas en tests/BackendAba.Tests (PosStore y, si
+      cambia el contrato, la API por HTTP).
+    - Cerrar con las compuertas npm run build (incluye logs:check) y npm test, y dotnet test si se
       tocó el backend.

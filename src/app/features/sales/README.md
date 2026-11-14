@@ -74,7 +74,11 @@ Errores de red o de negocio (ej. dinero recibido insuficiente, inventario insufi
 
 ## Pruebas
 
-No existen pruebas unitarias (`*.spec.ts`) para este componente todavía.
+- Unitarias (Vitest, `npm test`): `sales-page.component.spec.ts` (etiquetas por modo, carrito, total y cambio,
+  cobro insuficiente, venta con y sin ticket, error, tickets guardados), `sales.store.spec.ts` (cotización por
+  bulto, kilo, pieza y pesos; venta en lote por `requestId`; venta sin vendedor), `store/sales.reducer.spec.ts` y
+  `store/sales.effects.spec.ts`. El guard de vendedor se prueba en `core/sales-auth.guard.spec.ts`.
+- E2E: todavía no hay suite de Ventas en `e2e/`.
 
 ## Dependencias
 

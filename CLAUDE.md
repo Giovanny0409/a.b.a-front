@@ -34,7 +34,9 @@
 - **PrimeNG** para UI.
 - **ngx-translate** para internacionalización — **solo español** (ver Principio 1).
 - **OpenSpec** (`schema: spec-driven`) para gestionar cambios en `openspec/`.
-- Pruebas de componentes con specs (`*.spec.ts`).
+- Pruebas unitarias con **Vitest** (`@angular/build:unit-test`, jsdom): un `*.spec.ts` junto a cada archivo con
+  lógica de `src/app`, datos de prueba en `src/app/testing/`. `npm test` corre una vez y termina;
+  `npm run test:watch` se queda observando.
 - Pruebas de punta a punta con **Playwright** en `e2e/` (`npm run test:e2e`), contra la app local.
 
 ---
@@ -76,7 +78,9 @@ sobre la rama que los tiene y lo anota en `docs/PENDIENTES.md`.
 
 **Comportamiento de Claude:** hace los commits él mismo, en la rama del change, cuando una unidad de
 trabajo queda completa y sus compuertas pasan (`npm run build`, `npm test`, `npm run test:e2e` si tocó una
-pantalla, `dotnet build` si tocó el back).
+pantalla, `dotnet test` si tocó el back). Lo que cambia lleva sus pruebas nuevas o actualizadas en el mismo
+commit; una prueba que falla por algo anterior al change se registra en `docs/PENDIENTES.md` y se marca como
+omitida citando su ID, nunca se debilita.
 
 ### Formato de Pull Request
 

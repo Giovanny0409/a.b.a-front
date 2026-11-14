@@ -75,7 +75,12 @@ Errores de red o de validación del backend se muestran en `message()`/`expenseM
 
 ## Pruebas
 
-No existen pruebas unitarias (`*.spec.ts`) para este componente todavía.
+- Unitarias (Vitest, `npm test`): `purchases-page.component.spec.ts` (totales, validación del precio por kilo,
+  cuerpo que pasa a la fachada, mensajes, alta de proveedor y gasto), `purchases.store.spec.ts` (resolución por
+  `requestId`), `store/purchases.reducer.spec.ts` (unión de proveedores) y `store/purchases.effects.spec.ts`
+  (normalización del cuerpo de compra y gasto).
+- E2E (Playwright, `npm run test:e2e`): `e2e/compras-inventario/` registra una compra de bultos y varios y la
+  verifica en Inventario.
 
 ## Dependencias
 
