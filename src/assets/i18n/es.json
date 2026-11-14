@@ -27,7 +27,8 @@
     "units": {
       "bagsCount": "{{count}} bultos",
       "piecesCount": "{{count}} piezas",
-      "bagsAndOpenKg": "{{bags}} bultos / {{kg}} kg abiertos"
+      "bagsAndOpenKg": "{{bags}} bultos / {{kg}} kg abiertos",
+      "openKg": "{{kg}} kg abiertos"
     }
   },
   "menu": {
@@ -227,6 +228,29 @@
     },
     "errors": {
       "register": "No fue posible registrar el gasto."
+    }
+  },
+  "inventory": {
+    "title": "Inventario neto",
+    "filter": {
+      "label": "Filtrar producto",
+      "placeholder": "Nombre del producto",
+      "empty": "No hay productos que coincidan con el filtro."
+    },
+    "columns": {
+      "net": "Inventario neto",
+      "sealedBags": "Bultos sellados",
+      "openKg": "Kg abiertos",
+      "pieces": "Piezas",
+      "minimum": "Mínimo"
+    },
+    "status": {
+      "restock": "Compra sugerida",
+      "covered": "Cubierto"
+    },
+    "noStock": "Sin existencia",
+    "errors": {
+      "load": "No fue posible cargar inventario."
     }
   }
 }

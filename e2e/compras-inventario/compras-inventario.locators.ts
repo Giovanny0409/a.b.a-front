@@ -44,7 +44,7 @@ const COLUMNA_PIEZAS = 5;
 
 export function inventario(page: Page) {
   return {
-    filtro: page.getByLabel('Filtrar producto'),
+    filtro: page.getByLabel(t('inventory.filter.label')),
     fila: (producto: string) => {
       const fila = page.locator('tbody tr').filter({
         has: page.locator('td').first().getByText(producto, { exact: true })

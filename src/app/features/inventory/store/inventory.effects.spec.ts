@@ -40,7 +40,7 @@ describe('InventoryEffects', () => {
 
     api.getLots.mockReturnValue(throwError(() => new Error('red')));
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      InventoryActions.loadFailure({ error: 'No fue posible cargar inventario.' })
+      InventoryActions.loadFailure({ error: 'inventory.errors.load' })
     );
   });
 });
