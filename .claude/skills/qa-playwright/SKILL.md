@@ -18,8 +18,10 @@ npm run test:e2e:ui                                # UI interactiva, para depura
 npx playwright show-trace test-results/<prueba>/trace.zip
 ```
 
-Si la app no está corriendo, Playwright ejecuta `npm start` (backend y front) y la cierra al terminar; si
-ya está corriendo, la reutiliza.
+Playwright revisa por separado el backend (`:5028/api/products`) y el front (`:4200`): reutiliza el que
+ya responda, arranca solo el que falte (`dotnet run` en `../a.b.a-back`, `ng serve`) y al terminar cierra
+solo lo que arrancó. **Si el change tocó el back**, detén antes el backend que esté corriendo; si no,
+Playwright reutiliza el que tiene el código anterior y la QA prueba lo que no es.
 
 ## Cuándo correrla
 

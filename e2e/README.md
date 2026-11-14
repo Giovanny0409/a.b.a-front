@@ -41,9 +41,12 @@ npm run test:e2e:ui                           # UI interactiva
 npx playwright show-trace test-results/<prueba>/trace.zip
 ```
 
-- Si la app ya está corriendo (`npm start`), Playwright la reutiliza y la deja corriendo.
-- Si no, ejecuta `npm start`, espera hasta 180 s a que responda `:4200` y, al terminar, cierra el front y
-  el backend que levantó.
+- Playwright revisa por separado el backend (`http://localhost:5028/api/products`) y el front
+  (`http://127.0.0.1:4200`). Reutiliza el que ya responda y arranca solo el que falte: `dotnet run
+  --launch-profile http` en `../a.b.a-back` (o en `ABA_BACKEND_PATH`) y `ng serve` en `:4200`. Espera hasta
+  180 s a los dos y, al terminar, cierra solo lo que arrancó.
+- Si cambiaste el back, detén el backend que esté corriendo antes de la batería: si no, Playwright reutiliza
+  el que tiene el código anterior.
 - La primera vez en una máquina: `npm ci` y `npx playwright install chromium`.
 - La QA de cada change se hace con la skill `qa-playwright` (`.claude/skills/qa-playwright/SKILL.md`).
 
