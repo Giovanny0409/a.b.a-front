@@ -29,7 +29,8 @@ backend: la columna **Repo** lo dice.
 | P-11 | Una venta en lote con dos líneas del mismo producto vende el mismo inventario dos veces: con un solo bulto, dos líneas «1 bulto» se cobran las dos; con un bulto de 40 kg, dos líneas de 30 kg venden 60 kg. `PosStore.RegisterSaleBatch` aplica cada línea en memoria y guarda al final, y `QuoteSaleUnsafe`/`FindSaleLot`/`FindUnitLot` consultan la base, que aún ve el lote sin cambios. El carrito de Ventas permite agregar el mismo producto varias veces. La prueba `PosStoreSaleTests.Dos_lineas_del_mismo_producto_no_venden_mas_de_lo_que_hay` está omitida con este ID | Tarea 5.4 de `agregar-pruebas-unitarias`, 2026-11-14: la prueba lo encontró | back | **Cerrado 2026-11-14**: ver «Cerrados» |
 | P-12 | `playwright.config.ts` solo espera al front (`:4200`): si hay un `ng serve` vivo sin backend en `:5028`, Playwright lo reutiliza, no arranca el backend y la suite agota el tiempo esperando `POST /api/purchases`. Pasó el 2026-11-14 con un `ng serve` que sobró de una corrida. Falta que `webServer` espere también al backend (dos entradas: `dotnet run` en `../a.b.a-back` con `url` `:5028`, y `ng serve` en `:4200`) | Tarea 7.2 de `agregar-pruebas-unitarias`, 2026-11-14 | front | **Cerrado 2026-11-14**: ver «Cerrados» |
 | P-13 | Cuando un producto tiene varios bultos, `FindSaleLot` (`PosStore.cs`) elige con `FirstOrDefault` sin orden cuál se vende o se abre: no es el más antiguo, y el precio y el costo de la venta dependen de cuál toque (en la siembra, Maiz quebrado tiene un bulto a 390 y otro a 395). Al vender por kilo puede abrir un bulto sellado aunque haya uno abierto con kilos suficientes. Falta decidir la regla (el más antiguo primero, y el abierto antes que uno sellado) | Tarea 2.4 de `corregir-venta-doble-en-lote`, 2026-11-14: una prueba suponía cuál bulto salía y falló | back | Abierto |
-| P-14 | En Ventas, el primer vendedor que entra se queda activo toda la sesión: al salir y volver no se pide el ID, la pantalla no dice quién cobra y solo recargando se puede pasar de Aurelio a Ana (y se pierden los tickets guardados). Las ventas de Ana quedan a nombre de Aurelio. Ninguna prueba lo detectaba | Reporte del usuario, 2026-11-14; reproducido en la app con Playwright | front | En curso: `cambiar-vendedor-en-ventas` |
+| P-14 | En Ventas, el primer vendedor que entra se queda activo toda la sesión: al salir y volver no se pide el ID, la pantalla no dice quién cobra y solo recargando se puede pasar de Aurelio a Ana (y se pierden los tickets guardados). Las ventas de Ana quedan a nombre de Aurelio. Ninguna prueba lo detectaba | Reporte del usuario, 2026-11-14; reproducido en la app con Playwright | front | **Cerrado 2026-11-14**: ver «Cerrados» |
+| P-15 | Gastos, Historial y Tablero no tienen suite E2E: un defecto en cómo los usa una persona (por ejemplo, el corte de caja del día, el gasto que se descuenta de la ganancia o el historial de compras por proveedor) no lo detectaría ninguna prueba, igual que P-14 en Ventas. Las unitarias cubren su lógica, pero no el recorrido completo | Cierre de `cambiar-vendedor-en-ventas`, 2026-11-14 | front | Abierto |
 
 ## 2. Decisiones
 
@@ -45,7 +46,9 @@ backend: la columna **Repo** lo dice.
 
 ## 3. Deuda técnica
 
-Sin registros.
+| ID | Deuda | Origen | Repo | Estado |
+|---|---|---|---|---|
+| DT-01 | Las plantillas usan `*ngIf` y `*ngFor` (`NgIf`, `NgFor`), que Angular 21 marca como deprecados a favor del control de flujo (`@if`, `@for`). Están en todas las páginas. `ng generate @angular/core:control-flow` los migra | Diagnósticos del IDE en `sales-page.component.ts`, 2026-11-14 | front | Abierto |
 
 ## 4. Cerrados
 
@@ -56,3 +59,4 @@ Sin registros.
 | P-09 | 2026-11-14, `agregar-pruebas-unitarias`: front con Vitest (`@angular/build:unit-test`), `npm test` 25 archivos y 140 pruebas pasan; back con `tests/BackendAba.Tests` (xUnit), `dotnet test` 58 pasan y 1 omitida (P-11), `aba.db` sin cambios |
 | P-11 | 2026-11-14, `corregir-venta-doble-en-lote`: `RegisterSaleBatch` guarda cada línea dentro de la transacción. `dotnet test`: 63 pasan, 0 omitidas; la prueba de P-11 y las de kilos, piezas y «sí alcanza» pasan, y por HTTP dos líneas del único bulto responden `400` sin registrar venta |
 | P-12 | 2026-11-14, `esperar-backend-en-e2e`: `webServer` con una entrada por servidor. Pasaron los tres escenarios: front vivo sin backend (arrancó y cerró solo el backend), backend vivo sin front (arrancó y cerró solo el front) y nada corriendo (arrancó los dos, pasó en 13 s y no quedó nada escuchando) |
+| P-14 | 2026-11-14, `cambiar-vendedor-en-ventas`: Ventas muestra al vendedor activo y «Cambiar vendedor». La suite `e2e/ventas/` se escribió antes y falló en 4 de 5 escenarios por el defecto; después de corregir, `npm run test:e2e`: 6 pasan. `npm test`: 144 pasan |
