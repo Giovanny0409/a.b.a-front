@@ -50,6 +50,7 @@ backend: la columna **Repo** lo dice.
 | P-33 | `POST /api/products` (`CreateProductRequest`) no recibe el tipo y siempre crea productos `bag`. Nadie lo usa desde el front (`createProduct`, P-10) | Implementación de `guiar-compras-y-ventas-por-producto`, 2026-11-14 | ambos | Abierto |
 | P-34 | El ticket muestra dos veces al vendedor: en «Cliente: Publico general \| Vendedor: Aurelio», porque el backend lo guarda dentro de `customer`, y en su propia línea «Vendedor: Aurelio». Falta guardar al vendedor en su propio campo de la venta (también lo pide P-25 para Historial) | QA de `guiar-compras-y-ventas-por-producto`, 2026-11-14 | ambos | Abierto |
 | P-28 | La rama del front `dev-feat-compras-ventas-guiadas` está apilada sobre `dev-feat-i18n-espanol`, que aún no se publica ni está en `dev`: su PR a `dev` incluye los commits de i18n si va primero. Publicar y fusionar primero `dev-feat-i18n-espanol` | Propuesta de `guiar-compras-y-ventas-por-producto`, 2026-11-14 | front | Abierto |
+| P-35 | La rama del front `dev-refactor-estructura-como-sadform` (change `adoptar-estructura-de-sadform`) está apilada sobre `dev-feat-compras-ventas-guiadas`, cuyo PR (#3 del front) sigue abierto y a su vez depende de i18n (#2, P-28). Su PR va después de esos dos | Propuesta de `adoptar-estructura-de-sadform`, 2026-11-14 | front | Abierto |
 
 ## 2. Decisiones
 
