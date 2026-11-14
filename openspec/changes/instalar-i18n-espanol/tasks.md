@@ -28,6 +28,6 @@
 
 ## 5. Cierre
 
-- [ ] 5.1 `npm run build` (incluye `logs:check` e `i18n:check`), `npm test` y `npx tsc -p e2e/tsconfig.json`; revisar que no queden imports, claves, constantes de locators ni métodos huérfanos.
-- [ ] 5.2 `openspec validate instalar-i18n-espanol --strict`.
-- [ ] 5.3 En `docs/PENDIENTES.md`, cerrar P-01 con su evidencia y registrar lo que haya aparecido.
+- [x] 5.1 `npm run build` (incluye `logs:check` e `i18n:check`), `npm test` y `npx tsc -p e2e/tsconfig.json`; revisar que no queden imports, claves, constantes de locators ni métodos huérfanos. `npm run build` pasa (`logs:check`: 49 archivos; `i18n:check`: 174 claves), `npm test`: 28 archivos y 155 pruebas, `tsc` de `e2e/` sin errores. Con `--noUnusedLocals` en `tsconfig.app.json` y en `e2e/tsconfig.json`: nada sin usar. `sales.cart.remove` se quitó al pasar a `common.actions.removeProduct`.
+- [x] 5.2 `openspec validate instalar-i18n-espanol --strict`. Válido.
+- [x] 5.3 En `docs/PENDIENTES.md`, cerrar P-01 con su evidencia y registrar lo que haya aparecido. P-01 cerrado. Se registró P-27 (los valores guardados como dato con la ortografía vieja) y se amplió P-19 (Historial repite el defecto de la unidad). Que `npm test` falle siempre desde Git Bash en esta laptop es un hecho de la máquina y quedó en la memoria del agente, no aquí (D-03).
