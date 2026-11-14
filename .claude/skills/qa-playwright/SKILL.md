@@ -40,10 +40,13 @@ Playwright reutiliza el que tiene el código anterior y la QA prueba lo que no e
    por cada `WHEN/THEN` de las specs del change. Referencia: [`e2e/compras-inventario/`](../../../e2e/compras-inventario/).
    - Verifica las tres capas: lo que se ve, el cuerpo que se manda (`page.waitForRequest` +
      `postDataJSON()`) y lo que responde el backend (`page.waitForResponse`).
-   - Los datos se nombran con `nombrePrueba(marca, sufijo)` de `e2e/support/test-data.ts`
-     (`PW_<marca>_<sufijo>`). El backend no tiene borrado: la marca evita choques entre corridas. La
-     prueba la anota con `test.info().annotations.push({ type: 'datos', description: \`PW_${marca}_*\` })`
-     para que el reporte diga qué datos creó.
+   - Los datos salen de `e2e/support/catalogo.ts`: productos y proveedores con nombres reales, fijos
+     (D-07). Si el change necesita mercancía nueva, se agrega ahí con su nombre real; la misma mercancía
+     de otra marca lleva la marca en el nombre del producto.
+   - Como los nombres se repiten entre corridas, **nunca se compara contra un valor absoluto**: se lee el
+     antes con `e2e/support/api.ts` y se espera `antes + lo que hizo la prueba`.
+   - La prueba anota con `test.info().annotations.push({ type: 'datos', description: … })` qué productos
+     tocó, para que el reporte lo diga.
    - Los locators van en `<suite>.locators.ts`; dependen del texto de las plantillas.
    - Un flujo que cruza pantallas va en una sola prueba, o en serie (`test.describe.configure({ mode:
      'serial' })`) sobre una página creada en `beforeAll`.
@@ -61,14 +64,14 @@ Playwright reutiliza el que tiene el código anterior y la QA prueba lo que no e
    Nunca se debilita una aserción para que pase. Si una prueba no puede verificar lo que la spec pide,
    la spec o la prueba están mal, y eso se pregunta.
 5. **Dejar evidencia** en la tarea de QA de `tasks.md`: suites y resultado (`N pasaron`), el ambiente
-   (front `:4200`, backend `:5028`, `aba.db`), la marca de los datos creados y los defectos encontrados,
+   (front `:4200`, backend `:5028`, `aba.db`), los productos que tocó y los defectos encontrados,
    con su tarea o su ID de `PENDIENTES`.
 
 ## Datos
 
 - Hasta la entrega, todo en `aba.db` es de prueba (D-06), y las suites escriben ahí. Antes de entregar se
   limpia y se aísla la batería (P-08).
-- Nunca se tocan registros que no lleven el prefijo `PW_` de la corrida.
+- Solo se compra, vende o registra con la mercancía y los proveedores de `e2e/support/catalogo.ts`.
 
 ## Recetas que ya costaron una corrida
 

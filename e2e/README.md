@@ -9,9 +9,11 @@ salvo el ID de vendedor de Ventas.
 
 ## Alcance
 
-- `compras-inventario`: registra desde Compras una compra con un proveedor nuevo, una línea de bultos y
-  una de productos varios de productos nuevos, y verifica el cuerpo de `POST /api/purchases`, la
-  respuesta del backend y lo que muestra Inventario (bultos sellados y piezas).
+- `compras-inventario`: registra desde Compras una compra por proveedor: alimento para pollo de engorda de
+  dos marcas (Malta Cleyton y Purina), cada una a su proveedor, y un comedero por pieza a un tercero.
+  Verifica el cuerpo y la respuesta de cada `POST /api/purchases`, que cada compra queda con su proveedor y
+  teléfono, y que en Inventario las dos marcas son productos distintos y cada una sube exactamente lo
+  comprado.
 - Solo Chromium, con un solo worker: todas las suites comparten el mismo backend y la misma base.
 - Fuera de alcance por ahora: Ventas, Gastos, Historial y Tablero (cada suite llega con el change que
   toque esa pantalla), CI y otros navegadores.
@@ -23,7 +25,8 @@ e2e/
 ├── README.md
 ├── tsconfig.json                          # tipos de Node; ../tsconfig.json fija rootDir en src/
 ├── support/
-│   └── test-data.ts                       # marcaDeCorrida() y nombrePrueba() → PW_<marca>_<sufijo>
+│   ├── catalogo.ts                        # PROVEEDORES y PRODUCTOS con nombres reales
+│   └── api.ts                             # existencia() y ultimaCompra(): lecturas del backend
 └── compras-inventario/
     ├── compras-inventario.locators.ts     # locators de Compras e Inventario
     └── compras-inventario.spec.ts
@@ -54,14 +57,20 @@ npx playwright show-trace test-results/<prueba>/trace.zip
 
 - Las suites escriben en `aba.db`. Hasta la entrega todo lo que hay ahí es de prueba (D-06 de
   `docs/PENDIENTES.md`).
-- Todo lo que crea una suite se llama `PW_<marca>_<sufijo>`, con una marca por corrida. El backend no
-  tiene endpoints de borrado, así que nada se limpia: la marca evita que una corrida choque con la
-  anterior, y el prefijo permite reconocer esos datos al limpiar la base antes de entregar (P-08).
+- Los datos salen de `support/catalogo.ts`: productos y proveedores con nombres reales, siempre los
+  mismos (D-07). El back reutiliza productos y proveedores por nombre, así que cada corrida suma
+  inventario a los mismos productos.
+- Por eso **ninguna prueba compara contra un valor absoluto**: lee el antes con `support/api.ts` y espera
+  `antes + lo que hizo`.
+- La misma mercancía de dos marcas lleva la marca en el nombre del producto: el back identifica el producto
+  por nombre, y así quedan como dos productos.
+- El backend no tiene endpoints de borrado, así que nada se limpia; la base completa se limpia antes de
+  entregar (P-08).
 
 ## Pruebas
 
-- La suite piloto pasa con la app ya corriendo, con la app apagada y en corridas seguidas contra la misma
-  base.
+- `compras-inventario` pasa con el front y el backend arriba o apagados, y en corridas seguidas contra la
+  misma base.
 - El reporte HTML queda en `playwright-report/` y el detalle de cada falla en
   `test-results/<prueba>/` (`error-context.md` con la foto del DOM y `trace.zip`). Las dos carpetas están
   en `.gitignore`.

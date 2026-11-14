@@ -8,10 +8,18 @@ export const ESTA_REGISTRADA = 'Compra registrada en el backend e inventario act
 export function compras(page: Page) {
   const lineas = page.locator('table.purchase-total-table tbody tr');
 
+  const barra = page.locator('form.supplier-toolbar');
+
   return {
-    proveedor: page.getByLabel('Proveedor'),
-    // El nombre accesible empieza con el glifo del icono (pi-plus), por eso no es exacto.
-    agregarLinea: page.getByRole('button', { name: /Producto$/ }),
+    // La barra de alta de proveedor también tiene un campo «Proveedor»: este es el de la compra.
+    proveedor: page.locator('input[formcontrolname="supplierName"]'),
+    barraProveedor: {
+      // El nombre accesible empieza con el glifo del icono, por eso se ancla al final.
+      abrir: page.getByRole('button', { name: /Nuevo proveedor$/ }),
+      nombre: barra.locator('input[formcontrolname="name"]'),
+      telefono: barra.locator('input[formcontrolname="phone"]'),
+      registrar: barra.getByRole('button', { name: /Registrar$/ })
+    },
     guardar: page.getByRole('button', { name: 'Guardar compra' }),
     aviso: page.locator('p.notice').first(),
     linea: (indice: number) => {
