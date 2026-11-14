@@ -120,7 +120,7 @@ interface TicketPreview {
                 <td>{{ lineDetail(line) }}</td>
                 <td>{{ line.quote.total | currency: 'MXN' }}</td>
                 <td>
-                  <button class="icon-btn" type="button" [title]="'sales.cart.remove' | translate" (click)="removeLine(i)">
+                  <button class="icon-btn" type="button" [title]="'common.actions.removeProduct' | translate" (click)="removeLine(i)">
                     <i class="pi pi-trash"></i>
                   </button>
                 </td>

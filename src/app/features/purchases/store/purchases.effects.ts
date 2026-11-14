@@ -18,7 +18,7 @@ export class PurchasesEffects {
     }).pipe(
       map(({ products, purchases, expenses }) => PurchasesActions.loadProductsSuccess({ products, purchases, expenses })),
       catchError((error) => of(PurchasesActions.loadProductsFailure({
-        error: error?.error?.message ?? 'No fue posible cargar productos.'
+        error: error?.error?.message ?? 'purchases.errors.loadProducts'
       })))
     ))
   ));
@@ -44,7 +44,7 @@ export class PurchasesEffects {
         map((purchases) => PurchasesActions.registerPurchaseSuccess({ requestId, purchases })),
         catchError((error) => of(PurchasesActions.registerPurchaseFailure({
           requestId,
-          error: error?.error?.message ?? 'No fue posible registrar la compra.'
+          error: error?.error?.message ?? 'purchases.errors.register'
         })))
       )
     )
@@ -62,7 +62,7 @@ export class PurchasesEffects {
       map((expense) => PurchasesActions.registerExpenseSuccess({ requestId, expense })),
       catchError((error) => of(PurchasesActions.registerExpenseFailure({
         requestId,
-        error: error?.error?.message ?? 'No fue posible registrar el gasto.'
+        error: error?.error?.message ?? 'expenses.errors.register'
       })))
     ))
   ));

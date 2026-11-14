@@ -7,7 +7,9 @@
     },
     "actions": {
       "save": "Guardar",
-      "close": "Cerrar"
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "removeProduct": "Quitar producto"
     },
     "fields": {
       "product": "Producto",
@@ -18,7 +20,9 @@
       "status": "Estado",
       "customer": "Cliente",
       "quantity": "Cantidad",
-      "date": "Fecha"
+      "date": "Fecha",
+      "supplier": "Proveedor",
+      "category": "Categoría"
     },
     "units": {
       "bagsCount": "{{count}} bultos",
@@ -119,7 +123,6 @@
       "title": "Productos de la venta",
       "clear": "Limpiar",
       "mode": "Modo",
-      "remove": "Quitar producto",
       "empty": "Agrega productos para cobrar la venta."
     },
     "checkout": {
@@ -154,6 +157,76 @@
       "load": "No fue posible cargar ventas.",
       "register": "No fue posible registrar la venta.",
       "sellerNotAuthorized": "Vendedor no autorizado para registrar ventas."
+    }
+  },
+  "purchases": {
+    "title": "Registrar compra",
+    "supplier": {
+      "new": "Nuevo proveedor",
+      "namePlaceholder": "Nombre comercial",
+      "phone": "Número",
+      "phonePlaceholder": "Teléfono o WhatsApp",
+      "register": "Registrar",
+      "selectPlaceholder": "Selecciona proveedor"
+    },
+    "lines": {
+      "add": "Producto",
+      "kind": "Tipo",
+      "markedKg": "Kg/bulto",
+      "cost": "Costo total",
+      "salePriceBag": "Venta bulto/u.",
+      "salePriceKg": "Venta kg"
+    },
+    "kinds": {
+      "bag": "Bultos",
+      "unit": "Varios"
+    },
+    "totals": {
+      "products": "Productos:",
+      "bags": "Bultos:",
+      "pieces": "Piezas:",
+      "investment": "Inversión:"
+    },
+    "save": "Guardar compra",
+    "messages": {
+      "missingKgPrice": "Captura el precio de venta por kilo en todos los bultos.",
+      "registered": "Compra registrada en el backend e inventario actualizado."
+    },
+    "errors": {
+      "loadProducts": "No fue posible cargar productos.",
+      "register": "No fue posible registrar la compra."
+    }
+  },
+  "expenses": {
+    "title": "Compra de insumos y gastos",
+    "fields": {
+      "concept": "Concepto",
+      "conceptPlaceholder": "Renta, luz, bolsas, comida",
+      "area": "Apartado",
+      "amount": "Monto",
+      "notes": "Notas",
+      "notesPlaceholder": "Detalle opcional"
+    },
+    "categories": {
+      "rent": "Renta",
+      "power": "Luz",
+      "bags": "Bolsas",
+      "food": "Comida",
+      "supplies": "Insumos",
+      "other": "Otro"
+    },
+    "areas": {
+      "general": "General",
+      "guardadito": "Guardadito",
+      "camioneta": "Camioneta"
+    },
+    "deducted": "Se descuenta de ganancias:",
+    "save": "Guardar gasto",
+    "messages": {
+      "registered": "Gasto registrado y descontado de ganancias."
+    },
+    "errors": {
+      "register": "No fue posible registrar el gasto."
     }
   }
 }

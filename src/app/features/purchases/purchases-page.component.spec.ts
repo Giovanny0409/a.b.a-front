@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { provideI18n } from '../../core/i18n/provide-i18n';
 import { aProduct, aPurchase, anExpense } from '../../testing/fixtures';
+import { t } from '../../testing/translate';
 import { PurchasesPageComponent } from './purchases-page.component';
 import { PurchasesStore } from './purchases.store';
 
@@ -26,6 +28,7 @@ describe('PurchasesPageComponent', () => {
       registerPurchase: vi.fn(() => of([aPurchase()])),
       registerExpense: vi.fn(() => of(anExpense()))
     };
+    TestBed.configureTestingModule({ providers: [provideI18n()] });
     TestBed.overrideComponent(PurchasesPageComponent, {
       set: { providers: [{ provide: PurchasesStore, useValue: store }] }
     });
@@ -95,7 +98,7 @@ describe('PurchasesPageComponent', () => {
     component.save();
 
     expect(store.registerPurchase).not.toHaveBeenCalled();
-    expect(component.message()).toBe('Captura el precio de venta por kilo en todos los bultos.');
+    expect(component.message()).toBe(t('purchases.messages.missingKgPrice'));
   });
 
   it('manda la compra a la fachada, avisa y reinicia las líneas', () => {
@@ -114,7 +117,7 @@ describe('PurchasesPageComponent', () => {
         { ...unitLine, markedKg: undefined, salePriceKg: 80 }
       ]
     });
-    expect(component.message()).toBe('Compra registrada en el backend e inventario actualizado.');
+    expect(component.message()).toBe(t('purchases.messages.registered'));
     expect(component.lines.length).toBe(1);
     expect(component.lines.at(0).controls.productName.value).toBe('');
   });
@@ -157,7 +160,7 @@ describe('PurchasesPageComponent', () => {
     expect(store.registerExpense).toHaveBeenCalledWith({
       concept: 'Luz', category: 'Luz', area: 'camioneta', amount: 300, notes: ''
     });
-    expect(component.expenseMessage()).toBe('Gasto registrado y descontado de ganancias.');
+    expect(component.expenseMessage()).toBe(t('expenses.messages.registered'));
     expect(component.expenseForm.getRawValue()).toEqual({
       concept: '', category: 'Insumos', area: 'general', amount: 0, notes: ''
     });
@@ -171,5 +174,17 @@ describe('PurchasesPageComponent', () => {
     component.expenseForm.patchValue({ concept: 'Luz', amount: 10 });
     component.saveExpense();
     expect(component.expenseMessage()).toBe('Monto inválido');
+  });
+
+  it('muestra los textos del diccionario y conserva como dato los valores de categoría y apartado', () => {
+    const element: HTMLElement = fixture.nativeElement;
+    const options = (name: string) => [...element.querySelectorAll<HTMLOptionElement>(`select[formcontrolname="${name}"] option`)]
+      .map((option) => [option.value, option.textContent?.trim()]);
+
+    expect(element.textContent).toContain(t('purchases.totals.investment'));
+    expect(element.textContent).toContain(t('common.fields.category'));
+    expect(options('category')).toContainEqual(['Renta', t('expenses.categories.rent')]);
+    expect(options('area')).toContainEqual(['guardadito', t('expenses.areas.guardadito')]);
+    expect(options('kind')).toEqual([['bag', t('purchases.kinds.bag')], ['unit', t('purchases.kinds.unit')]]);
   });
 });

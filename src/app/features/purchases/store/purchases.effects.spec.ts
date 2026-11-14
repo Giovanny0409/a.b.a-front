@@ -55,7 +55,7 @@ describe('PurchasesEffects', () => {
 
       api.getProducts.mockReturnValue(throwError(() => new Error('red')));
       await expect(firstValueFrom(effects.loadProducts$)).resolves.toEqual(
-        PurchasesActions.loadProductsFailure({ error: 'No fue posible cargar productos.' })
+        PurchasesActions.loadProductsFailure({ error: 'purchases.errors.loadProducts' })
       );
     });
   });
@@ -107,7 +107,7 @@ describe('PurchasesEffects', () => {
       api.registerPurchase.mockReturnValue(throwError(() => new Error('red')));
 
       await expect(firstValueFrom(effects.registerPurchase$)).resolves.toEqual(
-        PurchasesActions.registerPurchaseFailure({ requestId: 'r-2', error: 'No fue posible registrar la compra.' })
+        PurchasesActions.registerPurchaseFailure({ requestId: 'r-2', error: 'purchases.errors.register' })
       );
     });
   });
