@@ -103,12 +103,13 @@ Corre en `prebuild` y `pretest` después de `logs:check`.
   cubren la revisión de cada pantalla (tareas 3.x) y la QA.
 
 ### D6. Las pruebas leen el diccionario
-- **Unitarias:** `src/app/testing/translate.ts` exporta `provideTranslateForTests()`, con el mismo
-  cargador de D1, y los `*.spec.ts` de componentes lo agregan. Las aserciones de texto comparan con
-  `es.json` (a través del servicio o del JSON importado), no con literales.
-- **E2E:** `e2e/support/textos.ts` importa `es.json` y exporta `t(clave, params)` con la misma
-  interpolación `{{param}}`. Los `*.locators.ts` cambian sus constantes (`PIDE_ID`, `ESTA_REGISTRADA`…)
-  y sus nombres de rol por `t(...)`.
+- **Unitarias:** los `*.spec.ts` que renderizan textos o traducen agregan a su `TestBed` el mismo
+  `provideI18n()` de la app (`core/i18n/provide-i18n.ts`, con el cargador de D1 y el locale de D4).
+  `src/app/testing/translate.ts` exporta `t(clave, params)`, que lee `es.json` con la misma
+  interpolación `{{param}}` y falla si la clave no existe. Las aserciones de texto comparan con `t()`,
+  no con literales.
+- **E2E:** `e2e/support/textos.ts` reexporta ese mismo `t()`. Los `*.locators.ts` cambian sus constantes
+  (`PIDE_ID`, `ESTA_REGISTRADA`…) y sus nombres de rol por `t(...)`.
 
 ### D7. Pantalla por pantalla, con la app funcionando en cada paso
 1. Infraestructura: dependencia, proveedor, locale, `i18n:check`, ayudas de prueba y `layout/`.

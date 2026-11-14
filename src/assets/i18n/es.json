@@ -1,0 +1,17 @@
+{
+  "common": {
+    "brand": {
+      "name": "Alimentos Balanceados Alonso",
+      "mark": "ABA",
+      "initials": "A.B.A"
+    }
+  },
+  "menu": {
+    "subtitle": "Punto de venta",
+    "dashboard": "Tablero",
+    "sales": "Ventas",
+    "purchases": "Compras",
+    "inventory": "Inventario",
+    "history": "Historial"
+  }
+}

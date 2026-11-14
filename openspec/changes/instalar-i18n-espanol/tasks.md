@@ -4,12 +4,12 @@
 
 ## 2. Infraestructura
 
-- [ ] 2.1 Instalar `@ngx-translate/core` con la versión fija en `package.json` y habilitar `resolveJsonModule` en `tsconfig.json` si hace falta.
-- [ ] 2.2 Crear `src/assets/i18n/es.json` con la estructura de claves de D2, y `src/app/core/i18n/es-json.loader.ts` con el cargador de D1, más su `*.spec.ts` (entrega el diccionario sin peticiones HTTP).
-- [ ] 2.3 En `src/main.ts`, registrar `provideTranslateService` (con `lang` y `fallbackLang` en `'es'`, validado contra la versión instalada), `registerLocaleData(localeEsMx)`, `LOCALE_ID: 'es-MX'` y `DEFAULT_CURRENCY_CODE: 'MXN'` (D4).
-- [ ] 2.4 Crear `scripts/i18n/check-i18n-keys.mjs` (D5) y el script `i18n:check`, encadenado en `prebuild` y `pretest` después de `logs:check`. Comprobar a mano que falla con una clave faltante y con una huérfana, y que pasa con el diccionario al día. Anotar aquí cómo falló.
-- [ ] 2.5 Crear `src/app/testing/translate.ts` con `provideTranslateForTests()`, y `e2e/support/textos.ts` con `t(clave, params)` (D6).
-- [ ] 2.6 Pasar a claves los textos de `layout/` (`app-menu`, `app-topbar`) y actualizar `app.component.spec.ts` si comprueba textos.
+- [x] 2.1 Instalar `@ngx-translate/core` con la versión fija en `package.json` y habilitar `resolveJsonModule` en `tsconfig.json` si hace falta. `@ngx-translate/core` 18.1.0 fijo; `resolveJsonModule` sí hizo falta.
+- [x] 2.2 Crear `src/assets/i18n/es.json` con la estructura de claves de D2, y `src/app/core/i18n/es-json.loader.ts` con el cargador de D1, más su `*.spec.ts` (entrega el diccionario sin peticiones HTTP).
+- [x] 2.3 En `src/main.ts`, registrar `provideTranslateService` (con `lang` y `fallbackLang` en `'es'`, validado contra la versión instalada), `registerLocaleData(localeEsMx)`, `LOCALE_ID: 'es-MX'` y `DEFAULT_CURRENCY_CODE: 'MXN'` (D4). Quedó en `core/i18n/provide-i18n.ts` (`provideI18n()`), que `main.ts` y las pruebas usan igual; en la 18.1.0 el cargador va en `loader: provideTranslateLoader(EsJsonLoader)`.
+- [x] 2.4 Crear `scripts/i18n/check-i18n-keys.mjs` (D5) y el script `i18n:check`, encadenado en `prebuild` y `pretest` después de `logs:check`. Comprobar a mano que falla con una clave faltante y con una huérfana, y que pasa con el diccionario al día. Anotar aquí cómo falló. Con `menu.history` quitada y `menu.extra` agregada: «clave faltante en es.json: menu.history (src/app/layout/app-menu.component.ts:38)» y «clave huérfana (nada la usa): menu.extra», salida 1; con el diccionario al día, «9 claves de es.json, todas usadas y ninguna faltante», salida 0.
+- [x] 2.5 Crear `src/app/testing/translate.ts` con `provideTranslateForTests()`, y `e2e/support/textos.ts` con `t(clave, params)` (D6). En lugar de un `provideTranslateForTests()` aparte, las pruebas usan el mismo `provideI18n()` de la app en su `TestBed`; `testing/translate.ts` exporta `t()` y `e2e/support/textos.ts` lo reexporta. Se probó ponerlo global con `providersFile`/`setupFiles` del builder, pero esas corridas se hicieron desde Git Bash, donde Vitest falla siempre en esta laptop, así que no se concluyó nada y se quedó como dice D6.
+- [x] 2.6 Pasar a claves los textos de `layout/` (`app-menu`, `app-topbar`) y actualizar `app.component.spec.ts` si comprueba textos. `app.component.spec.ts` ahora comprueba los textos del menú y de la barra con `t()`.
 
 ## 3. Pantallas (una tarea por pantalla: plantilla, TS, `*.spec.ts`, locators E2E y README)
 
