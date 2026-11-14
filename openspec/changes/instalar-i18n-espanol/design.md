@@ -68,14 +68,20 @@ ejemplo, `"common.units.bagsCount": "{{count}} bultos"`), sin concatenar en el c
 
 ### D3. El código TypeScript devuelve claves, no textos
 - **Métodos de etiqueta:** `modeLabel`, `amountLabel`, `expenseAreaLabel` y similares devuelven la
-  clave, y la plantilla la traduce. Cuando el texto lleva datos, el método devuelve
-  `{ key, params }`.
+  clave, y la plantilla la traduce. Si el texto solo junta datos de la vista, la plantilla lo arma con
+  parámetros (`'common.units.bagsCount' | translate: { count }`).
+- **Textos con datos que arma el código** (`quoteDetail`, `lineDetail`, `inventoryTotalLabel`,
+  `supplierLabel`, `purchaseQuantityLabel`): se traducen al armarlos con `TranslateService.instant()` y
+  devuelven el texto final. Con el cargador síncrono de D1, `instant()` siempre encuentra el diccionario.
+  En la implementación esto reemplazó el `{ key, params }` que se planeó, que obligaba a llamar dos veces
+  al método desde la plantilla.
 - **Estado del Tablero:** `importanceStatus` deja de devolver el texto `'Cubierto' | 'Revisar'` (que
   también se usa para comparar) y devuelve un código `'covered' | 'review'`. La plantilla lo traduce.
 - **Guard y `confirm` de Ventas:** usan `TranslateService.instant()`.
-- **Mensajes de respaldo de effects y fachadas:** pasan a ser claves. Donde se muestran (los `.notice`
-  de Ventas y Compras), la plantilla aplica `| translate`. Si llega un mensaje del backend, no es una
-  clave, y ngx-translate devuelve el texto tal cual, que es lo que pide la spec.
+- **Avisos y mensajes de respaldo:** los respaldos de effects y fachadas pasan a ser claves. Los avisos
+  de Ventas y Compras (`message()`, `expenseMessage()`) se traducen con `instant()` al asignarlos. Si
+  llega un mensaje del backend, no es una clave, y ngx-translate lo devuelve tal cual, que es lo que pide
+  la spec.
 - **Claves literales completas:** ninguna clave se arma concatenando (`'sales.mode.' + mode`). Las
   correspondencias se escriben como mapas con la clave completa, para que `i18n:check` (D5) las vea.
 

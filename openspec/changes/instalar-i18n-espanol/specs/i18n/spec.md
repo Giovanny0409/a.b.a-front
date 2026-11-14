@@ -36,8 +36,8 @@ Los importes, números y fechas SHALL mostrarse con el formato regional `es-MX`.
 SHALL verse con el símbolo «$» y no con «MX$».
 
 #### Scenario: Importes en pesos
-- **WHEN** la persona abre el Tablero sin ventas registradas en la semana
-- **THEN** la semana actual muestra «$0.00» y en ninguna parte del Tablero aparece «MX$»
+- **WHEN** la persona abre el Tablero y el Historial
+- **THEN** los importes se ven con «$» y separador de miles (por ejemplo «$1,250.00»), y en ninguna parte aparece «MX$»
 
 ### Requirement: Diccionario sin claves faltantes ni huérfanas
 El proyecto SHALL tener `npm run i18n:check`, que corre antes de `npm run build` y de `npm test` y falla

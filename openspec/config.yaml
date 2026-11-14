@@ -11,8 +11,8 @@ context: |
   Stack: Angular 21 standalone (sin NgModule por feature), NgRx (actions/effects/reducer/selectors
   por feature), PrimeNG, OpenSpec.
   Convenciones obligatorias (detalle en CLAUDE.md):
-    1. Sin textos hardcodeados: claves en src/assets/i18n/es.json (único idioma). Ver P-01: ngx-translate
-       aún no está instalado.
+    1. Sin textos hardcodeados: claves en src/assets/i18n/es.json (único idioma, ngx-translate con
+       provideI18n() de src/app/core/i18n/); las pruebas comparan con t().
     2. Aplicar principios SOLID.
     3. Mantener la estructura estándar del feature (ver src/app/features/sales/ e inventory/).
     4. Reutilizar estilos de src/assets/layout/; no crear estilos si ya existen equivalentes.
@@ -47,5 +47,5 @@ rules:
     - Si el change corrige un defecto, la primera tarea de implementación escribe la prueba que lo
       reproduce (unitaria o E2E, según dónde lo vio la persona) y deja anotado cómo falló antes de
       corregir.
-    - Cerrar con las compuertas npm run build (incluye logs:check) y npm test, y dotnet test si se
+    - Cerrar con las compuertas npm run build (incluye logs:check e i18n:check) y npm test, y dotnet test si se
       tocó el backend.

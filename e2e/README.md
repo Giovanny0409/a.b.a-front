@@ -19,8 +19,12 @@ salvo el ID de vendedor de Ventas.
   (lo verifica en la respuesta de `POST /api/sales/batch`); salir y volver no vuelve a pedir el ID;
   «Cambiar vendedor» pasa al otro sin perder los tickets guardados; cancelar el cambio regresa al tablero.
   Prepara existencia comprando por la API (`comprarBultos`).
-- Fuera de alcance por ahora: Gastos, Historial y Tablero (cada suite llega con el change que toque esa
-  pantalla), CI y otros navegadores.
+- `i18n`: los textos salen de `es.json`. Tablero, Compras, Inventario, Historial y Ventas muestran sus
+  textos (con acento) y ninguna clave; el vendedor se pide y se rechaza con los textos del diccionario; al
+  cobrar se pregunta «¿Requiere ticket?»; un mensaje del backend se muestra tal cual; los importes salen con
+  «$» y no con «MX$».
+- Fuera de alcance por ahora: los flujos de Gastos, Historial y Tablero (P-15; `i18n` solo recorre sus
+  textos), CI y otros navegadores.
 
 ## Estructura de archivos
 
@@ -30,10 +34,13 @@ e2e/
 ├── tsconfig.json                          # tipos de Node; ../tsconfig.json fija rootDir en src/
 ├── support/
 │   ├── catalogo.ts                        # PROVEEDORES y PRODUCTOS con nombres reales
-│   └── api.ts                             # existencia(), ultimaCompra() y comprarBultos()
+│   ├── api.ts                             # existencia(), ultimaCompra() y comprarBultos()
+│   └── textos.ts                          # t(clave) desde es.json y terminaCon() para nombres con icono
 ├── compras-inventario/
 │   ├── compras-inventario.locators.ts     # locators de Compras e Inventario
 │   └── compras-inventario.spec.ts
+├── i18n/
+│   └── i18n.spec.ts                       # textos, ortografía, formato es-MX y mensajes del backend
 └── ventas/
     ├── ventas.locators.ts                 # locators de Ventas y textos de los diálogos del vendedor
     └── ventas.spec.ts
@@ -90,7 +97,8 @@ npx playwright show-trace test-results/<prueba>/trace.zip
 
 ## Notas de mantenimiento
 
-- Los locators dependen del texto de las plantillas. Cuando los textos pasen a `es.json` (P-01), se
-  actualizan en el `<suite>.locators.ts`.
+- Los locators toman los textos de `es.json` con `t(clave)` (`e2e/support/textos.ts`), no los repiten: cambiar
+  una redacción no rompe una prueba. Un texto que arma el backend (por ejemplo, el vendedor dentro del cliente
+  de una venta) no sale de `es.json` y se compara contra el formato del backend.
 - Los botones con icono de PrimeIcons tienen el glifo al inicio del nombre accesible: se buscan con una
-  expresión regular (`/Producto$/`), no con `exact: true`.
+  expresión regular anclada al final, con `terminaCon(t(clave))` de `e2e/support/textos.ts`, no con `exact: true`.
