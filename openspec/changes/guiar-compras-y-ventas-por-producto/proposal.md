@@ -68,3 +68,7 @@ lotes, y la pantalla no lo sabe.
 - **Ramas:** front `dev-feat-compras-ventas-guiadas`, apilada sobre `dev-feat-i18n-espanol`, que aún no
   está en `dev`. Back `dev-feat-compras-ventas-guiadas`, desde `dev`. Un commit por repo por unidad de
   trabajo.
+
+## Status
+
+Aprobada — 2026-11-14. Lista para implementar (rama + `/opsx:apply`).
