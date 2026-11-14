@@ -1,12 +1,13 @@
-import { aProduct, aPurchase, anExpense } from '../../../testing/fixtures';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '../../../testing/fixtures';
 import { PurchasesActions } from './purchases.actions';
 import { initialPurchasesState, purchasesFeatureKey, purchasesReducer } from './purchases.reducer';
-import { selectPurchaseProducts, selectPurchaseSuppliers } from './purchases.selectors';
+import { selectPurchaseDefaults, selectPurchaseProducts, selectPurchaseSuppliers } from './purchases.selectors';
 
 describe('purchasesReducer', () => {
-  it('al cargar guarda productos, compras y gastos, y arma los proveedores de las compras', () => {
+  it('al cargar guarda productos, datos de la última compra, compras y gastos, y arma los proveedores', () => {
     const state = purchasesReducer(initialPurchasesState, PurchasesActions.loadProductsSuccess({
       products: [aProduct()],
+      purchaseDefaults: [aPurchaseDefaults()],
       purchases: [
         aPurchase({ supplierName: 'Granos del Norte', supplierPhone: '555' }),
         aPurchase({ supplierName: undefined, supplierPhone: undefined, supplier: 'Forrajes Sur | Tel: 777' }),
@@ -16,6 +17,7 @@ describe('purchasesReducer', () => {
     }));
 
     expect(state.products).toEqual([aProduct()]);
+    expect(state.purchaseDefaults).toEqual([aPurchaseDefaults()]);
     expect(state.expenses).toEqual([anExpense()]);
     expect(state.suppliers).toEqual([
       { name: 'Forrajes Sur', phone: '777' },
@@ -27,6 +29,7 @@ describe('purchasesReducer', () => {
   it('usa «Sin proveedor» si la compra no trae proveedor', () => {
     const state = purchasesReducer(initialPurchasesState, PurchasesActions.loadProductsSuccess({
       products: [],
+      purchaseDefaults: [],
       purchases: [aPurchase({ supplier: undefined, supplierName: undefined, supplierPhone: undefined })],
       expenses: []
     }));
@@ -38,6 +41,7 @@ describe('purchasesReducer', () => {
     const withData = {
       ...initialPurchasesState,
       products: [aProduct()],
+      purchaseDefaults: [aPurchaseDefaults()],
       purchases: [aPurchase()],
       expenses: [anExpense()],
       suppliers: [{ name: 'Granos del Norte', phone: '555' }]
@@ -45,7 +49,7 @@ describe('purchasesReducer', () => {
 
     const state = purchasesReducer(withData, PurchasesActions.loadProductsFailure({ error: 'Sin red' }));
 
-    expect(state).toEqual({ ...withData, products: [], purchases: [], expenses: [], error: 'Sin red' });
+    expect(state).toEqual({ ...withData, products: [], purchaseDefaults: [], purchases: [], expenses: [], error: 'Sin red' });
   });
 
   it('agrega un proveedor sin duplicarlo por nombre y los ordena', () => {
@@ -94,10 +98,16 @@ describe('purchasesReducer', () => {
   });
 
   it('los selectors exponen productos y proveedores', () => {
-    const state = { ...initialPurchasesState, products: [aProduct()], suppliers: [{ name: 'Alfa', phone: '' }] };
+    const state = {
+      ...initialPurchasesState,
+      products: [aProduct()],
+      purchaseDefaults: [aPurchaseDefaults()],
+      suppliers: [{ name: 'Alfa', phone: '' }]
+    };
     const root = { [purchasesFeatureKey]: state };
 
     expect(selectPurchaseProducts(root)).toBe(state.products);
     expect(selectPurchaseSuppliers(root)).toBe(state.suppliers);
+    expect(selectPurchaseDefaults(root)).toBe(state.purchaseDefaults);
   });
 });

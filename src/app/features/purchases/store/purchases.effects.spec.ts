@@ -4,7 +4,7 @@ import { Action } from '@ngrx/store';
 import { Observable, firstValueFrom, of, throwError } from 'rxjs';
 import { PosApiService } from '../../../core/pos-api.service';
 import { FakePosApi, fakePosApi } from '../../../testing/fake-pos-api';
-import { aProduct, aPurchase, anExpense } from '../../../testing/fixtures';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '../../../testing/fixtures';
 import { PurchasesActions } from './purchases.actions';
 import { PurchasesEffects } from './purchases.effects';
 
@@ -29,13 +29,15 @@ describe('PurchasesEffects', () => {
     beforeEach(() => {
       actions$ = of(PurchasesActions.loadProducts());
       api.getProducts.mockReturnValue(of([aProduct()]));
+      api.getPurchaseDefaults.mockReturnValue(of([aPurchaseDefaults()]));
       api.getPurchases.mockReturnValue(of([aPurchase()]));
       api.getExpenses.mockReturnValue(of([anExpense()]));
     });
 
-    it('carga productos, compras y gastos', async () => {
+    it('carga productos, datos de la última compra, compras y gastos', async () => {
       await expect(firstValueFrom(effects.loadProducts$)).resolves.toEqual(PurchasesActions.loadProductsSuccess({
         products: [aProduct()],
+        purchaseDefaults: [aPurchaseDefaults()],
         purchases: [aPurchase()],
         expenses: [anExpense()]
       }));
@@ -45,6 +47,14 @@ describe('PurchasesEffects', () => {
       api.getExpenses.mockReturnValue(throwError(() => new Error('404')));
 
       await expect(firstValueFrom(effects.loadProducts$)).resolves.toMatchObject({ expenses: [] });
+    });
+
+    it('falla la carga si no llegan los datos de la última compra', async () => {
+      api.getPurchaseDefaults.mockReturnValue(throwError(() => new Error('red')));
+
+      await expect(firstValueFrom(effects.loadProducts$)).resolves.toEqual(
+        PurchasesActions.loadProductsFailure({ error: 'purchases.errors.loadProducts' })
+      );
     });
 
     it('emite la falla con el mensaje del backend o el de omisión', async () => {

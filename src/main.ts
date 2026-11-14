@@ -1,10 +1,12 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { AppComponent } from './app/app.component';
 import { provideI18n } from './app/core/i18n/provide-i18n';
+import { connectionInterceptor } from './app/core/notify/connection.interceptor';
+import { Notifier, SwalNotifier } from './app/core/notify/notification.service';
 import { routes } from './app/app.routes';
 import { dashboardFeatureKey, dashboardReducer } from './app/features/dashboard/store/dashboard.reducer';
 import { DashboardEffects } from './app/features/dashboard/store/dashboard.effects';
@@ -21,8 +23,9 @@ import { AppTopbarEffects } from './app/layout/store/app-topbar.effects';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([connectionInterceptor])),
     provideI18n(),
+    { provide: Notifier, useClass: SwalNotifier },
     provideStore({
       [appTopbarFeatureKey]: appTopbarReducer,
       [dashboardFeatureKey]: dashboardReducer,

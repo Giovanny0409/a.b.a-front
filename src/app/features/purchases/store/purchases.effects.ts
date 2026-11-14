@@ -13,10 +13,11 @@ export class PurchasesEffects {
     ofType(PurchasesActions.loadProducts),
     switchMap(() => forkJoin({
       products: this.api.getProducts(),
+      purchaseDefaults: this.api.getPurchaseDefaults(),
       purchases: this.api.getPurchases(),
       expenses: this.api.getExpenses().pipe(catchError(() => of([])))
     }).pipe(
-      map(({ products, purchases, expenses }) => PurchasesActions.loadProductsSuccess({ products, purchases, expenses })),
+      map((loaded) => PurchasesActions.loadProductsSuccess(loaded)),
       catchError((error) => of(PurchasesActions.loadProductsFailure({
         error: error?.error?.message ?? 'purchases.errors.loadProducts'
       })))

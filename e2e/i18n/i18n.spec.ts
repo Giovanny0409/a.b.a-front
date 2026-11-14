@@ -1,16 +1,18 @@
-import { Dialog, Page, expect, test } from '@playwright/test';
+import { Page, expect, test } from '@playwright/test';
 import { comprarBultos } from '../support/api';
+import { avisos, cerrarError, darIdDeVendedor } from '../support/avisos';
 import { PRODUCTOS, PROVEEDORES } from '../support/catalogo';
 import { t } from '../support/textos';
 import { ventas } from '../ventas/ventas.locators';
 
 // Escenarios de la spec i18n (change instalar-i18n-espanol): los textos salen de es.json, con ortografía
-// correcta y formato es-MX, y los mensajes del backend se muestran tal cual.
+// correcta y formato es-MX, y los mensajes del backend se muestran tal cual. Desde
+// guiar-compras-y-ventas-por-producto, los diálogos son avisos de la app (../support/avisos.ts).
 
 const ALIMENTO = PRODUCTOS.polloEngordaMalta;
 const AURELIO = '0409';
 // Una clave sin traducir se vería así en la pantalla: «sección.algo».
-const CLAVE_VISIBLE = /\b(common|menu|dashboard|sales|seller|purchases|expenses|inventory|history)\.[a-zA-Z]+/;
+const CLAVE_VISIBLE = /\b(common|menu|dashboard|sales|seller|purchases|expenses|inventory|history|notifications)\.[a-zA-Z]+/;
 
 const PANTALLAS = [
   { ruta: '/tablero', textos: ['dashboard.quickWork.title', 'dashboard.cashCut.day', 'dashboard.importance.minBags'] },
@@ -19,19 +21,11 @@ const PANTALLAS = [
   { ruta: '/historial', textos: ['history.metrics.investment', 'history.sales.title', 'history.purchases.investment'] }
 ];
 
-/** Contesta el prompt del vendedor con `id`, registra el resto de los diálogos y los acepta o rechaza. */
-function contestarDialogos(page: Page, id: string, aceptar = false) {
-  const registro = { prompts: [] as string[], otros: [] as string[] };
-  page.on('dialog', async (dialog: Dialog) => {
-    if (dialog.type() === 'prompt') {
-      registro.prompts.push(dialog.message());
-      await dialog.accept(id);
-      return;
-    }
-    registro.otros.push(dialog.message());
-    await (aceptar ? dialog.accept() : dialog.dismiss());
-  });
-  return registro;
+/** Entra a Ventas y contesta el ID de vendedor (darIdDeVendedor verifica el texto del diccionario). */
+async function entrarAVentas(page: Page, id: string): Promise<void> {
+  await page.goto('/tablero');
+  await ventas(page).entrar();
+  await darIdDeVendedor(page, id);
 }
 
 async function agregarUnBulto(page: Page): Promise<void> {
@@ -46,7 +40,7 @@ async function agregarUnBulto(page: Page): Promise<void> {
 
 test.describe('i18n: textos de es.json', () => {
   test.beforeAll(async ({ request }) => {
-    // Existencia para la venta de «Pregunta al cobrar».
+    // Existencia para la venta de «Avisa al cobrar».
     await comprarBultos(request, PROVEEDORES.maltaCleyton, ALIMENTO, 1);
   });
 
@@ -68,44 +62,38 @@ test.describe('i18n: textos de es.json', () => {
   }
 
   test('Ventas muestra sus textos y ninguna clave', async ({ page }) => {
-    const dialogos = contestarDialogos(page, AURELIO);
-    await page.goto('/tablero');
-
-    await ventas(page).entrar();
+    await entrarAVentas(page, AURELIO);
 
     await expect(page.locator('main')).toContainText(t('sales.checkout.finish'));
     await expect(page.locator('main')).toContainText(t('sales.cart.empty'));
-    expect(dialogos.prompts).toEqual([t('seller.askId')]);
     expect(await page.locator('body').innerText()).not.toMatch(CLAVE_VISIBLE);
   });
 
   test('un ID desconocido se avisa con el texto del diccionario', async ({ page }) => {
-    const dialogos = contestarDialogos(page, '9999', true);
-    await page.goto('/tablero');
+    await entrarAVentas(page, '9999');
 
-    await ventas(page).entrar();
-
-    await expect.poll(() => dialogos.otros).toEqual([t('seller.rejected')]);
-    expect(dialogos.prompts).toEqual([t('seller.askId')]);
+    await cerrarError(page, t('seller.rejected'));
   });
 
-  test('al cobrar pregunta «¿Requiere ticket?»', async ({ page }) => {
-    const dialogos = contestarDialogos(page, AURELIO);
-    await page.goto('/tablero');
-    await ventas(page).entrar();
+  test('al cobrar avisa «Venta cobrada» con «Ver ticket» y «Nueva venta»', async ({ page }) => {
+    await entrarAVentas(page, AURELIO);
     await agregarUnBulto(page);
 
     const venta = page.waitForResponse((r) => r.request().method() === 'POST' && r.url().endsWith('/api/sales/batch'));
     await ventas(page).finalizar.click();
     expect((await venta).status()).toBe(200);
 
-    await expect.poll(() => dialogos.otros).toEqual([t('sales.messages.askTicket')]);
-    expect(t('sales.messages.askTicket')).toContain('¿Requiere ticket?');
+    const aviso = avisos(page);
+    await expect(aviso.titulo).toHaveText(t('sales.messages.charged'));
+    await expect(aviso.texto).toContainText('$');
+    await expect(aviso.confirmar).toHaveText(t('sales.messages.viewTicket'));
+    await expect(aviso.negar).toHaveText(t('sales.messages.newSale'));
+    expect(await aviso.popup.innerText()).not.toMatch(CLAVE_VISIBLE);
+    await aviso.negar.click();
   });
 
   test('un mensaje del backend se muestra tal cual', async ({ page }) => {
     const mensaje = 'No hay inventario suficiente para esta venta.';
-    contestarDialogos(page, AURELIO);
     // El backend responde así cuando no alcanza el inventario; se fuerza la respuesta para no depender de
     // la existencia que haya en aba.db.
     await page.route('**/api/sales/batch', (route) => route.fulfill({
@@ -113,13 +101,12 @@ test.describe('i18n: textos de es.json', () => {
       contentType: 'application/json',
       body: JSON.stringify({ message: mensaje })
     }));
-    await page.goto('/tablero');
-    await ventas(page).entrar();
+    await entrarAVentas(page, AURELIO);
     await agregarUnBulto(page);
 
     await ventas(page).finalizar.click();
 
-    await expect(page.locator('p.notice')).toHaveText(mensaje);
+    await cerrarError(page, mensaje);
   });
 
   for (const ruta of ['/tablero', '/historial']) {

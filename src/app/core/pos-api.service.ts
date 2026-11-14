@@ -7,6 +7,7 @@ import {
   ExpenseArea,
   InventoryItem,
   Product,
+  ProductPurchaseDefaults,
   PurchaseRecord,
   PurchaseLineInput,
   SaleLine,
@@ -24,6 +25,10 @@ export class PosApiService {
 
   getProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${API_BASE_URL}/products`);
+  }
+
+  getPurchaseDefaults(): Observable<ProductPurchaseDefaults[]> {
+    return this.http.get<ProductPurchaseDefaults[]>(`${API_BASE_URL}/products/purchase-defaults`);
   }
 
   getLots(): Observable<BagLot[]> {

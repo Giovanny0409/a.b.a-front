@@ -4,7 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable, filter, mergeMap, take, throwError } from 'rxjs';
 import { ExpenseRecord, PurchaseLineInput, PurchaseRecord } from '../../core/pos.models';
 import { PurchasesActions, RegisterExpenseInput } from './store/purchases.actions';
-import { selectPurchaseProducts, selectPurchaseSuppliers } from './store/purchases.selectors';
+import { selectPurchaseDefaults, selectPurchaseProducts, selectPurchaseSuppliers } from './store/purchases.selectors';
 
 @Injectable()
 export class PurchasesStore {
@@ -13,6 +13,7 @@ export class PurchasesStore {
 
   readonly products = this.store.selectSignal(selectPurchaseProducts);
   readonly suppliers = this.store.selectSignal(selectPurchaseSuppliers);
+  readonly purchaseDefaults = this.store.selectSignal(selectPurchaseDefaults);
 
   loadProducts(): void {
     this.store.dispatch(PurchasesActions.loadProducts());
