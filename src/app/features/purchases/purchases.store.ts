@@ -26,7 +26,7 @@ export class PurchasesStore {
     supplierName: string;
     supplierPhone: string;
     lines: PurchaseLineInput[];
-  }): Observable<PurchaseRecord> {
+  }): Observable<PurchaseRecord[]> {
     const requestId = crypto.randomUUID();
     this.store.dispatch(PurchasesActions.registerPurchase({ requestId, input }));
 
@@ -39,7 +39,7 @@ export class PurchasesStore {
           return throwError(() => new Error(action.error));
         }
 
-        return [action.purchase];
+        return [action.purchases];
       })
     );
   }

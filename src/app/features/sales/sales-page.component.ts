@@ -26,6 +26,11 @@ interface TicketPreview {
   providers: [SalesStore],
   template: `
     <div class="sales-toolbar">
+      <span class="badge ok" *ngIf="store.activeSeller() as seller">Vendedor: {{ seller.name }}</span>
+      <button class="btn secondary" type="button" (click)="changeSeller()">
+        <i class="pi pi-user-edit"></i>
+        Cambiar vendedor
+      </button>
       <button class="btn secondary" type="button" (click)="openSavedTicketsDialog()">
         <i class="pi pi-ticket"></i>
         Tickets guardados
@@ -54,6 +59,7 @@ interface TicketPreview {
             <select formControlName="mode">
               <option value="bag">Por bulto</option>
               <option value="kg">Por kilo</option>
+              <option value="piece">Por pieza</option>
               <option value="money">Por pesos</option>
             </select>
           </label>
@@ -239,7 +245,9 @@ interface TicketPreview {
   `,
   styles: [`
     .sales-toolbar {
+      align-items: center;
       display: flex;
+      gap: 0.75rem;
       justify-content: flex-end;
       margin-bottom: 1rem;
     }
@@ -576,7 +584,11 @@ export class SalesPageComponent {
       return 'Importe';
     }
 
-    return mode === 'kg' ? 'Kilos' : 'Bultos';
+    if (mode === 'kg') {
+      return 'Kilos';
+    }
+
+    return mode === 'piece' ? 'Piezas' : 'Bultos';
   }
 
   modeLabel(mode: SalesEntryMode): string {
@@ -584,7 +596,11 @@ export class SalesPageComponent {
       return 'Por pesos';
     }
 
-    return mode === 'kg' ? 'Por kilo' : 'Por bulto';
+    if (mode === 'kg') {
+      return 'Por kilo';
+    }
+
+    return mode === 'piece' ? 'Por pieza' : 'Por bulto';
   }
 
   quoteDetail(quote: SaleLine | null, mode: SalesEntryMode): string {
@@ -596,7 +612,15 @@ export class SalesPageComponent {
       return `${this.formatNumber(quote.quantity)} kg`;
     }
 
-    return `${this.formatNumber(quote.quantity)} ${quote.unit === 'kg' ? 'kg' : 'bulto'}`;
+    return `${this.formatNumber(quote.quantity)} ${this.unitLabel(quote.unit)}`;
+  }
+
+  private unitLabel(unit: SaleLine['unit']): string {
+    if (unit === 'kg') {
+      return 'kg';
+    }
+
+    return unit === 'piece' ? 'pieza(s)' : 'bulto';
   }
 
   lineDetail(line: CartLine): string {
@@ -701,6 +725,10 @@ export class SalesPageComponent {
 
     this.store.saveTicket(savedTicket);
     this.message.set('Ticket guardado correctamente.');
+  }
+
+  changeSeller(): void {
+    this.store.changeSeller();
   }
 
   openSavedTicketsDialog(): void {

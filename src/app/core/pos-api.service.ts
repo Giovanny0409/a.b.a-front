@@ -69,8 +69,8 @@ export class PosApiService {
   registerPurchase(input: {
     supplier: Supplier;
     lines: PurchaseLineInput[];
-  }): Observable<PurchaseRecord> {
-    return this.http.post<PurchaseRecord>(`${API_BASE_URL}/purchases`, input);
+  }): Observable<PurchaseRecord[]> {
+    return this.http.post<PurchaseRecord[]>(`${API_BASE_URL}/purchases`, input);
   }
 
   registerExpense(input: {

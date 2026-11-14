@@ -41,7 +41,7 @@ export class PurchasesEffects {
         salePriceKg: line.kind === 'unit' ? Number(line.salePriceBag || 0) : Number(line.salePriceKg || 0)
       }))
     }).pipe(
-        map((purchase) => PurchasesActions.registerPurchaseSuccess({ requestId, purchase })),
+        map((purchases) => PurchasesActions.registerPurchaseSuccess({ requestId, purchases })),
         catchError((error) => of(PurchasesActions.registerPurchaseFailure({
           requestId,
           error: error?.error?.message ?? 'No fue posible registrar la compra.'

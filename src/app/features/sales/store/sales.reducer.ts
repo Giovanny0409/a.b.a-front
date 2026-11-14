@@ -29,6 +29,7 @@ export const salesReducer = createReducer(
     activeSeller: authorization.authorized ? authorization.seller : null,
     error: null
   })),
+  on(SalesActions.clearSeller, (state) => ({ ...state, activeSeller: null })),
   on(SalesActions.authorizeSellerFailure, (state, { error }) => ({ ...state, activeSeller: null, error })),
   on(SalesActions.registerSaleBatchSuccess, (state, { sale }) => ({
     ...state,

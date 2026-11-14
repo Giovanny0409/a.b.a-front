@@ -1,32 +1,51 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+# Project context (shown to AI when creating artifacts).
+context: |
+  Consultar SIEMPRE `CLAUDE.md` (raíz) y `docs/PENDIENTES.md` antes de generar o modificar artefactos:
+  lo que ya está registrado (P-, D-, DT-) no se redescubre, y lo que el change resuelve o encuentra
+  se registra ahí.
+  Proyecto: punto de venta de Alimentos Balanceados Alonso (forrajería familiar), un solo desarrollador.
+  Frontend en este repo; backend en el repo hermano ../a.b.a-back (ASP.NET Core 9 + EF Core + SQLite).
+  La planeación OpenSpec de los dos repos vive aquí.
+  Stack: Angular 21 standalone (sin NgModule por feature), NgRx (actions/effects/reducer/selectors
+  por feature), PrimeNG, OpenSpec.
+  Convenciones obligatorias (detalle en CLAUDE.md):
+    1. Sin textos hardcodeados: claves en src/assets/i18n/es.json (único idioma). Ver P-01: ngx-translate
+       aún no está instalado.
+    2. Aplicar principios SOLID.
+    3. Mantener la estructura estándar del feature (ver src/app/features/sales/ e inventory/).
+    4. Reutilizar estilos de src/assets/layout/; no crear estilos si ya existen equivalentes.
+    5. No dejar código basura ni componentes/métodos/servicios/claves huérfanas, en front y en back.
+    6. Crear/actualizar el README.md del feature con el formato estándar
+       (ejemplos: src/app/features/sales/README.md, src/app/features/purchases/README.md).
+  Reutilizar servicios/catálogos existentes (src/app/core/) en lugar de duplicarlos.
 
-# Per-artifact rules (optional)
-# Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
-
-# Per-operation guidance (optional)
-# Add advisory guidance for how apply and archive work should be conducted.
-# This is separate from artifact rules above.
-# Example:
-#   operations:
-#     apply:
-#       guidance:
-#         - Keep test summaries concise
-#     archive:
-#       guidance:
-#         - Summarize the archive outcome before finishing
+# Per-artifact rules.
+rules:
+  design:
+    - Si el change toca el backend, decir qué controlador, record, entidad y migración de
+      ../a.b.a-back se crean o modifican, y validar el contrato contra el código real.
+  tasks:
+    - Incluir una primera tarea que actualiza docs/PENDIENTES.md en el mismo commit que los
+      artefactos (lo que el change resuelve pasa a «En curso», lo que encontró entra como registro
+      nuevo) y una tarea de cierre que cierra esos registros con evidencia.
+    - Incluir tareas de i18n en src/assets/i18n/es.json cuando haya texto visible.
+    - Incluir la creación/actualización del README.md del feature con el formato estándar.
+    - Incluir la creación/actualización del *.spec.ts correspondiente.
+    - Respetar la estructura estándar del feature y del store NgRx.
+    - Reutilizar estilos de src/assets/layout/ en lugar de crear nuevos.
+    - Verificar que no queden elementos huérfanos ni NgModule residual, también en ../a.b.a-back.
+    - Si el change toca el backend, separar sus tareas (dotnet build, migración de EF Core) y su
+      commit, que va en el repo a.b.a-back.
+    - Si el change toca una pantalla, incluir una tarea de QA con la skill qa-playwright antes del
+      PR: las suites de e2e/ de las pantallas que toca, la suite de lo nuevo con los escenarios de
+      sus specs, y la evidencia (suites, resultado, marca de los datos). Si no toca ninguna, la tarea
+      se marca como no aplicable diciendo por qué.
+    - Si el change toca el backend, incluir sus pruebas en tests/BackendAba.Tests (PosStore y, si
+      cambia el contrato, la API por HTTP).
+    - Si el change corrige un defecto, la primera tarea de implementación escribe la prueba que lo
+      reproduce (unitaria o E2E, según dónde lo vio la persona) y deja anotado cómo falló antes de
+      corregir.
+    - Cerrar con las compuertas npm run build (incluye logs:check) y npm test, y dotnet test si se
+      tocó el backend.

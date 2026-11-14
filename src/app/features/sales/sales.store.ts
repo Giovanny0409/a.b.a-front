@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, catchError, filter, forkJoin, map, mergeMap, of, switchMap, take, throwError } from 'rxjs';
@@ -20,11 +21,21 @@ export class SalesStore {
   private readonly api = inject(PosApiService);
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
+  private readonly router = inject(Router);
 
   readonly products = this.store.selectSignal(selectSalesProducts);
   readonly sales = this.store.selectSignal(selectSalesRecords);
   readonly activeSeller = this.store.selectSignal(selectActiveSeller);
   readonly savedTickets = this.store.selectSignal(selectSavedTickets);
+
+  /**
+   * Quita al vendedor activo y vuelve a entrar a Ventas: el router reconoce otra vez la ruta y el guard
+   * de vendedor pide el ID. Si se cancela, el guard regresa al tablero. Los tickets guardados se conservan.
+   */
+  changeSeller(): Promise<boolean> {
+    this.store.dispatch(SalesActions.clearSeller());
+    return this.router.navigateByUrl('/ventas', { onSameUrlNavigation: 'reload' });
+  }
 
   load(): void {
     this.store.dispatch(SalesActions.load());
