@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { BagLot, ExpenseRecord, InventoryItem, PurchaseRecord, SaleRecord } from '../../../core/pos.models';
+import { BagLot, ExpenseRecord, InventoryItem, PurchaseRecord, SaleRecord } from '@core/pos.models';
 
 export interface ProductImportance {
   productId: string;

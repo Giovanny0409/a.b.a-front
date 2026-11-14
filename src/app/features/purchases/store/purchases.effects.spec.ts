@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { Observable, firstValueFrom, of, throwError } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
-import { FakePosApi, fakePosApi } from '../../../testing/fake-pos-api';
-import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '../../../testing/fixtures';
+import { PosApiService } from '@core/pos-api.service';
+import { FakePosApi, fakePosApi } from '@testing/fake-pos-api';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '@testing/fixtures';
 import { PurchasesActions } from './purchases.actions';
 import { PurchasesEffects } from './purchases.effects';
 

@@ -1,4 +1,4 @@
-import { aLot, aPurchase, aSale, anExpense, anInventoryItem } from '../../../testing/fixtures';
+import { aLot, aPurchase, aSale, anExpense, anInventoryItem } from '@testing/fixtures';
 import { DashboardActions } from './dashboard.actions';
 import { dashboardReducer, initialDashboardState } from './dashboard.reducer';
 

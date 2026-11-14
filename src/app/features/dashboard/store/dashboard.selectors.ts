@@ -1,5 +1,5 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { DashboardSummary } from '../../../core/pos.models';
+import { DashboardSummary } from '@core/pos.models';
 import { dashboardFeatureKey, DashboardState } from './dashboard.reducer';
 
 const selectDashboardState = createFeatureSelector<DashboardState>(dashboardFeatureKey);

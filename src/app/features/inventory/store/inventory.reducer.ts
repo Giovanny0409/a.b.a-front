@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { BagLot, InventoryItem, Product } from '../../../core/pos.models';
+import { BagLot, InventoryItem, Product } from '@core/pos.models';
 import { InventoryActions } from './inventory.actions';
 
 export const inventoryFeatureKey = 'inventory';

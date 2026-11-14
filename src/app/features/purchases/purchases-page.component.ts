@@ -4,8 +4,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { debounceTime, startWith } from 'rxjs';
-import { Notifier } from '../../core/notify/notification.service';
-import { ExpenseArea, PurchaseKind } from '../../core/pos.models';
+import { Notifier } from '@core/notify/notification.service';
+import { ExpenseArea, PurchaseKind } from '@core/pos.models';
 import { PurchasesStore } from './purchases.store';
 
 /** Espera tras la última tecla antes de buscar el producto escrito. */

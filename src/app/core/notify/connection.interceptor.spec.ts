@@ -1,7 +1,7 @@
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { t } from '../../testing/translate';
+import { t } from '@testing/translate';
 import { provideI18n } from '../i18n/provide-i18n';
 import { ConnectionNotice, connectionInterceptor } from './connection.interceptor';
 import { Choice, Notifier } from './notification.service';

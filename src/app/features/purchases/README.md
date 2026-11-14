@@ -51,7 +51,7 @@ Usa los modelos compartidos en `core/pos.models.ts`: `Product` (con `kind`), `Pr
 
 ## Servicios y endpoints
 
-Vía `core/pos-api.service.ts` contra el backend (`backend aba`, `http://localhost:5028/api`):
+Vía `core/pos-api.service.ts` contra el backend (`backend aba`, `apiBaseUrl` de `src/environments/`, hoy `http://localhost:5028/api`):
 - `GET /api/products/purchase-defaults`: datos de la última compra de cada producto, para el autollenado.
 - `GET /api/products`, `POST /api/products` (alta implícita al registrar compra de un producto nuevo la realiza el propio endpoint de compras, no este).
 - `GET /api/purchases`, `POST /api/purchases`. Una línea con un tipo distinto al del producto existente responde `400 { message }` («El producto … es de piezas.»).

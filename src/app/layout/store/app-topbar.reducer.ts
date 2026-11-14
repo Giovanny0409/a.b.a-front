@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { InventoryItem } from '../../core/pos.models';
+import { InventoryItem } from '@core/pos.models';
 import { AppTopbarActions } from './app-topbar.actions';
 
 export const appTopbarFeatureKey = 'appTopbar';

@@ -5,12 +5,12 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, Subject, firstValueFrom, isObservable } from 'rxjs';
 import { Action } from '@ngrx/store';
-import { SalesActions } from '../features/sales/store/sales.actions';
-import { FakeNotifier, fakeNotifier } from '../testing/fake-notifier';
-import { t } from '../testing/translate';
+import { SalesActions } from '@features/sales/store/sales.actions';
+import { FakeNotifier, fakeNotifier } from '@testing/fake-notifier';
+import { t } from '@testing/translate';
 import { provideI18n } from './i18n/provide-i18n';
 import { Notifier } from './notify/notification.service';
-import { selectActiveSeller } from '../features/sales/store/sales.selectors';
+import { selectActiveSeller } from '@features/sales/store/sales.selectors';
 import { salesAuthorizationGuard } from './sales-auth.guard';
 
 describe('salesAuthorizationGuard', () => {

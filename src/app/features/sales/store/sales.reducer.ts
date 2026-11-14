@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { InventoryItem, Product, SaleRecord, Seller } from '../../../core/pos.models';
+import { InventoryItem, Product, SaleRecord, Seller } from '@core/pos.models';
 import { SalesActions, SavedTicket } from './sales.actions';
 
 export const salesFeatureKey = 'sales';

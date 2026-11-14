@@ -4,9 +4,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { debounceTime, startWith, switchMap } from 'rxjs';
-import { Notifier } from '../../core/notify/notification.service';
-import { ProductKind, SaleLine, SaleRecord } from '../../core/pos.models';
-import { saleQuantityKey } from '../../core/sale-quantity';
+import { Notifier } from '@core/notify/notification.service';
+import { ProductKind, SaleLine, SaleRecord } from '@core/pos.models';
+import { saleQuantityKey } from '@core/sale-quantity';
 import { SavedTicket } from './store/sales.actions';
 import { PendingSaleLine, SalesEntryMode, SalesStore } from './sales.store';
 

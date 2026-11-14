@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { ExpenseRecord, PurchaseRecord, SaleRecord } from '../../../core/pos.models';
+import { ExpenseRecord, PurchaseRecord, SaleRecord } from '@core/pos.models';
 import { HistoryActions } from './history.actions';
 
 export const historyFeatureKey = 'history';

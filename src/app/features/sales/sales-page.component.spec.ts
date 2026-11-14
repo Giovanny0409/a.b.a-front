@@ -1,12 +1,12 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { provideI18n } from '../../core/i18n/provide-i18n';
-import { Notifier } from '../../core/notify/notification.service';
-import { InventoryItem, ProductKind, Seller } from '../../core/pos.models';
-import { FakeNotifier, fakeNotifier } from '../../testing/fake-notifier';
-import { aProduct, aSale, aSaleLine, anInventoryItem } from '../../testing/fixtures';
-import { t } from '../../testing/translate';
+import { provideI18n } from '@core/i18n/provide-i18n';
+import { Notifier } from '@core/notify/notification.service';
+import { InventoryItem, ProductKind, Seller } from '@core/pos.models';
+import { FakeNotifier, fakeNotifier } from '@testing/fake-notifier';
+import { aProduct, aSale, aSaleLine, anInventoryItem } from '@testing/fixtures';
+import { t } from '@testing/translate';
 import { SalesPageComponent, modesFor } from './sales-page.component';
 import { SalesStore } from './sales.store';
 import { SavedTicket } from './store/sales.actions';

@@ -4,8 +4,8 @@ import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, from, map, of, switchMap, take } from 'rxjs';
-import { SalesActions } from '../features/sales/store/sales.actions';
-import { selectActiveSeller } from '../features/sales/store/sales.selectors';
+import { SalesActions } from '@features/sales/store/sales.actions';
+import { selectActiveSeller } from '@features/sales/store/sales.selectors';
 import { Notifier } from './notify/notification.service';
 
 export const salesAuthorizationGuard: CanMatchFn = () => {

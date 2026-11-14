@@ -1,4 +1,4 @@
-import { aProduct, aSale, anInventoryItem } from '../../../testing/fixtures';
+import { aProduct, aSale, anInventoryItem } from '@testing/fixtures';
 import { SalesActions, SavedTicket } from './sales.actions';
 import { initialSalesState, salesFeatureKey, salesReducer } from './sales.reducer';
 import {

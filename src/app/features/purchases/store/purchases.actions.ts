@@ -7,7 +7,7 @@ import {
   PurchaseLineInput,
   PurchaseRecord,
   Supplier
-} from '../../../core/pos.models';
+} from '@core/pos.models';
 
 export interface RegisterPurchaseInput {
   supplierName: string;
