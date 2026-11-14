@@ -252,5 +252,31 @@
     "errors": {
       "load": "No fue posible cargar inventario."
     }
+  },
+  "history": {
+    "metrics": {
+      "investment": "Inversión registrada"
+    },
+    "sales": {
+      "title": "Historial de ventas",
+      "cost": "Costo"
+    },
+    "purchases": {
+      "title": "Historial de compras",
+      "investment": "Inversión",
+      "kinds": {
+        "unit": "Producto",
+        "bag": "Bulto"
+      },
+      "noSupplier": "Sin proveedor",
+      "supplierWithPhone": "{{name}} ({{phone}})",
+      "bagsAndKg": "{{bags}} bultos / {{kg}} kg"
+    },
+    "expenses": {
+      "title": "Gastos e insumos"
+    },
+    "errors": {
+      "load": "No fue posible cargar historial."
+    }
   }
 }

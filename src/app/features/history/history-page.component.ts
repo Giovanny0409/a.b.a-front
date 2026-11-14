@@ -1,46 +1,47 @@
 import { CurrencyPipe, DatePipe, DecimalPipe, NgFor } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { HistoryStore } from './history.store';
 
 @Component({
   selector: 'aba-history-page',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgFor],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgFor, TranslatePipe],
   providers: [HistoryStore],
   template: `
     <section class="metrics">
       <div class="metric">
-        <span>Inversion registrada</span>
+        <span>{{ 'history.metrics.investment' | translate }}</span>
         <strong>{{ store.summary().investment | currency: 'MXN' }}</strong>
       </div>
       <div class="metric">
-        <span>Ventas</span>
+        <span>{{ 'common.fields.sales' | translate }}</span>
         <strong>{{ store.summary().income | currency: 'MXN' }}</strong>
       </div>
       <div class="metric">
-        <span>Gastos</span>
+        <span>{{ 'common.fields.expenses' | translate }}</span>
         <strong>{{ store.summary().expenses | currency: 'MXN' }}</strong>
       </div>
       <div class="metric">
-        <span>Ganancia</span>
+        <span>{{ 'common.fields.profit' | translate }}</span>
         <strong>{{ store.summary().profit | currency: 'MXN' }}</strong>
       </div>
     </section>
 
     <section class="history-grid">
       <article class="panel">
-        <h2>Historial de ventas</h2>
+        <h2>{{ 'history.sales.title' | translate }}</h2>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Cliente</th>
-                <th>Producto</th>
-                <th>Cantidad</th>
-                <th>Total</th>
-                <th>Costo</th>
-                <th>Ganancia</th>
+                <th>{{ 'common.fields.date' | translate }}</th>
+                <th>{{ 'common.fields.customer' | translate }}</th>
+                <th>{{ 'common.fields.product' | translate }}</th>
+                <th>{{ 'common.fields.quantity' | translate }}</th>
+                <th>{{ 'common.fields.total' | translate }}</th>
+                <th>{{ 'history.sales.cost' | translate }}</th>
+                <th>{{ 'common.fields.profit' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -48,7 +49,7 @@ import { HistoryStore } from './history.store';
                 <td>{{ sale.soldAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ sale.customer }}</td>
                 <td>{{ sale.lines[0].productName }}</td>
-                <td>{{ sale.lines[0].quantity | number: '1.0-2' }} {{ sale.lines[0].unit === 'kg' ? 'kg' : 'bulto' }}</td>
+                <td>{{ (sale.lines[0].unit === 'kg' ? 'sales.quantity.kg' : 'sales.quantity.bag') | translate: { quantity: (sale.lines[0].quantity | number: '1.0-2') } }}</td>
                 <td>{{ sale.total | currency: 'MXN' }}</td>
                 <td>{{ sale.cost | currency: 'MXN' }}</td>
                 <td>{{ sale.profit | currency: 'MXN' }}</td>
@@ -59,17 +60,17 @@ import { HistoryStore } from './history.store';
       </article>
 
       <article class="panel">
-        <h2>Historial de compras</h2>
+        <h2>{{ 'history.purchases.title' | translate }}</h2>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Producto</th>
-                <th>Proveedor</th>
-                <th>Tipo</th>
-                <th>Cantidad</th>
-                <th>Inversion</th>
+                <th>{{ 'common.fields.date' | translate }}</th>
+                <th>{{ 'common.fields.product' | translate }}</th>
+                <th>{{ 'common.fields.supplier' | translate }}</th>
+                <th>{{ 'purchases.lines.kind' | translate }}</th>
+                <th>{{ 'common.fields.quantity' | translate }}</th>
+                <th>{{ 'history.purchases.investment' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -77,7 +78,7 @@ import { HistoryStore } from './history.store';
                 <td>{{ purchase.purchasedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ purchase.productName }}</td>
                 <td>{{ supplierLabel(purchase) }}</td>
-                <td>{{ purchase.kind === 'unit' ? 'Producto' : 'Bulto' }}</td>
+                <td>{{ (purchase.kind === 'unit' ? 'history.purchases.kinds.unit' : 'history.purchases.kinds.bag') | translate }}</td>
                 <td>{{ purchaseQuantityLabel(purchase) }}</td>
                 <td>{{ purchase.investment | currency: 'MXN' }}</td>
               </tr>
@@ -87,17 +88,17 @@ import { HistoryStore } from './history.store';
       </article>
 
       <article class="panel">
-        <h2>Gastos e insumos</h2>
+        <h2>{{ 'history.expenses.title' | translate }}</h2>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Concepto</th>
-                <th>Categoria</th>
-                <th>Apartado</th>
-                <th>Monto</th>
-                <th>Notas</th>
+                <th>{{ 'common.fields.date' | translate }}</th>
+                <th>{{ 'expenses.fields.concept' | translate }}</th>
+                <th>{{ 'common.fields.category' | translate }}</th>
+                <th>{{ 'expenses.fields.area' | translate }}</th>
+                <th>{{ 'expenses.fields.amount' | translate }}</th>
+                <th>{{ 'expenses.fields.notes' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -105,7 +106,7 @@ import { HistoryStore } from './history.store';
                 <td>{{ expense.expenseAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ expense.concept }}</td>
                 <td>{{ expense.category }}</td>
-                <td>{{ expenseAreaLabel(expense.area) }}</td>
+                <td>{{ expenseAreaLabel(expense.area) | translate }}</td>
                 <td>{{ expense.amount | currency: 'MXN' }}</td>
                 <td>{{ expense.notes || '-' }}</td>
               </tr>
@@ -139,32 +140,36 @@ import { HistoryStore } from './history.store';
   `]
 })
 export class HistoryPageComponent {
+  private readonly translate = inject(TranslateService);
   readonly store = inject(HistoryStore);
+
+  private readonly expenseAreaLabels: Record<string, string> = {
+    general: 'expenses.areas.general',
+    guardadito: 'expenses.areas.guardadito',
+    camioneta: 'expenses.areas.camioneta'
+  };
 
   constructor() {
     this.store.load();
   }
 
   supplierLabel(purchase: { supplier?: string; supplierName?: string; supplierPhone?: string }): string {
-    const name = purchase.supplierName || purchase.supplier || 'Sin proveedor';
-    return purchase.supplierPhone ? `${name} (${purchase.supplierPhone})` : name;
+    const name = purchase.supplierName || purchase.supplier || this.translate.instant('history.purchases.noSupplier');
+    return purchase.supplierPhone
+      ? this.translate.instant('history.purchases.supplierWithPhone', { name, phone: purchase.supplierPhone })
+      : name;
   }
 
   purchaseQuantityLabel(purchase: { kind?: string; quantity?: number; bags?: number; markedKg?: number }): string {
     if (purchase.kind === 'unit') {
-      return `${purchase.quantity ?? purchase.bags ?? 0} piezas`;
+      return this.translate.instant('common.units.piecesCount', { count: purchase.quantity ?? purchase.bags ?? 0 });
     }
 
-    return `${purchase.bags ?? 0} bultos / ${purchase.markedKg ?? 0} kg`;
+    return this.translate.instant('history.purchases.bagsAndKg', { bags: purchase.bags ?? 0, kg: purchase.markedKg ?? 0 });
   }
 
+  /** Clave del apartado del gasto; un apartado desconocido se devuelve tal cual y se muestra así. */
   expenseAreaLabel(area: string): string {
-    const labels: Record<string, string> = {
-      general: 'General',
-      guardadito: 'Guardadito',
-      camioneta: 'Camioneta'
-    };
-
-    return labels[area] ?? area;
+    return this.expenseAreaLabels[area] ?? area;
   }
 }

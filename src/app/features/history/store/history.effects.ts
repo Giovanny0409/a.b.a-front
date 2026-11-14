@@ -18,7 +18,7 @@ export class HistoryEffects {
     }).pipe(
       map(({ sales, purchases, expenses }) => HistoryActions.loadSuccess({ sales, purchases, expenses })),
       catchError((error) => of(HistoryActions.loadFailure({
-        error: error?.error?.message ?? 'No fue posible cargar historial.'
+        error: error?.error?.message ?? 'history.errors.load'
       })))
     ))
   ));
