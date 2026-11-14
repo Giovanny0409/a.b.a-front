@@ -51,7 +51,7 @@ Usa los modelos compartidos en `core/pos.models.ts`: `Product` (con `kind`), `In
 
 ## Servicios y endpoints
 
-Vía `core/pos-api.service.ts` contra el backend (`backend aba`, `http://localhost:5028/api`):
+Vía `core/pos-api.service.ts` contra el backend (`backend aba`, `apiBaseUrl` de `src/environments/`, hoy `http://localhost:5028/api`):
 - `GET /api/products`, `GET /api/sales`, `GET /api/inventory`.
 - `GET /api/sales/quote` (cotización antes de agregar la línea al carrito). Responde `404` sin inventario y `400 { message }` si el modo no corresponde al tipo del producto; la fachada toma los dos como «No disponible».
 - `POST /api/sales/batch` (cobro final de todo el carrito).

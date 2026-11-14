@@ -46,17 +46,28 @@
 
 ## 5. Documentación
 
-- [ ] 5.1 `CLAUDE.md`, Principio 3: los alias, `app.config.ts` y `src/environments/`. Actualizar el contexto de
+- [x] 5.1 `CLAUDE.md`, Principio 3: los alias, `app.config.ts` y `src/environments/`. Actualizar el contexto de
   `openspec/config.yaml` solo si repite esa parte (sin corregir P-26 aquí).
-- [ ] 5.2 README que describen importaciones, arranque o la URL del backend: `features/*/README.md` (sección
+- [x] 5.2 README que describen importaciones, arranque o la URL del backend: `features/*/README.md` (sección
   Dependencias o Servicios y endpoints), `e2e/README.md` si menciona la URL, y el `README.md` raíz si lo hace.
 
 ## 6. QA y cierre
 
-- [ ] 6.1 QA con la skill `qa-playwright`: `npm run test:e2e` completo contra `ng serve` (desarrollo, con los
+- [x] 6.1 QA con la skill `qa-playwright`: `npm run test:e2e` completo contra `ng serve` (desarrollo, con los
   `runtimeChecks` activos) y el backend de esta rama. Anotar aquí la evidencia. Revisar en el navegador que
   las Redux DevTools reciben el estado en desarrollo.
-- [ ] 6.2 Revisar que no queden huérfanos: la constante `API_BASE_URL`, providers repetidos en `main.ts` ni
+  - **Evidencia (2026-11-14):** `npx playwright test`: **30 pasan** (`compras-inventario` 1,
+    `compras-ventas-guiadas` 14, `i18n` 10, `ventas` 5), contra `ng serve` en `:4200` y el backend de
+    `dev-feat-compras-ventas-guiadas` en `:5028` (los dos ya corriendo y reutilizados), con `aba.db`. Ningún
+    `runtimeCheck` saltó.
+  - DevTools: una prueba temporal simuló la extensión con `addInitScript` y comprobó que el store se conecta.
+    Contra el `ng serve` de `:4200` falló porque arrancó antes de agregar `fileReplacements` y no relee
+    `angular.json`; contra un `ng serve` nuevo en `:4300` pasó. Hay que reiniciar `ng serve` para tener las
+    DevTools. La prueba y su configuración temporal se borraron.
+- [x] 6.2 Revisar que no queden huérfanos: la constante `API_BASE_URL`, providers repetidos en `main.ts` ni
   importaciones sin usar. `openspec validate adoptar-estructura-de-sadform --strict`.
-- [ ] 6.3 En `docs/PENDIENTES.md`, cerrar el registro de la rama apilada si ya no aplica, anotar en P-08 que la
+  - **Evidencia:** sin `API_BASE_URL` en `src/`, `main.ts` sin providers, el change es válido.
+- [x] 6.3 En `docs/PENDIENTES.md`, cerrar el registro de la rama apilada si ya no aplica, anotar en P-08 que la
   URL ya es configurable, y registrar lo que haya aparecido.
+  - P-35 sigue abierto mientras los PR #2 y #3 del front no se fusionen. P-08 anota que la URL ya vive en
+    `src/environments/`. No apareció nada nuevo.
