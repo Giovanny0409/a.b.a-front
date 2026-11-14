@@ -6,7 +6,8 @@
       "initials": "A.B.A"
     },
     "actions": {
-      "save": "Guardar"
+      "save": "Guardar",
+      "close": "Cerrar"
     },
     "fields": {
       "product": "Producto",
@@ -14,7 +15,10 @@
       "total": "Total",
       "expenses": "Gastos",
       "profit": "Ganancia",
-      "status": "Estado"
+      "status": "Estado",
+      "customer": "Cliente",
+      "quantity": "Cantidad",
+      "date": "Fecha"
     },
     "units": {
       "bagsCount": "{{count}} bultos",
@@ -69,6 +73,87 @@
     },
     "errors": {
       "load": "No fue posible cargar el tablero."
+    }
+  },
+  "seller": {
+    "askId": "Ingresa el ID de vendedor para ventas",
+    "rejected": "ID de vendedor no autorizado."
+  },
+  "sales": {
+    "toolbar": {
+      "seller": "Vendedor: {{name}}",
+      "changeSeller": "Cambiar vendedor"
+    },
+    "form": {
+      "title": "Nueva venta",
+      "customerPlaceholder": "Público general",
+      "mode": "Venta",
+      "add": "Agregar producto"
+    },
+    "modes": {
+      "bag": "Por bulto",
+      "kg": "Por kilo",
+      "piece": "Por pieza",
+      "money": "Por pesos"
+    },
+    "amount": {
+      "bag": "Bultos",
+      "kg": "Kilos",
+      "piece": "Piezas",
+      "money": "Importe"
+    },
+    "quantity": {
+      "bag": "{{quantity}} bulto",
+      "kg": "{{quantity}} kg",
+      "piece": "{{quantity}} pieza(s)",
+      "money": "{{amount}} = {{quantity}} kg"
+    },
+    "quote": {
+      "total": "Total del producto",
+      "detail": "{{detail}} | Costo estimado {{cost}} | Ganancia {{profit}}",
+      "unavailableTitle": "Inventario",
+      "unavailable": "No disponible",
+      "unavailableHint": "Revisa bultos sellados o kilos abiertos."
+    },
+    "cart": {
+      "title": "Productos de la venta",
+      "clear": "Limpiar",
+      "mode": "Modo",
+      "remove": "Quitar producto",
+      "empty": "Agrega productos para cobrar la venta."
+    },
+    "checkout": {
+      "items": "Productos vendidos",
+      "total": "Total a cobrar",
+      "received": "Dinero recibido",
+      "change": "Cambio a entregar",
+      "finish": "Finalizar venta"
+    },
+    "savedTickets": {
+      "title": "Tickets guardados",
+      "count": "{{count}} guardados",
+      "open": "Abrir ticket",
+      "delete": "Eliminar ticket",
+      "empty": "Los tickets guardados aparecerán aquí."
+    },
+    "ticket": {
+      "print": "Imprimir",
+      "customer": "Cliente: {{name}}",
+      "received": "Recibido",
+      "change": "Cambio",
+      "thanks": "Gracias por su compra"
+    },
+    "messages": {
+      "insufficientPayment": "El dinero recibido no cubre el total de la venta.",
+      "charged": "Venta cobrada por {{total}}. Cambio: {{change}}.",
+      "askTicket": "Venta finalizada. ¿Requiere ticket?",
+      "ticketSaved": "Ticket guardado correctamente.",
+      "confirmDeleteTicket": "¿Eliminar este ticket guardado?"
+    },
+    "errors": {
+      "load": "No fue posible cargar ventas.",
+      "register": "No fue posible registrar la venta.",
+      "sellerNotAuthorized": "Vendedor no autorizado para registrar ventas."
     }
   }
 }

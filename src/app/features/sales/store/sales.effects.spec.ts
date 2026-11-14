@@ -41,7 +41,7 @@ describe('SalesEffects', () => {
     api.getSales.mockReturnValue(of([]));
 
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      SalesActions.loadFailure({ error: 'No fue posible cargar ventas.' })
+      SalesActions.loadFailure({ error: 'sales.errors.load' })
     );
   });
 
@@ -61,7 +61,7 @@ describe('SalesEffects', () => {
     api.authorizeSeller.mockReturnValue(throwError(() => ({ status: 401, error: { authorized: false } })));
 
     await expect(firstValueFrom(effects.authorizeSeller$)).resolves.toEqual(
-      SalesActions.authorizeSellerFailure({ requestId: 'r-1', error: 'ID de vendedor no autorizado.' })
+      SalesActions.authorizeSellerFailure({ requestId: 'r-1', error: 'seller.rejected' })
     );
   });
 

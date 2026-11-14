@@ -17,7 +17,7 @@ export class SalesEffects {
     }).pipe(
       map(({ products, sales }) => SalesActions.loadSuccess({ products, sales })),
       catchError((error) => of(SalesActions.loadFailure({
-        error: error?.error?.message ?? 'No fue posible cargar ventas.'
+        error: error?.error?.message ?? 'sales.errors.load'
       })))
     ))
   ));
@@ -28,7 +28,7 @@ export class SalesEffects {
       map((authorization) => SalesActions.authorizeSellerSuccess({ requestId, authorization })),
       catchError((error) => of(SalesActions.authorizeSellerFailure({
         requestId,
-        error: error?.error?.message ?? 'ID de vendedor no autorizado.'
+        error: error?.error?.message ?? 'seller.rejected'
       })))
     ))
   ));
@@ -39,7 +39,7 @@ export class SalesEffects {
       map((sale) => SalesActions.registerSaleBatchSuccess({ requestId, sale })),
       catchError((error) => of(SalesActions.registerSaleBatchFailure({
         requestId,
-        error: error?.error?.message ?? 'No fue posible registrar la venta.'
+        error: error?.error?.message ?? 'sales.errors.register'
       })))
     ))
   ));

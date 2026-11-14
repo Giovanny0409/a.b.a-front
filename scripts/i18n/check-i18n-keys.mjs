@@ -10,7 +10,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const APP_DIR = join(ROOT, 'src', 'app');
 const DICTIONARY = join(ROOT, 'src', 'assets', 'i18n', 'es.json');
-const STRING_LITERAL = /'([^'\\\n]*)'|"([^"\\\n]*)"|`([^`$\\]*)`/g;
+// Cada tipo de comilla se busca por separado: en una plantilla, una clave entre comillas simples suele ir
+// dentro de un atributo entre comillas dobles (`[title]="'sales.cart.remove' | translate"`).
+const STRING_LITERALS = [/'([^'\\\n]*)'/g, /"([^"\\\n]*)"/g, /`([^`$\\]*)`/g];
 const KEY_SHAPE = /^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9]+)+$/;
 
 const rel = (path) => relative(ROOT, path).replace(/\\/g, '/');
@@ -38,8 +40,8 @@ function findUsedKeys(files, sections) {
   for (const file of files) {
     const lines = readFileSync(file, 'utf8').split(/\r?\n/);
     lines.forEach((line, index) => {
-      for (const match of line.matchAll(STRING_LITERAL)) {
-        const literal = match[1] ?? match[2] ?? match[3];
+      const literals = STRING_LITERALS.flatMap((pattern) => [...line.matchAll(pattern)].map((match) => match[1]));
+      for (const literal of new Set(literals)) {
         if (!KEY_SHAPE.test(literal) || !sections.has(literal.split('.')[0])) continue;
         if (!used.has(literal)) used.set(literal, []);
         used.get(literal).push(`${rel(file)}:${index + 1}`);
