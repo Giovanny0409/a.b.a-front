@@ -46,7 +46,7 @@ describe('HistoryEffects', () => {
 
     api.getSales.mockReturnValue(throwError(() => new Error('red')));
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      HistoryActions.loadFailure({ error: 'No fue posible cargar historial.' })
+      HistoryActions.loadFailure({ error: 'history.errors.load' })
     );
   });
 });

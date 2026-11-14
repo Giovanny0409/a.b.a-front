@@ -150,7 +150,7 @@ describe('SalesStore', () => {
       store.refreshState();
 
       await expect(firstValueFrom(facade.registerSaleBatch('', [{ productId: 'p-1', mode: 'bag', amount: 1 }])))
-        .rejects.toThrow('Vendedor no autorizado para registrar ventas.');
+        .rejects.toThrow('sales.errors.sellerNotAuthorized');
       expect(store.dispatch).not.toHaveBeenCalled();
     });
   });

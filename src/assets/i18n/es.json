@@ -1,0 +1,282 @@
+{
+  "common": {
+    "brand": {
+      "name": "Alimentos Balanceados Alonso",
+      "mark": "ABA",
+      "initials": "A.B.A"
+    },
+    "actions": {
+      "save": "Guardar",
+      "close": "Cerrar",
+      "cancel": "Cancelar",
+      "removeProduct": "Quitar producto"
+    },
+    "fields": {
+      "product": "Producto",
+      "sales": "Ventas",
+      "total": "Total",
+      "expenses": "Gastos",
+      "profit": "Ganancia",
+      "status": "Estado",
+      "customer": "Cliente",
+      "quantity": "Cantidad",
+      "date": "Fecha",
+      "supplier": "Proveedor",
+      "category": "Categoría"
+    },
+    "units": {
+      "bagsCount": "{{count}} bultos",
+      "piecesCount": "{{count}} piezas",
+      "bagsAndOpenKg": "{{bags}} bultos / {{kg}} kg abiertos",
+      "openKg": "{{kg}} kg abiertos"
+    }
+  },
+  "menu": {
+    "subtitle": "Punto de venta",
+    "dashboard": "Tablero",
+    "sales": "Ventas",
+    "purchases": "Compras",
+    "inventory": "Inventario",
+    "history": "Historial"
+  },
+  "dashboard": {
+    "metrics": {
+      "totalBags": "Bultos totales",
+      "sealedBags": "Bultos sellados",
+      "openBags": "Bultos abiertos",
+      "expenses": "Gastos registrados"
+    },
+    "cashCut": {
+      "title": "Corte de caja diario",
+      "shift": "Turno",
+      "morning": "Mañana",
+      "afternoon": "Tarde",
+      "day": "Total día"
+    },
+    "week": {
+      "title": "Semana actual",
+      "detail": "Ganancia neta {{profit}} / Gastos {{expenses}} / {{sales}} ventas"
+    },
+    "quickWork": {
+      "title": "Trabajo rápido",
+      "newSale": "Nueva venta",
+      "registerPurchase": "Registrar compra",
+      "reviewInventory": "Revisar inventario"
+    },
+    "importance": {
+      "title": "Niveles de importancia",
+      "bags": "Bultos",
+      "units": "Productos varios",
+      "current": "Actual",
+      "minBags": "Mín. bultos",
+      "minOpenKg": "Mín. kg abiertos",
+      "minPieces": "Mín. piezas",
+      "status": {
+        "covered": "Cubierto",
+        "review": "Revisar"
+      }
+    },
+    "errors": {
+      "load": "No fue posible cargar el tablero."
+    }
+  },
+  "seller": {
+    "askId": "Ingresa el ID de vendedor para ventas",
+    "rejected": "ID de vendedor no autorizado."
+  },
+  "sales": {
+    "toolbar": {
+      "seller": "Vendedor: {{name}}",
+      "changeSeller": "Cambiar vendedor"
+    },
+    "form": {
+      "title": "Nueva venta",
+      "customerPlaceholder": "Público general",
+      "mode": "Venta",
+      "add": "Agregar producto"
+    },
+    "modes": {
+      "bag": "Por bulto",
+      "kg": "Por kilo",
+      "piece": "Por pieza",
+      "money": "Por pesos"
+    },
+    "amount": {
+      "bag": "Bultos",
+      "kg": "Kilos",
+      "piece": "Piezas",
+      "money": "Importe"
+    },
+    "quantity": {
+      "bag": "{{quantity}} bulto",
+      "kg": "{{quantity}} kg",
+      "piece": "{{quantity}} pieza(s)",
+      "money": "{{amount}} = {{quantity}} kg"
+    },
+    "quote": {
+      "total": "Total del producto",
+      "detail": "{{detail}} | Costo estimado {{cost}} | Ganancia {{profit}}",
+      "unavailableTitle": "Inventario",
+      "unavailable": "No disponible",
+      "unavailableHint": "Revisa bultos sellados o kilos abiertos."
+    },
+    "cart": {
+      "title": "Productos de la venta",
+      "clear": "Limpiar",
+      "mode": "Modo",
+      "empty": "Agrega productos para cobrar la venta."
+    },
+    "checkout": {
+      "items": "Productos vendidos",
+      "total": "Total a cobrar",
+      "received": "Dinero recibido",
+      "change": "Cambio a entregar",
+      "finish": "Finalizar venta"
+    },
+    "savedTickets": {
+      "title": "Tickets guardados",
+      "count": "{{count}} guardados",
+      "open": "Abrir ticket",
+      "delete": "Eliminar ticket",
+      "empty": "Los tickets guardados aparecerán aquí."
+    },
+    "ticket": {
+      "print": "Imprimir",
+      "customer": "Cliente: {{name}}",
+      "received": "Recibido",
+      "change": "Cambio",
+      "thanks": "Gracias por su compra"
+    },
+    "messages": {
+      "insufficientPayment": "El dinero recibido no cubre el total de la venta.",
+      "charged": "Venta cobrada por {{total}}. Cambio: {{change}}.",
+      "askTicket": "Venta finalizada. ¿Requiere ticket?",
+      "ticketSaved": "Ticket guardado correctamente.",
+      "confirmDeleteTicket": "¿Eliminar este ticket guardado?"
+    },
+    "errors": {
+      "load": "No fue posible cargar ventas.",
+      "register": "No fue posible registrar la venta.",
+      "sellerNotAuthorized": "Vendedor no autorizado para registrar ventas."
+    }
+  },
+  "purchases": {
+    "title": "Registrar compra",
+    "supplier": {
+      "new": "Nuevo proveedor",
+      "namePlaceholder": "Nombre comercial",
+      "phone": "Número",
+      "phonePlaceholder": "Teléfono o WhatsApp",
+      "register": "Registrar",
+      "selectPlaceholder": "Selecciona proveedor"
+    },
+    "lines": {
+      "add": "Producto",
+      "kind": "Tipo",
+      "markedKg": "Kg/bulto",
+      "cost": "Costo total",
+      "salePriceBag": "Venta bulto/u.",
+      "salePriceKg": "Venta kg"
+    },
+    "kinds": {
+      "bag": "Bultos",
+      "unit": "Varios"
+    },
+    "totals": {
+      "products": "Productos:",
+      "bags": "Bultos:",
+      "pieces": "Piezas:",
+      "investment": "Inversión:"
+    },
+    "save": "Guardar compra",
+    "messages": {
+      "missingKgPrice": "Captura el precio de venta por kilo en todos los bultos.",
+      "registered": "Compra registrada en el backend e inventario actualizado."
+    },
+    "errors": {
+      "loadProducts": "No fue posible cargar productos.",
+      "register": "No fue posible registrar la compra."
+    }
+  },
+  "expenses": {
+    "title": "Compra de insumos y gastos",
+    "fields": {
+      "concept": "Concepto",
+      "conceptPlaceholder": "Renta, luz, bolsas, comida",
+      "area": "Apartado",
+      "amount": "Monto",
+      "notes": "Notas",
+      "notesPlaceholder": "Detalle opcional"
+    },
+    "categories": {
+      "rent": "Renta",
+      "power": "Luz",
+      "bags": "Bolsas",
+      "food": "Comida",
+      "supplies": "Insumos",
+      "other": "Otro"
+    },
+    "areas": {
+      "general": "General",
+      "guardadito": "Guardadito",
+      "camioneta": "Camioneta"
+    },
+    "deducted": "Se descuenta de ganancias:",
+    "save": "Guardar gasto",
+    "messages": {
+      "registered": "Gasto registrado y descontado de ganancias."
+    },
+    "errors": {
+      "register": "No fue posible registrar el gasto."
+    }
+  },
+  "inventory": {
+    "title": "Inventario neto",
+    "filter": {
+      "label": "Filtrar producto",
+      "placeholder": "Nombre del producto",
+      "empty": "No hay productos que coincidan con el filtro."
+    },
+    "columns": {
+      "net": "Inventario neto",
+      "sealedBags": "Bultos sellados",
+      "openKg": "Kg abiertos",
+      "pieces": "Piezas",
+      "minimum": "Mínimo"
+    },
+    "status": {
+      "restock": "Compra sugerida",
+      "covered": "Cubierto"
+    },
+    "noStock": "Sin existencia",
+    "errors": {
+      "load": "No fue posible cargar inventario."
+    }
+  },
+  "history": {
+    "metrics": {
+      "investment": "Inversión registrada"
+    },
+    "sales": {
+      "title": "Historial de ventas",
+      "cost": "Costo"
+    },
+    "purchases": {
+      "title": "Historial de compras",
+      "investment": "Inversión",
+      "kinds": {
+        "unit": "Producto",
+        "bag": "Bulto"
+      },
+      "noSupplier": "Sin proveedor",
+      "supplierWithPhone": "{{name}} ({{phone}})",
+      "bagsAndKg": "{{bags}} bultos / {{kg}} kg"
+    },
+    "expenses": {
+      "title": "Gastos e insumos"
+    },
+    "errors": {
+      "load": "No fue posible cargar historial."
+    }
+  }
+}

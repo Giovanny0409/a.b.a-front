@@ -1,8 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { provideI18n } from '../../core/i18n/provide-i18n';
 import { Seller } from '../../core/pos.models';
 import { aProduct, aSale, aSaleLine } from '../../testing/fixtures';
+import { t } from '../../testing/translate';
 import { SalesPageComponent } from './sales-page.component';
 import { SalesStore } from './sales.store';
 import { SavedTicket } from './store/sales.actions';
@@ -35,6 +37,7 @@ describe('SalesPageComponent', () => {
       saveTicket: vi.fn(),
       deleteSavedTicket: vi.fn()
     };
+    TestBed.configureTestingModule({ providers: [provideI18n()] });
     TestBed.overrideComponent(SalesPageComponent, {
       set: { providers: [{ provide: SalesStore, useValue: store }] }
     });
@@ -51,14 +54,14 @@ describe('SalesPageComponent', () => {
 
   it('muestra al vendedor activo y al pulsar «Cambiar vendedor» pide el cambio a la fachada', () => {
     const element: HTMLElement = fixture.nativeElement;
-    expect(element.querySelector('.sales-toolbar .badge')?.textContent?.trim()).toBe('Vendedor: Aurelio');
+    expect(element.querySelector('.sales-toolbar .badge')?.textContent?.trim()).toBe(t('sales.toolbar.seller', { name: 'Aurelio' }));
 
     store.activeSeller.set({ id: '2002', name: 'Ana' });
     fixture.detectChanges();
-    expect(element.querySelector('.sales-toolbar .badge')?.textContent?.trim()).toBe('Vendedor: Ana');
+    expect(element.querySelector('.sales-toolbar .badge')?.textContent?.trim()).toBe(t('sales.toolbar.seller', { name: 'Ana' }));
 
     const boton = [...element.querySelectorAll<HTMLButtonElement>('.sales-toolbar button')]
-      .find((button) => button.textContent?.includes('Cambiar vendedor'));
+      .find((button) => button.textContent?.includes(t('sales.toolbar.changeSeller')));
     boton?.click();
     expect(store.changeSeller).toHaveBeenCalled();
   });
@@ -83,23 +86,35 @@ describe('SalesPageComponent', () => {
   });
 
   it.each([
-    ['bag', 'Bultos', 'Por bulto'],
-    ['kg', 'Kilos', 'Por kilo'],
-    ['piece', 'Piezas', 'Por pieza'],
-    ['money', 'Importe', 'Por pesos']
-  ] as const)('modo %s: etiqueta «%s» y «%s»', (mode, amountLabel, modeLabel) => {
+    ['bag', 'sales.amount.bag', 'sales.modes.bag'],
+    ['kg', 'sales.amount.kg', 'sales.modes.kg'],
+    ['piece', 'sales.amount.piece', 'sales.modes.piece'],
+    ['money', 'sales.amount.money', 'sales.modes.money']
+  ] as const)('modo %s: claves «%s» y «%s»', (mode, amountLabel, modeLabel) => {
     component.form.controls.mode.setValue(mode);
 
     expect(component.amountLabel()).toBe(amountLabel);
     expect(component.modeLabel(mode)).toBe(modeLabel);
   });
 
+  it('muestra la etiqueta de la cantidad y los modos con los textos del diccionario', () => {
+    component.form.controls.mode.setValue('kg');
+    fixture.detectChanges();
+    const element: HTMLElement = fixture.nativeElement;
+
+    expect(element.textContent).toContain(t('sales.amount.kg'));
+    expect([...element.querySelectorAll('select[formcontrolname="mode"] option')].map((option) => option.textContent?.trim()))
+      .toEqual([t('sales.modes.bag'), t('sales.modes.kg'), t('sales.modes.piece'), t('sales.modes.money')]);
+    expect(element.querySelector<HTMLInputElement>('input[formcontrolname="customer"]')?.placeholder)
+      .toBe(t('sales.form.customerPlaceholder'));
+  });
+
   it('describe la cotización según la unidad', () => {
     expect(component.quoteDetail(null, 'bag')).toBe('');
-    expect(component.quoteDetail(aSaleLine({ unit: 'bag', quantity: 2 }), 'bag')).toBe('2 bulto');
-    expect(component.quoteDetail(aSaleLine({ unit: 'kg', quantity: 2.5 }), 'kg')).toBe('2.5 kg');
-    expect(component.quoteDetail(aSaleLine({ unit: 'piece', quantity: 3 }), 'piece')).toBe('3 pieza(s)');
-    expect(component.quoteDetail(aSaleLine({ unit: 'kg', quantity: 4 }), 'money')).toBe('4 kg');
+    expect(component.quoteDetail(aSaleLine({ unit: 'bag', quantity: 2 }), 'bag')).toBe(t('sales.quantity.bag', { quantity: 2 }));
+    expect(component.quoteDetail(aSaleLine({ unit: 'kg', quantity: 2.5 }), 'kg')).toBe(t('sales.quantity.kg', { quantity: '2.5' }));
+    expect(component.quoteDetail(aSaleLine({ unit: 'piece', quantity: 3 }), 'piece')).toBe(t('sales.quantity.piece', { quantity: 3 }));
+    expect(component.quoteDetail(aSaleLine({ unit: 'kg', quantity: 4 }), 'money')).toBe(t('sales.quantity.kg', { quantity: 4 }));
   });
 
   it('agrega líneas al carrito, suma el total y propone el pago exacto', async () => {
@@ -123,7 +138,7 @@ describe('SalesPageComponent', () => {
 
     component.addLine();
 
-    expect(component.lineDetail(component.cart()[0])).toMatch(/^\$100\.00 = 4 kg$/);
+    expect(component.lineDetail(component.cart()[0])).toBe(t('sales.quantity.money', { amount: '$100.00', quantity: 4 }));
   });
 
   it('no agrega una línea sin cotización', () => {
@@ -158,7 +173,7 @@ describe('SalesPageComponent', () => {
     component.sell();
 
     expect(store.registerSaleBatch).not.toHaveBeenCalled();
-    expect(component.message()).toBe('El dinero recibido no cubre el total de la venta.');
+    expect(component.message()).toBe(t('sales.messages.insufficientPayment'));
   });
 
   it('no hace nada al cobrar un carrito vacío', () => {
@@ -168,7 +183,7 @@ describe('SalesPageComponent', () => {
   });
 
   it('cobra, muestra el ticket si se pide y vacía el carrito', async () => {
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
     await quoted();
     component.form.controls.customer.setValue('Juan');
     component.addLine();
@@ -177,7 +192,8 @@ describe('SalesPageComponent', () => {
     component.sell();
 
     expect(store.registerSaleBatch).toHaveBeenCalledWith('Juan', [{ productId: 'p-1', mode: 'bag', amount: 1 }]);
-    expect(component.message()).toMatch(/^Venta cobrada por \$400\.00\. Cambio: \$100\.00\.$/);
+    expect(confirm).toHaveBeenCalledWith(t('sales.messages.askTicket'));
+    expect(component.message()).toBe(t('sales.messages.charged', { total: '$400.00', change: '$100.00' }));
     expect(component.ticket()).toEqual({ sale: aSale({ total: 400 }), received: 500, change: 100 });
     expect(component.cart()).toEqual([]);
     expect(component.isSelling()).toBe(false);
@@ -209,7 +225,7 @@ describe('SalesPageComponent', () => {
 
     component.saveTicket(preview);
     expect(store.saveTicket).toHaveBeenCalledWith(expect.objectContaining({ ...preview, savedAt: expect.any(String) }));
-    expect(component.message()).toBe('Ticket guardado correctamente.');
+    expect(component.message()).toBe(t('sales.messages.ticketSaved'));
 
     component.openSavedTicketsDialog();
     expect(component.savedTicketsDialogOpen()).toBe(true);
@@ -224,6 +240,7 @@ describe('SalesPageComponent', () => {
   it('borra un ticket guardado solo si se confirma', () => {
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     component.deleteSavedTicket('sale-1');
+    expect(confirm).toHaveBeenCalledWith(t('sales.messages.confirmDeleteTicket'));
     expect(store.deleteSavedTicket).not.toHaveBeenCalled();
 
     confirm.mockReturnValue(true);

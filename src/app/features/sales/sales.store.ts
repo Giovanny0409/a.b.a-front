@@ -64,7 +64,7 @@ export class SalesStore {
     const sellerId = this.activeSeller()?.id;
 
     if (!sellerId) {
-      return throwError(() => new Error('Vendedor no autorizado para registrar ventas.'));
+      return throwError(() => new Error('sales.errors.sellerNotAuthorized'));
     }
 
     const requestId = crypto.randomUUID();

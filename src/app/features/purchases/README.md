@@ -67,7 +67,15 @@ Reutiliza estilos de `src/assets/layout/` (`_forms`, `_buttons`, `_tables`, `_ca
 
 ## Internacionalización
 
-Pendiente: todo el texto de este componente sigue embebido en español directo en el template (aún no migrado a `ngx-translate`/`es.json`, ver `CLAUDE.md` Principio 1). Se migrará cuando se toque este componente para un cambio funcional futuro.
+Todos los textos salen de `es.json`: los de la compra en `purchases.*`, los del panel de gastos en
+`expenses.*` (compartidos con Historial) y los comunes en `common.*`.
+
+- **Mensajes:** `message()` y `expenseMessage()` se traducen al asignarlos con `TranslateService.instant()`. Un
+  mensaje del backend no es una clave, así que se muestra tal cual. Los respaldos de `purchases.effects.ts` son
+  claves (`purchases.errors.*`, `expenses.errors.register`).
+- **Valores que se guardan como dato:** los `value` de las categorías y apartados de gasto («Renta»,
+  «guardadito»), las categorías sugeridas del producto («Alimento»…) y el proveedor por omisión («Sin
+  proveedor») se quedan en el código. Solo las etiquetas de las opciones salen del diccionario.
 
 ## Manejo de errores y observabilidad
 
@@ -81,6 +89,8 @@ Errores de red o de validación del backend se muestran en `message()`/`expenseM
   (normalización del cuerpo de compra y gasto).
 - E2E (Playwright, `npm run test:e2e`): `e2e/compras-inventario/` registra una compra de bultos y varios y la
   verifica en Inventario.
+- Los textos se comparan con `t()` (`src/app/testing/translate.ts` y `e2e/support/textos.ts`); la prueba del
+  componente agrega `provideI18n()` a su `TestBed` y comprueba que las opciones conservan su valor de dato.
 
 ## Dependencias
 

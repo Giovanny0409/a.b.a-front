@@ -68,7 +68,17 @@ Reutiliza estilos de `src/assets/layout/`. La barra superior muestra el vendedor
 
 ## Internacionalización
 
-Pendiente: todo el texto sigue embebido en español directo en el template (aún no migrado a `ngx-translate`/`es.json`, ver `CLAUDE.md` Principio 1). Se migrará cuando se toque este componente para un cambio funcional futuro.
+Todos los textos salen de `es.json`, en `sales.*`, `seller.*` (los diálogos del guard) y `common.*`.
+
+- **Etiquetas:** `amountLabel()` y `modeLabel()` devuelven la clave y la plantilla la traduce.
+- **Textos con datos:** `quoteDetail()`, `lineDetail()` y los mensajes de `message()` se traducen al
+  armarlos con `TranslateService.instant()`, igual que los `confirm`. El cargador es síncrono, así que
+  `instant()` siempre encuentra el diccionario.
+- **Mensajes del backend:** `instant()` devuelve tal cual un texto que no es una clave. Por eso un mensaje
+  del backend («No hay inventario suficiente…») se muestra sin cambios, y los respaldos de effects y de
+  la fachada son claves (`sales.errors.*`, `seller.rejected`).
+- **Datos que se guardan:** el cliente por omisión, «Publico general», se queda en el código porque se
+  guarda como dato. Solo el marcador del campo («Público general») sale del diccionario.
 
 ## Manejo de errores y observabilidad
 
@@ -81,6 +91,7 @@ Errores de red o de negocio (ej. dinero recibido insuficiente, inventario insufi
   bulto, kilo, pieza y pesos; venta en lote por `requestId`; venta sin vendedor), `store/sales.reducer.spec.ts` y
   `store/sales.effects.spec.ts`. El guard de vendedor se prueba en `core/sales-auth.guard.spec.ts`.
 - E2E (Playwright, `npm run test:e2e`): `e2e/ventas/` recorre el vendedor activo como lo usa una persona: ID desconocido, cobro a nombre del vendedor, salir y volver, cambiar de vendedor conservando los tickets, y cancelar el cambio.
+- Los textos se comparan con `t()` (`src/app/testing/translate.ts` en las unitarias, `e2e/support/textos.ts` en las E2E), nunca con literales; las pruebas de componente y del guard agregan `provideI18n()` a su `TestBed`.
 
 ## Dependencias
 

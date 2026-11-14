@@ -18,7 +18,7 @@ export class InventoryEffects {
     }).pipe(
       map(({ inventory, lots, products }) => InventoryActions.loadSuccess({ inventory, lots, products })),
       catchError((error) => of(InventoryActions.loadFailure({
-        error: error?.error?.message ?? 'No fue posible cargar inventario.'
+        error: error?.error?.message ?? 'inventory.errors.load'
       })))
     ))
   ));

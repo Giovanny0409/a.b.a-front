@@ -112,10 +112,16 @@ fusiona un PR.
 - Todo texto visible al usuario se agrega en el diccionario `src/assets/i18n/es.json` (**único idioma: español**,
   no existe `en.json` ni se planea agregar).
 - En plantillas/código se usa la clave de traducción (`| translate` / `TranslateService`), nunca el literal.
-- **Esta regla aplica de forma retroactiva**: todo el texto que hoy está embebido directo en los templates
-  (la mayoría del código existente) debe migrarse a `es.json` a medida que se toca cada componente, y todo
-  componente nuevo se escribe usando claves desde el inicio. No es opcional para código nuevo ni para código
-  legado que se esté modificando.
+- Todas las pantallas ya están en `es.json` (`instalar-i18n-espanol`). Todo componente nuevo o modificado se
+  escribe con claves desde el inicio. No es opcional.
+- `provideI18n()` (`src/app/core/i18n/`) registra el diccionario, que viaja dentro del bundle, y el formato
+  `es-MX` («$1,250.00»). Las etiquetas devuelven la clave y la plantilla la traduce. Los textos que llevan
+  datos y los avisos se traducen con `TranslateService.instant()`. Un mensaje del backend no es una clave,
+  así que se muestra tal cual.
+- Los valores que se guardan como dato (categorías, apartados, «Publico general», «Sin proveedor») no son
+  textos de pantalla: se quedan en el código. Solo su etiqueta visible sale del diccionario.
+- Las pruebas comparan contra el diccionario con `t()` (`src/app/testing/translate.ts` y
+  `e2e/support/textos.ts`), nunca contra el literal.
 
 ### 2. Principios SOLID
 - Aplicar SOLID siempre:
@@ -148,6 +154,10 @@ fusiona un PR.
 - `npm run logs:check` (`scripts/logs/check-debug-logs.mjs`) corre solo antes de `npm run build` y `npm test`.
   Falla si un `.ts` de `src/`, salvo los `*.spec.ts`, llama a `console.log`, `console.debug`, `console.info` o
   `console.trace`, aunque esté comentado. `console.warn` y `console.error` se permiten, porque reportan errores.
+- `npm run i18n:check` (`scripts/i18n/check-i18n-keys.mjs`) corre después de `logs:check`, también antes de
+  `npm run build` y `npm test`. Falla si `src/app` usa una clave que no está en `es.json`, o si `es.json`
+  tiene una clave que nadie usa. Por eso las claves se escriben completas en el código, nunca armadas por
+  concatenación.
 - No dejar componentes, métodos, servicios, actions/effects/selectors ni claves i18n huérfanas (sin uso).
 - Al eliminar una funcionalidad, limpiar todas sus referencias — **incluyendo el backend** cuando el campo o endpoint ya no se use desde el frontend (por ejemplo, campos que el frontend dejó de usar pero siguen vivos en los `record` de `backend aba`).
 

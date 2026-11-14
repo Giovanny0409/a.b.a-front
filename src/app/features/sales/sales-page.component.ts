@@ -2,6 +2,7 @@ import { CurrencyPipe, DatePipe, NgFor, NgIf } from '@angular/common';
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { debounceTime, startWith, switchMap } from 'rxjs';
 import { SaleLine, SaleRecord } from '../../core/pos.models';
 import { SavedTicket } from './store/sales.actions';
@@ -22,67 +23,71 @@ interface TicketPreview {
 @Component({
   selector: 'aba-sales-page',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, NgFor, NgIf, ReactiveFormsModule],
+  imports: [CurrencyPipe, DatePipe, NgFor, NgIf, ReactiveFormsModule, TranslatePipe],
   providers: [SalesStore],
   template: `
     <div class="sales-toolbar">
-      <span class="badge ok" *ngIf="store.activeSeller() as seller">Vendedor: {{ seller.name }}</span>
+      <span class="badge ok" *ngIf="store.activeSeller() as seller">{{ 'sales.toolbar.seller' | translate: { name: seller.name } }}</span>
       <button class="btn secondary" type="button" (click)="changeSeller()">
         <i class="pi pi-user-edit"></i>
-        Cambiar vendedor
+        {{ 'sales.toolbar.changeSeller' | translate }}
       </button>
       <button class="btn secondary" type="button" (click)="openSavedTicketsDialog()">
         <i class="pi pi-ticket"></i>
-        Tickets guardados
+        {{ 'sales.savedTickets.title' | translate }}
         <span>{{ savedTickets().length }}</span>
       </button>
     </div>
 
     <section class="sales-layout">
       <article class="panel">
-        <h2>Nueva venta</h2>
+        <h2>{{ 'sales.form.title' | translate }}</h2>
         <form [formGroup]="form" (ngSubmit)="addLine()" class="sale-form">
           <label class="field">
-            <span>Cliente</span>
-            <input formControlName="customer" placeholder="Publico general">
+            <span>{{ 'common.fields.customer' | translate }}</span>
+            <input formControlName="customer" [placeholder]="'sales.form.customerPlaceholder' | translate">
           </label>
 
           <label class="field">
-            <span>Producto</span>
+            <span>{{ 'common.fields.product' | translate }}</span>
             <select formControlName="productId">
               <option *ngFor="let product of store.products()" [value]="product.id">{{ product.name }}</option>
             </select>
           </label>
 
           <label class="field">
-            <span>Venta</span>
+            <span>{{ 'sales.form.mode' | translate }}</span>
             <select formControlName="mode">
-              <option value="bag">Por bulto</option>
-              <option value="kg">Por kilo</option>
-              <option value="piece">Por pieza</option>
-              <option value="money">Por pesos</option>
+              <option value="bag">{{ 'sales.modes.bag' | translate }}</option>
+              <option value="kg">{{ 'sales.modes.kg' | translate }}</option>
+              <option value="piece">{{ 'sales.modes.piece' | translate }}</option>
+              <option value="money">{{ 'sales.modes.money' | translate }}</option>
             </select>
           </label>
 
           <label class="field">
-            <span>{{ amountLabel() }}</span>
+            <span>{{ amountLabel() | translate }}</span>
             <input formControlName="amount" type="number" min="0" step="0.01">
           </label>
 
           <div class="quote" *ngIf="quote(); else noQuote">
-            <span>Total del producto</span>
+            <span>{{ 'sales.quote.total' | translate }}</span>
             <strong>{{ quote()?.total | currency: 'MXN' }}</strong>
-            <small>{{ quoteDetail(quote(), form.controls.mode.value) }} | Costo estimado {{ quote()?.cost | currency: 'MXN' }} | Ganancia {{ quote()?.profit | currency: 'MXN' }}</small>
+            <small>{{ 'sales.quote.detail' | translate: {
+              detail: quoteDetail(quote(), form.controls.mode.value),
+              cost: (quote()?.cost | currency: 'MXN'),
+              profit: (quote()?.profit | currency: 'MXN')
+            } }}</small>
           </div>
           <ng-template #noQuote>
             <div class="quote muted">
-              <span>Inventario</span>
-              <strong>No disponible</strong>
-              <small>Revisa bultos sellados o kilos abiertos.</small>
+              <span>{{ 'sales.quote.unavailableTitle' | translate }}</span>
+              <strong>{{ 'sales.quote.unavailable' | translate }}</strong>
+              <small>{{ 'sales.quote.unavailableHint' | translate }}</small>
             </div>
           </ng-template>
 
-          <button class="btn" type="submit"><i class="pi pi-plus"></i> Agregar producto</button>
+          <button class="btn" type="submit"><i class="pi pi-plus"></i> {{ 'sales.form.add' | translate }}</button>
         </form>
 
         <p class="notice" *ngIf="message()">{{ message() }}</p>
@@ -90,10 +95,10 @@ interface TicketPreview {
 
       <article class="panel">
         <div class="head">
-          <h2>Productos de la venta</h2>
+          <h2>{{ 'sales.cart.title' | translate }}</h2>
           <button class="btn secondary" type="button" (click)="clearCart()" [disabled]="cart().length === 0">
             <i class="pi pi-trash"></i>
-            Limpiar
+            {{ 'sales.cart.clear' | translate }}
           </button>
         </div>
 
@@ -101,27 +106,27 @@ interface TicketPreview {
           <table>
             <thead>
               <tr>
-                <th>Producto</th>
-                <th>Modo</th>
-                <th>Cantidad</th>
-                <th>Total</th>
+                <th>{{ 'common.fields.product' | translate }}</th>
+                <th>{{ 'sales.cart.mode' | translate }}</th>
+                <th>{{ 'common.fields.quantity' | translate }}</th>
+                <th>{{ 'common.fields.total' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let line of cart(); let i = index">
                 <td>{{ line.productName }}</td>
-                <td>{{ modeLabel(line.mode) }}</td>
+                <td>{{ modeLabel(line.mode) | translate }}</td>
                 <td>{{ lineDetail(line) }}</td>
                 <td>{{ line.quote.total | currency: 'MXN' }}</td>
                 <td>
-                  <button class="icon-btn" type="button" title="Quitar producto" (click)="removeLine(i)">
+                  <button class="icon-btn" type="button" [title]="'common.actions.removeProduct' | translate" (click)="removeLine(i)">
                     <i class="pi pi-trash"></i>
                   </button>
                 </td>
               </tr>
               <tr *ngIf="cart().length === 0">
-                <td colspan="5" class="empty">Agrega productos para cobrar la venta.</td>
+                <td colspan="5" class="empty">{{ 'sales.cart.empty' | translate }}</td>
               </tr>
             </tbody>
           </table>
@@ -129,18 +134,18 @@ interface TicketPreview {
 
         <form [formGroup]="paymentForm" (ngSubmit)="sell()" class="checkout">
           <div class="summary">
-            <span>Productos vendidos <strong>{{ cart().length }}</strong></span>
-            <span>Total a cobrar <strong>{{ total() | currency: 'MXN' }}</strong></span>
+            <span>{{ 'sales.checkout.items' | translate }} <strong>{{ cart().length }}</strong></span>
+            <span>{{ 'sales.checkout.total' | translate }} <strong>{{ total() | currency: 'MXN' }}</strong></span>
             <label class="field compact">
-              <span>Dinero recibido</span>
+              <span>{{ 'sales.checkout.received' | translate }}</span>
               <input formControlName="received" type="number" min="0" step="0.01">
             </label>
-            <span>Cambio a entregar <strong>{{ change() | currency: 'MXN' }}</strong></span>
+            <span>{{ 'sales.checkout.change' | translate }} <strong>{{ change() | currency: 'MXN' }}</strong></span>
           </div>
 
           <button class="btn" type="submit" [disabled]="cart().length === 0 || isSelling()">
             <i class="pi pi-check"></i>
-            Finalizar venta
+            {{ 'sales.checkout.finish' | translate }}
           </button>
         </form>
       </article>
@@ -150,10 +155,10 @@ interface TicketPreview {
       <article class="dialog-panel saved-tickets-dialog">
         <div class="dialog-head">
           <div>
-            <h2>Tickets guardados</h2>
-            <span>{{ savedTickets().length }} guardados</span>
+            <h2>{{ 'sales.savedTickets.title' | translate }}</h2>
+            <span>{{ 'sales.savedTickets.count' | translate: { count: savedTickets().length } }}</span>
           </div>
-          <button class="icon-btn neutral" type="button" title="Cerrar" (click)="closeSavedTicketsDialog()">
+          <button class="icon-btn neutral" type="button" [title]="'common.actions.close' | translate" (click)="closeSavedTicketsDialog()">
             <i class="pi pi-times"></i>
           </button>
         </div>
@@ -162,9 +167,9 @@ interface TicketPreview {
           <table>
             <thead>
               <tr>
-                <th>Fecha</th>
-                <th>Cliente</th>
-                <th>Total</th>
+                <th>{{ 'common.fields.date' | translate }}</th>
+                <th>{{ 'common.fields.customer' | translate }}</th>
+                <th>{{ 'common.fields.total' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -174,16 +179,16 @@ interface TicketPreview {
                 <td>{{ savedTicket.sale.customer }}</td>
                 <td>{{ savedTicket.sale.total | currency: 'MXN' }}</td>
                 <td class="ticket-row-actions">
-                  <button class="icon-btn neutral" type="button" title="Abrir ticket" (click)="openSavedTicket(savedTicket)">
+                  <button class="icon-btn neutral" type="button" [title]="'sales.savedTickets.open' | translate" (click)="openSavedTicket(savedTicket)">
                     <i class="pi pi-eye"></i>
                   </button>
-                  <button class="icon-btn" type="button" title="Eliminar ticket" (click)="deleteSavedTicket(savedTicket.sale.id)">
+                  <button class="icon-btn" type="button" [title]="'sales.savedTickets.delete' | translate" (click)="deleteSavedTicket(savedTicket.sale.id)">
                     <i class="pi pi-trash"></i>
                   </button>
                 </td>
               </tr>
               <tr *ngIf="savedTickets().length === 0">
-                <td colspan="4" class="empty">Los tickets guardados apareceran aqui.</td>
+                <td colspan="4" class="empty">{{ 'sales.savedTickets.empty' | translate }}</td>
               </tr>
             </tbody>
           </table>
@@ -196,29 +201,29 @@ interface TicketPreview {
         <div class="ticket-actions">
           <button class="btn secondary" type="button" (click)="closeTicket()">
             <i class="pi pi-times"></i>
-            Cerrar
+            {{ 'common.actions.close' | translate }}
           </button>
           <button class="btn secondary" type="button" (click)="saveTicket(currentTicket)">
             <i class="pi pi-save"></i>
-            Guardar
+            {{ 'common.actions.save' | translate }}
           </button>
           <button class="btn" type="button" (click)="printTicket()">
             <i class="pi pi-print"></i>
-            Imprimir
+            {{ 'sales.ticket.print' | translate }}
           </button>
         </div>
 
         <div class="ticket-paper" id="sale-ticket">
-          <h2>Alimentos Balanceados Alonso</h2>
+          <h2>{{ 'common.brand.name' | translate }}</h2>
           <p>{{ currentTicket.sale.soldAt | date: 'dd/MM/yyyy HH:mm' }}</p>
-          <p>Cliente: {{ currentTicket.sale.customer }}</p>
+          <p>{{ 'sales.ticket.customer' | translate: { name: currentTicket.sale.customer } }}</p>
 
           <table>
             <tbody>
               <tr *ngFor="let line of currentTicket.sale.lines">
                 <td>
                   <strong>{{ line.productName }}</strong>
-                  <span>{{ formatNumber(line.quantity) }} {{ line.unit === 'kg' ? 'kg' : 'bulto' }}</span>
+                  <span>{{ (line.unit === 'kg' ? 'sales.quantity.kg' : 'sales.quantity.bag') | translate: { quantity: formatNumber(line.quantity) } }}</span>
                 </td>
                 <td>{{ line.total | currency: 'MXN' }}</td>
               </tr>
@@ -226,19 +231,19 @@ interface TicketPreview {
           </table>
 
           <div class="ticket-total">
-            <span>Total</span>
+            <span>{{ 'common.fields.total' | translate }}</span>
             <strong>{{ currentTicket.sale.total | currency: 'MXN' }}</strong>
           </div>
           <div class="ticket-total">
-            <span>Recibido</span>
+            <span>{{ 'sales.ticket.received' | translate }}</span>
             <span>{{ currentTicket.received | currency: 'MXN' }}</span>
           </div>
           <div class="ticket-total">
-            <span>Cambio</span>
+            <span>{{ 'sales.ticket.change' | translate }}</span>
             <span>{{ currentTicket.change | currency: 'MXN' }}</span>
           </div>
 
-          <p class="thanks">Gracias por su compra</p>
+          <p class="thanks">{{ 'sales.ticket.thanks' | translate }}</p>
         </div>
       </article>
     </section>
@@ -538,6 +543,7 @@ interface TicketPreview {
 export class SalesPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
   readonly store = inject(SalesStore);
   readonly message = signal('');
   readonly quote = signal<SaleLine | null>(null);
@@ -578,29 +584,34 @@ export class SalesPageComponent {
     ).subscribe((quote) => this.quote.set(quote));
   }
 
+  private readonly amountLabels: Record<SalesEntryMode, string> = {
+    bag: 'sales.amount.bag',
+    kg: 'sales.amount.kg',
+    piece: 'sales.amount.piece',
+    money: 'sales.amount.money'
+  };
+
+  private readonly modeLabels: Record<SalesEntryMode, string> = {
+    bag: 'sales.modes.bag',
+    kg: 'sales.modes.kg',
+    piece: 'sales.modes.piece',
+    money: 'sales.modes.money'
+  };
+
+  private readonly quantityLabels: Record<SaleLine['unit'], string> = {
+    bag: 'sales.quantity.bag',
+    kg: 'sales.quantity.kg',
+    piece: 'sales.quantity.piece'
+  };
+
+  /** Clave de la etiqueta de la cantidad según el modo de venta. */
   amountLabel(): string {
-    const mode = this.form.controls.mode.value;
-    if (mode === 'money') {
-      return 'Importe';
-    }
-
-    if (mode === 'kg') {
-      return 'Kilos';
-    }
-
-    return mode === 'piece' ? 'Piezas' : 'Bultos';
+    return this.amountLabels[this.form.controls.mode.value];
   }
 
+  /** Clave del nombre del modo de venta. */
   modeLabel(mode: SalesEntryMode): string {
-    if (mode === 'money') {
-      return 'Por pesos';
-    }
-
-    if (mode === 'kg') {
-      return 'Por kilo';
-    }
-
-    return mode === 'piece' ? 'Por pieza' : 'Por bulto';
+    return this.modeLabels[mode];
   }
 
   quoteDetail(quote: SaleLine | null, mode: SalesEntryMode): string {
@@ -608,24 +619,17 @@ export class SalesPageComponent {
       return '';
     }
 
-    if (mode === 'money') {
-      return `${this.formatNumber(quote.quantity)} kg`;
-    }
-
-    return `${this.formatNumber(quote.quantity)} ${this.unitLabel(quote.unit)}`;
-  }
-
-  private unitLabel(unit: SaleLine['unit']): string {
-    if (unit === 'kg') {
-      return 'kg';
-    }
-
-    return unit === 'piece' ? 'pieza(s)' : 'bulto';
+    const quantity = this.formatNumber(quote.quantity);
+    const key = mode === 'money' ? 'sales.quantity.kg' : this.quantityLabels[quote.unit];
+    return this.translate.instant(key, { quantity });
   }
 
   lineDetail(line: CartLine): string {
     if (line.mode === 'money') {
-      return `${this.formatCurrency(line.amount)} = ${this.formatNumber(line.quote.quantity)} kg`;
+      return this.translate.instant('sales.quantity.money', {
+        amount: this.formatCurrency(line.amount),
+        quantity: this.formatNumber(line.quote.quantity)
+      });
     }
 
     return this.quoteDetail(line.quote, line.mode);
@@ -682,7 +686,7 @@ export class SalesPageComponent {
 
     if (this.paymentForm.invalid || Number(this.paymentForm.controls.received.value) < this.total()) {
       this.paymentForm.markAllAsTouched();
-      this.message.set('El dinero recibido no cubre el total de la venta.');
+      this.message.set(this.translate.instant('sales.messages.insufficientPayment'));
       return;
     }
 
@@ -694,9 +698,12 @@ export class SalesPageComponent {
       next: (sale) => {
         const received = Number(this.paymentForm.controls.received.value || 0);
         const change = received - sale.total;
-        this.message.set(`Venta cobrada por ${this.formatCurrency(sale.total)}. Cambio: ${this.formatCurrency(change)}.`);
+        this.message.set(this.translate.instant('sales.messages.charged', {
+          total: this.formatCurrency(sale.total),
+          change: this.formatCurrency(change)
+        }));
 
-        if (window.confirm('Venta finalizada. Requiere ticket?')) {
+        if (window.confirm(this.translate.instant('sales.messages.askTicket'))) {
           this.ticket.set({ sale, received, change });
         } else {
           this.ticket.set(null);
@@ -705,7 +712,8 @@ export class SalesPageComponent {
         this.clearCart();
       },
       error: (error) => {
-        this.message.set(error?.error?.message ?? error?.message ?? 'No fue posible registrar la venta en el backend.');
+        // Un mensaje del backend no es una clave: instant() lo devuelve tal cual.
+        this.message.set(this.translate.instant(error?.error?.message ?? error?.message ?? 'sales.errors.register'));
       },
       complete: () => {
         this.isSelling.set(false);
@@ -724,7 +732,7 @@ export class SalesPageComponent {
     };
 
     this.store.saveTicket(savedTicket);
-    this.message.set('Ticket guardado correctamente.');
+    this.message.set(this.translate.instant('sales.messages.ticketSaved'));
   }
 
   changeSeller(): void {
@@ -749,7 +757,7 @@ export class SalesPageComponent {
   }
 
   deleteSavedTicket(saleId: string): void {
-    if (!window.confirm('Eliminar este ticket guardado?')) {
+    if (!window.confirm(this.translate.instant('sales.messages.confirmDeleteTicket'))) {
       return;
     }
 

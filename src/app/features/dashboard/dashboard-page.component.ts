@@ -1,12 +1,15 @@
-import { CurrencyPipe, DatePipe, NgFor } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, NgFor } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ExpenseRecord, InventoryItem, SaleRecord } from '../../core/pos.models';
 import { DashboardStore } from './dashboard.store';
 import { ProductImportance } from './store/dashboard.actions';
 
+type ImportanceStatus = 'covered' | 'review';
+
 interface CashCut {
-  label: string;
+  labelKey: string;
   sales: number;
   total: number;
   expenses: number;
@@ -16,45 +19,45 @@ interface CashCut {
 @Component({
   selector: 'aba-dashboard-page',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, NgFor, RouterLink],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgFor, RouterLink, TranslatePipe],
   providers: [DashboardStore],
   template: `
     <section class="metrics">
       <div class="metric">
-        <span>Bultos totales</span>
-        <strong>{{ store.summary().totalBags }} bultos</strong>
+        <span>{{ 'dashboard.metrics.totalBags' | translate }}</span>
+        <strong>{{ 'common.units.bagsCount' | translate: { count: store.summary().totalBags } }}</strong>
       </div>
       <div class="metric">
-        <span>Bultos sellados</span>
-        <strong>{{ store.summary().sealedBags }} bultos</strong>
+        <span>{{ 'dashboard.metrics.sealedBags' | translate }}</span>
+        <strong>{{ 'common.units.bagsCount' | translate: { count: store.summary().sealedBags } }}</strong>
       </div>
       <div class="metric">
-        <span>Bultos abiertos</span>
-        <strong>{{ store.summary().openBags }} bultos</strong>
+        <span>{{ 'dashboard.metrics.openBags' | translate }}</span>
+        <strong>{{ 'common.units.bagsCount' | translate: { count: store.summary().openBags } }}</strong>
       </div>
       <div class="metric">
-        <span>Gastos registrados</span>
+        <span>{{ 'dashboard.metrics.expenses' | translate }}</span>
         <strong>{{ store.summary().expenses | currency: 'MXN' }}</strong>
       </div>
     </section>
 
     <section class="report-grid">
       <article class="panel cash-cut-panel">
-        <h2>Corte de caja diario</h2>
+        <h2>{{ 'dashboard.cashCut.title' | translate }}</h2>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>Turno</th>
-                <th>Ventas</th>
-                <th>Total</th>
-                <th>Gastos</th>
-                <th>Ganancia</th>
+                <th>{{ 'dashboard.cashCut.shift' | translate }}</th>
+                <th>{{ 'common.fields.sales' | translate }}</th>
+                <th>{{ 'common.fields.total' | translate }}</th>
+                <th>{{ 'common.fields.expenses' | translate }}</th>
+                <th>{{ 'common.fields.profit' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let cut of dailyCashCuts()">
-                <td>{{ cut.label }}</td>
+                <td>{{ cut.labelKey | translate }}</td>
                 <td>{{ cut.sales }}</td>
                 <td>{{ cut.total | currency: 'MXN' }}</td>
                 <td>{{ cut.expenses | currency: 'MXN' }}</td>
@@ -66,40 +69,44 @@ interface CashCut {
       </article>
 
       <article class="panel">
-        <h2>Semana actual</h2>
+        <h2>{{ 'dashboard.week.title' | translate }}</h2>
         <div class="week-summary">
           <span>{{ weekStart() | date: 'dd/MM/yyyy' }} - {{ weekEnd() | date: 'dd/MM/yyyy' }}</span>
           <strong>{{ weeklySummary().income | currency: 'MXN' }}</strong>
-          <small>Ganancia neta {{ weeklySummary().profit | currency: 'MXN' }} / Gastos {{ weeklySummary().expenses | currency: 'MXN' }} / {{ weeklySummary().sales }} ventas</small>
+          <small>{{ 'dashboard.week.detail' | translate: {
+            profit: (weeklySummary().profit | currency: 'MXN'),
+            expenses: (weeklySummary().expenses | currency: 'MXN'),
+            sales: weeklySummary().sales
+          } }}</small>
         </div>
       </article>
 
       <article class="panel actions">
-        <h2>Trabajo rapido</h2>
-        <a class="btn" routerLink="/ventas"><i class="pi pi-shopping-cart"></i> Nueva venta</a>
-        <a class="btn secondary" routerLink="/compras"><i class="pi pi-plus-circle"></i> Registrar compra</a>
-        <a class="btn secondary" routerLink="/inventario"><i class="pi pi-warehouse"></i> Revisar inventario</a>
+        <h2>{{ 'dashboard.quickWork.title' | translate }}</h2>
+        <a class="btn" routerLink="/ventas"><i class="pi pi-shopping-cart"></i> {{ 'dashboard.quickWork.newSale' | translate }}</a>
+        <a class="btn secondary" routerLink="/compras"><i class="pi pi-plus-circle"></i> {{ 'dashboard.quickWork.registerPurchase' | translate }}</a>
+        <a class="btn secondary" routerLink="/inventario"><i class="pi pi-warehouse"></i> {{ 'dashboard.quickWork.reviewInventory' | translate }}</a>
       </article>
     </section>
 
     <section class="panel importance-panel">
-      <h2>Niveles de importancia</h2>
-      <h3>Bultos</h3>
+      <h2>{{ 'dashboard.importance.title' | translate }}</h2>
+      <h3>{{ 'dashboard.importance.bags' | translate }}</h3>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Actual</th>
-              <th>Min. bultos</th>
-              <th>Min. kg abiertos</th>
-              <th>Estado</th>
+              <th>{{ 'common.fields.product' | translate }}</th>
+              <th>{{ 'dashboard.importance.current' | translate }}</th>
+              <th>{{ 'dashboard.importance.minBags' | translate }}</th>
+              <th>{{ 'dashboard.importance.minOpenKg' | translate }}</th>
+              <th>{{ 'common.fields.status' | translate }}</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of bagInventory()">
               <td>{{ item.product.name }}</td>
-              <td>{{ bagInventoryLabel(item) }}</td>
+              <td>{{ 'common.units.bagsAndOpenKg' | translate: { bags: item.sealedBags, kg: (item.openKg | number: '1.0-2') } }}</td>
               <td>
                 <input #minBags type="number" min="0" step="1" [value]="importanceFor(item).minBags">
               </td>
@@ -112,10 +119,10 @@ interface CashCut {
                   type="button"
                   (click)="saveBagImportance(item, minBags.value, minOpenKg.value)"
                 >
-                  Guardar
+                  {{ 'common.actions.save' | translate }}
                 </button>
-                <span class="badge" [class.danger]="importanceStatus(item) === 'Revisar'" [class.ok]="importanceStatus(item) === 'Cubierto'">
-                  {{ importanceStatus(item) }}
+                <span class="badge" [class.danger]="importanceStatus(item) === 'review'" [class.ok]="importanceStatus(item) === 'covered'">
+                  {{ statusLabels[importanceStatus(item)] | translate }}
                 </span>
               </td>
             </tr>
@@ -123,21 +130,21 @@ interface CashCut {
         </table>
       </div>
 
-      <h3>Productos varios</h3>
+      <h3>{{ 'dashboard.importance.units' | translate }}</h3>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Actual</th>
-              <th>Min. piezas</th>
-              <th>Estado</th>
+              <th>{{ 'common.fields.product' | translate }}</th>
+              <th>{{ 'dashboard.importance.current' | translate }}</th>
+              <th>{{ 'dashboard.importance.minPieces' | translate }}</th>
+              <th>{{ 'common.fields.status' | translate }}</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let item of unitInventory()">
               <td>{{ item.product.name }}</td>
-              <td>{{ unitInventoryLabel(item) }}</td>
+              <td>{{ 'common.units.piecesCount' | translate: { count: item.quantityTotal ?? 0 } }}</td>
               <td>
                 <input #minPieces type="number" min="0" step="1" [value]="importanceFor(item).minPieces">
               </td>
@@ -147,10 +154,10 @@ interface CashCut {
                   type="button"
                   (click)="saveUnitImportance(item, minPieces.value)"
                 >
-                  Guardar
+                  {{ 'common.actions.save' | translate }}
                 </button>
-                <span class="badge" [class.danger]="importanceStatus(item) === 'Revisar'" [class.ok]="importanceStatus(item) === 'Cubierto'">
-                  {{ importanceStatus(item) }}
+                <span class="badge" [class.danger]="importanceStatus(item) === 'review'" [class.ok]="importanceStatus(item) === 'covered'">
+                  {{ statusLabels[importanceStatus(item)] | translate }}
                 </span>
               </td>
             </tr>
@@ -254,22 +261,26 @@ interface CashCut {
 })
 export class DashboardPageComponent {
   readonly store = inject(DashboardStore);
+  readonly statusLabels: Record<ImportanceStatus, string> = {
+    covered: 'dashboard.importance.status.covered',
+    review: 'dashboard.importance.status.review'
+  };
 
   dailyCashCuts(): CashCut[] {
     const todaySales = this.store.sales().filter((sale) => this.isToday(sale.soldAt));
     const todayExpenses = this.store.expenses().filter((expense) => this.isToday(expense.expenseAt));
     return [
       this.cashCut(
-        'Mañana',
+        'dashboard.cashCut.morning',
         todaySales.filter((sale) => new Date(sale.soldAt).getHours() < 14),
         todayExpenses.filter((expense) => new Date(expense.expenseAt).getHours() < 14)
       ),
       this.cashCut(
-        'Tarde',
+        'dashboard.cashCut.afternoon',
         todaySales.filter((sale) => new Date(sale.soldAt).getHours() >= 14),
         todayExpenses.filter((expense) => new Date(expense.expenseAt).getHours() >= 14)
       ),
-      this.cashCut('Total dia', todaySales, todayExpenses)
+      this.cashCut('dashboard.cashCut.day', todaySales, todayExpenses)
     ];
   }
 
@@ -312,7 +323,7 @@ export class DashboardPageComponent {
   }
 
   productsToReview(): InventoryItem[] {
-    return this.store.inventory().filter((item) => this.importanceStatus(item) === 'Revisar');
+    return this.store.inventory().filter((item) => this.importanceStatus(item) === 'review');
   }
 
   bagInventory(): InventoryItem[] {
@@ -332,27 +343,27 @@ export class DashboardPageComponent {
     };
   }
 
-  importanceStatus(item: InventoryItem): 'Cubierto' | 'Revisar' {
+  importanceStatus(item: InventoryItem): ImportanceStatus {
     const importance = this.importanceFor(item);
 
     if (this.isBagItem(item)) {
       if (item.sealedBags < importance.minBags) {
-        return 'Revisar';
+        return 'review';
       }
 
       if (item.openKg < importance.minOpenKg) {
-        return 'Revisar';
+        return 'review';
       }
 
-      return 'Cubierto';
+      return 'covered';
     }
 
     const pieces = item.quantityTotal ?? 0;
     if (pieces < importance.minPieces) {
-      return 'Revisar';
+      return 'review';
     }
 
-    return 'Cubierto';
+    return 'covered';
   }
 
   saveBagImportance(item: InventoryItem, minBags: string, minOpenKg: string): void {
@@ -373,19 +384,10 @@ export class DashboardPageComponent {
     });
   }
 
-  bagInventoryLabel(item: InventoryItem): string {
-    return `${item.sealedBags} bultos / ${item.openKg.toLocaleString('es-MX', { maximumFractionDigits: 2 })} kg abiertos`;
-  }
-
-  unitInventoryLabel(item: InventoryItem): string {
-    const pieces = item.quantityTotal ?? 0;
-    return `${pieces} piezas`;
-  }
-
-  private cashCut(label: string, sales: SaleRecord[], expenses: ExpenseRecord[]): CashCut {
+  private cashCut(labelKey: string, sales: SaleRecord[], expenses: ExpenseRecord[]): CashCut {
     const expenseTotal = expenses.reduce((sum, expense) => sum + expense.amount, 0);
     return {
-      label,
+      labelKey,
       sales: sales.length,
       total: sales.reduce((sum, sale) => sum + sale.total, 0),
       expenses: expenseTotal,

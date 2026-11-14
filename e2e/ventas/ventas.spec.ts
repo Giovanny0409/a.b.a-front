@@ -1,7 +1,7 @@
 import { Dialog, Page, expect, test } from '@playwright/test';
 import { comprarBultos } from '../support/api';
 import { PRODUCTOS, PROVEEDORES } from '../support/catalogo';
-import { ID_RECHAZADO, PIDE_ID, PREGUNTA_TICKET, ventas } from './ventas.locators';
+import { ID_RECHAZADO, PIDE_ID, PREGUNTA_TICKET, textoVendedor, ventas } from './ventas.locators';
 
 // Escenarios de «Vendedor activo visible y cambiable» (spec sales, change cambiar-vendedor-en-ventas).
 // Se escribió antes de corregir P-14 para reproducirlo: con el defecto, «Cambiar de vendedor» falla porque
@@ -36,6 +36,10 @@ function contestarDialogos(page: Page, respuestas: Array<string | null>, ticket 
 }
 
 /** Cobra un bulto del alimento y devuelve a nombre de quién quedó la venta según el backend. */
+// El backend guarda el vendedor dentro del cliente de la venta (`PosStore.RegisterSaleBatch`): es un dato,
+// no un texto de la pantalla, así que no sale de es.json.
+const clienteDeLaVenta = (vendedor: string) => `Vendedor: ${vendedor}`;
+
 async function cobrarUnBulto(page: Page): Promise<string> {
   const pantalla = ventas(page);
   await pantalla.producto.selectOption({ label: ALIMENTO.nombre });
@@ -79,21 +83,21 @@ test.describe('ventas: vendedor activo', () => {
 
     await pantalla.entrar();
 
-    await expect(pantalla.vendedor).toHaveText(`Vendedor: ${VENDEDORES.aurelio.nombre}`);
-    expect(await cobrarUnBulto(page)).toContain(`Vendedor: ${VENDEDORES.aurelio.nombre}`);
+    await expect(pantalla.vendedor).toHaveText(textoVendedor(VENDEDORES.aurelio.nombre));
+    expect(await cobrarUnBulto(page)).toContain(clienteDeLaVenta(VENDEDORES.aurelio.nombre));
   });
 
   test('salir y volver conserva al vendedor sin volver a pedir el ID', async ({ page }) => {
     const dialogos = contestarDialogos(page, [VENDEDORES.aurelio.id]);
     const pantalla = ventas(page);
     await pantalla.entrar();
-    await expect(pantalla.vendedor).toHaveText(`Vendedor: ${VENDEDORES.aurelio.nombre}`);
+    await expect(pantalla.vendedor).toHaveText(textoVendedor(VENDEDORES.aurelio.nombre));
 
     await pantalla.irAlTablero();
     await pantalla.entrar();
 
     await expect(page).toHaveURL(/\/ventas$/);
-    await expect(pantalla.vendedor).toHaveText(`Vendedor: ${VENDEDORES.aurelio.nombre}`);
+    await expect(pantalla.vendedor).toHaveText(textoVendedor(VENDEDORES.aurelio.nombre));
     expect(dialogos.prompts).toBe(1);
   });
 
@@ -101,29 +105,29 @@ test.describe('ventas: vendedor activo', () => {
     contestarDialogos(page, [VENDEDORES.aurelio.id, VENDEDORES.ana.id], true);
     const pantalla = ventas(page);
     await pantalla.entrar();
-    expect(await cobrarUnBulto(page)).toContain(`Vendedor: ${VENDEDORES.aurelio.nombre}`);
+    expect(await cobrarUnBulto(page)).toContain(clienteDeLaVenta(VENDEDORES.aurelio.nombre));
     await pantalla.guardarTicket.click();
     await pantalla.cerrarTicket.click();
     await expect(pantalla.ticketsGuardados).toHaveText('1');
 
     await pantalla.cambiarVendedor.click();
 
-    await expect(pantalla.vendedor).toHaveText(`Vendedor: ${VENDEDORES.ana.nombre}`);
+    await expect(pantalla.vendedor).toHaveText(textoVendedor(VENDEDORES.ana.nombre));
     await expect(pantalla.ticketsGuardados).toHaveText('1');
-    expect(await cobrarUnBulto(page)).toContain(`Vendedor: ${VENDEDORES.ana.nombre}`);
+    expect(await cobrarUnBulto(page)).toContain(clienteDeLaVenta(VENDEDORES.ana.nombre));
   });
 
   test('cancelar el cambio regresa al tablero y al volver pide el ID', async ({ page }) => {
     const dialogos = contestarDialogos(page, [VENDEDORES.aurelio.id, null, VENDEDORES.ana.id]);
     const pantalla = ventas(page);
     await pantalla.entrar();
-    await expect(pantalla.vendedor).toHaveText(`Vendedor: ${VENDEDORES.aurelio.nombre}`);
+    await expect(pantalla.vendedor).toHaveText(textoVendedor(VENDEDORES.aurelio.nombre));
 
     await pantalla.cambiarVendedor.click();
     await expect(page).toHaveURL(/\/tablero$/);
 
     await pantalla.entrar();
-    await expect(pantalla.vendedor).toHaveText(`Vendedor: ${VENDEDORES.ana.nombre}`);
+    await expect(pantalla.vendedor).toHaveText(textoVendedor(VENDEDORES.ana.nombre));
     expect(dialogos.prompts).toBe(3);
   });
 });

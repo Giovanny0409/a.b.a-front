@@ -6,6 +6,8 @@ import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, Subject, firstValueFrom, isObservable } from 'rxjs';
 import { Action } from '@ngrx/store';
 import { SalesActions } from '../features/sales/store/sales.actions';
+import { t } from '../testing/translate';
+import { provideI18n } from './i18n/provide-i18n';
 import { selectActiveSeller } from '../features/sales/store/sales.selectors';
 import { salesAuthorizationGuard } from './sales-auth.guard';
 
@@ -20,7 +22,8 @@ describe('salesAuthorizationGuard', () => {
       providers: [
         provideRouter([]),
         provideMockStore(),
-        provideMockActions(() => actions$)
+        provideMockActions(() => actions$),
+        provideI18n()
       ]
     });
     store = TestBed.inject(MockStore);
@@ -57,9 +60,11 @@ describe('salesAuthorizationGuard', () => {
 
   it('regresa al tablero si se cancela el prompt', async () => {
     store.overrideSelector(selectActiveSeller, null);
-    vi.spyOn(window, 'prompt').mockReturnValue(null);
+    const prompt = vi.spyOn(window, 'prompt').mockReturnValue(null);
 
     const result = await firstValueFrom(runGuard());
+
+    expect(prompt).toHaveBeenCalledWith(t('seller.askId'));
 
     expect(router.serializeUrl(result as UrlTree)).toBe('/tablero');
   });
@@ -111,7 +116,7 @@ describe('salesAuthorizationGuard', () => {
     }));
 
     expect(router.serializeUrl(await result as UrlTree)).toBe('/tablero');
-    expect(window.alert).toHaveBeenCalledWith('ID de vendedor no autorizado.');
+    expect(window.alert).toHaveBeenCalledWith(t('seller.rejected'));
   });
 
   it('regresa al tablero y avisa si falla la autorización', async () => {
@@ -124,6 +129,6 @@ describe('salesAuthorizationGuard', () => {
     actions$.next(SalesActions.authorizeSellerFailure({ requestId, error: 'Sin red' }));
 
     expect(router.serializeUrl(await result as UrlTree)).toBe('/tablero');
-    expect(window.alert).toHaveBeenCalledWith('ID de vendedor no autorizado.');
+    expect(window.alert).toHaveBeenCalledWith(t('seller.rejected'));
   });
 });

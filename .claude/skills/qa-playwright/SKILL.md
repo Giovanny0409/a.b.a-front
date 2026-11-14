@@ -51,7 +51,8 @@ Playwright reutiliza el que tiene el código anterior y la QA prueba lo que no e
      antes con `e2e/support/api.ts` y se espera `antes + lo que hizo la prueba`.
    - La prueba anota con `test.info().annotations.push({ type: 'datos', description: … })` qué productos
      tocó, para que el reporte lo diga.
-   - Los locators van en `<suite>.locators.ts`; dependen del texto de las plantillas.
+   - Los locators van en `<suite>.locators.ts` y toman sus textos de `es.json` con `t(clave)`
+     (`e2e/support/textos.ts`), nunca repitiendo el literal.
    - Un flujo que cruza pantallas va en una sola prueba, o en serie (`test.describe.configure({ mode:
      'serial' })`) sobre una página creada en `beforeAll`.
 3. **Correr** las suites elegidas más la del change.
