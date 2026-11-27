@@ -1,7 +1,7 @@
 import { DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { Component, LOCALE_ID, inject, signal } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { InventoryItem } from '../../core/pos.models';
+import { InventoryItem } from '@core/pos.models';
 import { InventoryStore } from './inventory.store';
 
 @Component({

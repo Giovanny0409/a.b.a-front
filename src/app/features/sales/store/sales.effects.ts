@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
+import { PosApiService } from '@core/pos-api.service';
 import { SalesActions } from './sales.actions';
 
 @Injectable()

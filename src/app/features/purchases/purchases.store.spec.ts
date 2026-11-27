@@ -3,7 +3,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Subject, firstValueFrom } from 'rxjs';
-import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '../../testing/fixtures';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '@testing/fixtures';
 import { PurchasesStore } from './purchases.store';
 import { PurchasesActions } from './store/purchases.actions';
 import { selectPurchaseDefaults, selectPurchaseProducts, selectPurchaseSuppliers } from './store/purchases.selectors';

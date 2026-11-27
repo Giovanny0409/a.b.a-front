@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import es from '../../../assets/i18n/es.json';
-import { t } from '../../testing/translate';
+import { t } from '@testing/translate';
 import { EsJsonLoader } from './es-json.loader';
 import { provideI18n } from './provide-i18n';
 

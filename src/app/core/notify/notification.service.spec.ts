@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import Swal, { SweetAlertOptions, SweetAlertResult } from 'sweetalert2';
-import { t } from '../../testing/translate';
+import { t } from '@testing/translate';
 import { provideI18n } from '../i18n/provide-i18n';
 import { SUCCESS_TIMER_MS, SwalNotifier } from './notification.service';
 

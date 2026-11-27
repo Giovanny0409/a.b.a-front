@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, catchError, filter, forkJoin, map, mergeMap, of, switchMap, take, throwError } from 'rxjs';
-import { InventoryItem, ProductKind, SaleLine, SaleRecord, SaleUnit } from '../../core/pos.models';
-import { PosApiService } from '../../core/pos-api.service';
+import { InventoryItem, ProductKind, SaleLine, SaleRecord, SaleUnit } from '@core/pos.models';
+import { PosApiService } from '@core/pos-api.service';
 import { SalesActions, SavedTicket } from './store/sales.actions';
 import {
   selectActiveSeller,

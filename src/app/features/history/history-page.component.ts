@@ -1,8 +1,8 @@
 import { CurrencyPipe, DatePipe, DecimalPipe, NgFor } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { SaleLine } from '../../core/pos.models';
-import { saleQuantityKey } from '../../core/sale-quantity';
+import { SaleLine } from '@core/pos.models';
+import { saleQuantityKey } from '@core/sale-quantity';
 import { HistoryStore } from './history.store';
 
 @Component({

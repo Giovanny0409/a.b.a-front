@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { aSale } from '../../testing/fixtures';
+import { aSale } from '@testing/fixtures';
 import { HistoryStore } from './history.store';
 import { HistoryActions } from './store/history.actions';
 import { historyFeatureKey, initialHistoryState } from './store/history.reducer';

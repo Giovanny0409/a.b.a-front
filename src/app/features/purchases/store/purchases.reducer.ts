@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { ExpenseRecord, Product, ProductPurchaseDefaults, PurchaseRecord } from '../../../core/pos.models';
+import { ExpenseRecord, Product, ProductPurchaseDefaults, PurchaseRecord } from '@core/pos.models';
 import { PurchaseSupplier, PurchasesActions } from './purchases.actions';
 
 export const purchasesFeatureKey = 'purchases';

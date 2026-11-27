@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { anInventoryItem } from '../../testing/fixtures';
+import { anInventoryItem } from '@testing/fixtures';
 import { DashboardStore } from './dashboard.store';
 import { DashboardActions } from './store/dashboard.actions';
 import { dashboardFeatureKey, initialDashboardState } from './store/dashboard.reducer';

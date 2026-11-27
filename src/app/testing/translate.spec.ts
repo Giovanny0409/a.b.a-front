@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { TranslateService } from '@ngx-translate/core';
-import { provideI18n } from '../core/i18n/provide-i18n';
+import { provideI18n } from '@core/i18n/provide-i18n';
 import { t } from './translate';
 
 describe('t (textos de es.json para las pruebas)', () => {

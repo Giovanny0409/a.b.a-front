@@ -143,6 +143,15 @@ fusiona un PR.
   ```
 - Convenciones: componentes standalone, view-model en camelCase, contrato de API (cable) en snake_case cuando aplique (el backend en .NET serializa en camelCase, validar contra los `record` reales antes de asumir el shape).
 - Modelos y servicios compartidos por todos los features viven en `src/app/core/` (`pos.models.ts`, `pos-api.service.ts`); no dupliques ahí un modelo o llamada que ya exista.
+- **Importaciones:** entre carpetas de primer nivel se usa el alias (`@core/*`, `@features/*`, `@layout/*`,
+  `@testing/*`, `@env/*`, definidos en `tsconfig.json`); dentro de la misma carpeta, rutas relativas. Nunca
+  `../../` hacia otra carpeta de `src/app`.
+- **Arranque:** `src/main.ts` solo arranca la app; los providers viven en `src/app/app.config.ts`, agrupados por
+  secciones (HTTP, i18n, avisos, NgRx, router). Un feature nuevo registra ahí su reducer y su effect. El store
+  corre con `runtimeChecks` estrictos: el estado y las acciones no se mutan y se pueden serializar.
+- **Configuración del build:** lo que cambia por build (la URL del backend, las Redux DevTools de desarrollo)
+  vive en `src/environments/` (`environment.ts` y `environment.development.ts`, con `fileReplacements`), nunca
+  escrito en un servicio.
 
 ### 4. Reutilizar estilos estandarizados
 - Usar los estilos ya definidos en `src/assets/layout/` (`_base`, `_buttons`, `_forms`, `_cards`, `_tables`, `_badges`, `_primeng`, `_variables`).

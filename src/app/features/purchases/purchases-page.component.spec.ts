@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
-import { provideI18n } from '../../core/i18n/provide-i18n';
-import { Notifier } from '../../core/notify/notification.service';
-import { FakeNotifier, fakeNotifier } from '../../testing/fake-notifier';
-import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '../../testing/fixtures';
-import { t } from '../../testing/translate';
+import { provideI18n } from '@core/i18n/provide-i18n';
+import { Notifier } from '@core/notify/notification.service';
+import { FakeNotifier, fakeNotifier } from '@testing/fake-notifier';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '@testing/fixtures';
+import { t } from '@testing/translate';
 import { PRODUCT_LOOKUP_DEBOUNCE_MS, PurchasesPageComponent } from './purchases-page.component';
 import { PurchasesStore } from './purchases.store';
 

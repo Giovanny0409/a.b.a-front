@@ -9,7 +9,7 @@ import {
   PurchaseRecord,
   SaleLine,
   SaleRecord
-} from '../core/pos.models';
+} from '@core/pos.models';
 
 export function aProduct(overrides: Partial<Product> = {}): Product {
   return { id: 'p-1', name: 'Maiz quebrado', category: 'Grano', minBags: 4, kind: 'bag', ...overrides };

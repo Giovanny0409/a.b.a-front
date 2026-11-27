@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
-import { anInventoryItem } from '../../testing/fixtures';
+import { anInventoryItem } from '@testing/fixtures';
 import { InventoryStore } from './inventory.store';
 import { InventoryActions } from './store/inventory.actions';
 import { initialInventoryState, inventoryFeatureKey } from './store/inventory.reducer';

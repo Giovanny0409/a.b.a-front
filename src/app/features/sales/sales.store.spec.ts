@@ -4,9 +4,9 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Subject, firstValueFrom, of, throwError } from 'rxjs';
-import { PosApiService } from '../../core/pos-api.service';
-import { FakePosApi, fakePosApi } from '../../testing/fake-pos-api';
-import { aProduct, aSale, aSaleLine, anInventoryItem } from '../../testing/fixtures';
+import { PosApiService } from '@core/pos-api.service';
+import { FakePosApi, fakePosApi } from '@testing/fake-pos-api';
+import { aProduct, aSale, aSaleLine, anInventoryItem } from '@testing/fixtures';
 import { SalesStore } from './sales.store';
 import { SalesActions, SavedTicket } from './store/sales.actions';
 import {

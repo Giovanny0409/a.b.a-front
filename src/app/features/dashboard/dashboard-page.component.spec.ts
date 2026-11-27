@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { provideI18n } from '../../core/i18n/provide-i18n';
-import { ExpenseRecord, InventoryItem, SaleRecord } from '../../core/pos.models';
-import { aProduct, aSale, anExpense, anInventoryItem } from '../../testing/fixtures';
-import { t } from '../../testing/translate';
+import { provideI18n } from '@core/i18n/provide-i18n';
+import { ExpenseRecord, InventoryItem, SaleRecord } from '@core/pos.models';
+import { aProduct, aSale, anExpense, anInventoryItem } from '@testing/fixtures';
+import { t } from '@testing/translate';
 import { DashboardPageComponent } from './dashboard-page.component';
 import { DashboardStore } from './dashboard.store';
 import { ProductImportance } from './store/dashboard.actions';

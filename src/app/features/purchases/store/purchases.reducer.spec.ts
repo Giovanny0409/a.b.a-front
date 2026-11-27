@@ -1,4 +1,4 @@
-import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '../../../testing/fixtures';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '@testing/fixtures';
 import { PurchasesActions } from './purchases.actions';
 import { initialPurchasesState, purchasesFeatureKey, purchasesReducer } from './purchases.reducer';
 import { selectPurchaseDefaults, selectPurchaseProducts, selectPurchaseSuppliers } from './purchases.selectors';
