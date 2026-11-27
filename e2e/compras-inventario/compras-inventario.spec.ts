@@ -1,5 +1,6 @@
 import { Page, expect, test } from '@playwright/test';
 import { existencia, ultimaCompra } from '../support/api';
+import { esperarExito } from '../support/avisos';
 import { PRODUCTOS, PROVEEDORES, Proveedor } from '../support/catalogo';
 import { compras, ESTA_REGISTRADA, inventario } from './compras-inventario.locators';
 
@@ -12,6 +13,8 @@ const { polloEngordaMalta, polloEngordaPurina, comederoPollo } = PRODUCTOS;
 const BULTOS_MALTA = 3;
 const BULTOS_PURINA = 2;
 const COMEDEROS = 5;
+// Doble de PRODUCT_LOOKUP_DEBOUNCE_MS (150 ms, purchases-page.component.ts): lo que tarda en llenarse la línea.
+const ESPERA_AUTOLLENADO_MS = 300;
 
 interface LineaDeCompra {
   tipo: 'bag' | 'unit';
@@ -41,8 +44,15 @@ async function comprar(page: Page, proveedor: Proveedor, linea: LineaDeCompra): 
   await pantalla.proveedor.fill(proveedor.nombre);
 
   const fila = pantalla.linea(0);
-  await fila.tipo.selectOption(linea.tipo);
   await fila.producto.fill(linea.producto);
+  // Un producto que ya existe llena la línea con su última compra y fija su tipo: se espera a que termine
+  // la búsqueda antes de capturar el resto, para que no lo sobrescriba.
+  await page.waitForTimeout(ESPERA_AUTOLLENADO_MS);
+  if (await fila.tipo.isEnabled()) {
+    await fila.tipo.selectOption(linea.tipo);
+  } else {
+    await expect(fila.tipo).toHaveValue(linea.tipo);
+  }
   await fila.categoria.fill(linea.categoria);
   await fila.cantidad.fill(String(linea.cantidad));
   if (linea.tipo === 'bag') {
@@ -60,7 +70,7 @@ async function comprar(page: Page, proveedor: Proveedor, linea: LineaDeCompra): 
   expect(cuerpo.supplier.name).toBe(proveedor.nombre);
   expect(cuerpo.lines).toEqual([expect.objectContaining({ kind: linea.tipo, productName: linea.producto, quantity: linea.cantidad })]);
   expect((await respuesta).status()).toBe(200);
-  await expect(pantalla.aviso).toHaveText(ESTA_REGISTRADA);
+  await esperarExito(page, ESTA_REGISTRADA);
 }
 
 test('el pollo de engorda de dos marcas y proveedores queda como dos productos, y el comedero suma piezas', async ({ page, request }) => {

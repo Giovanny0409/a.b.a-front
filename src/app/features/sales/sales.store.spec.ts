@@ -4,12 +4,18 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Subject, firstValueFrom, of, throwError } from 'rxjs';
-import { PosApiService } from '../../core/pos-api.service';
-import { FakePosApi, fakePosApi } from '../../testing/fake-pos-api';
-import { aProduct, aSale, aSaleLine } from '../../testing/fixtures';
+import { PosApiService } from '@core/pos-api.service';
+import { FakePosApi, fakePosApi } from '@testing/fake-pos-api';
+import { aProduct, aSale, aSaleLine, anInventoryItem } from '@testing/fixtures';
 import { SalesStore } from './sales.store';
 import { SalesActions, SavedTicket } from './store/sales.actions';
-import { selectActiveSeller, selectSalesProducts, selectSalesRecords, selectSavedTickets } from './store/sales.selectors';
+import {
+  selectActiveSeller,
+  selectSalesInventory,
+  selectSalesProducts,
+  selectSalesRecords,
+  selectSavedTickets
+} from './store/sales.selectors';
 
 describe('SalesStore', () => {
   let facade: SalesStore;
@@ -25,7 +31,8 @@ describe('SalesStore', () => {
         SalesStore,
         provideMockStore({
           selectors: [
-            { selector: selectSalesProducts, value: [aProduct()] },
+            { selector: selectSalesProducts, value: [aProduct(), aProduct({ id: 'p-2', name: 'Comedero', kind: 'unit' })] },
+            { selector: selectSalesInventory, value: [anInventoryItem({ sealedBags: 3, openKg: 12 })] },
             { selector: selectSalesRecords, value: [aSale()] },
             { selector: selectActiveSeller, value: { id: '0409', name: 'Aurelio' } },
             { selector: selectSavedTickets, value: [] }
@@ -49,10 +56,18 @@ describe('SalesStore', () => {
   }
 
   it('expone productos, ventas, vendedor y tickets', () => {
-    expect(facade.products()).toEqual([aProduct()]);
+    expect(facade.products()).toEqual([aProduct(), aProduct({ id: 'p-2', name: 'Comedero', kind: 'unit' })]);
     expect(facade.sales()).toEqual([aSale()]);
     expect(facade.activeSeller()).toEqual({ id: '0409', name: 'Aurelio' });
     expect(facade.savedTickets()).toEqual([]);
+  });
+
+  it('da el tipo y la existencia de un producto', () => {
+    expect(facade.productKind('p-1')).toBe('bag');
+    expect(facade.productKind('p-2')).toBe('unit');
+    expect(facade.productKind('no-existe')).toBeUndefined();
+    expect(facade.stock('p-1')).toMatchObject({ sealedBags: 3, openKg: 12 });
+    expect(facade.stock('p-2')).toBeUndefined();
   });
 
   it('para cambiar de vendedor quita al activo y vuelve a entrar a Ventas para que el guard pida el ID', async () => {
@@ -156,7 +171,7 @@ describe('SalesStore', () => {
   });
 
   it('guarda y borra tickets', () => {
-    const ticket: SavedTicket = { sale: aSale(), received: 500, change: 100, savedAt: '2026-11-10T15:00:00Z' };
+    const ticket: SavedTicket = { sale: aSale(), received: 500, change: 100, seller: 'Aurelio', savedAt: '2026-11-10T15:00:00Z' };
 
     facade.saveTicket(ticket);
     facade.deleteSavedTicket('sale-1');

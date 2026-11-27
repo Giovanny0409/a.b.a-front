@@ -5,13 +5,27 @@ import {
   ExpenseRecord,
   InventoryItem,
   Product,
+  ProductPurchaseDefaults,
   PurchaseRecord,
   SaleLine,
   SaleRecord
-} from '../core/pos.models';
+} from '@core/pos.models';
 
 export function aProduct(overrides: Partial<Product> = {}): Product {
-  return { id: 'p-1', name: 'Maiz quebrado', category: 'Grano', minBags: 4, ...overrides };
+  return { id: 'p-1', name: 'Maiz quebrado', category: 'Grano', minBags: 4, kind: 'bag', ...overrides };
+}
+
+export function aPurchaseDefaults(overrides: Partial<ProductPurchaseDefaults> = {}): ProductPurchaseDefaults {
+  return {
+    productId: 'p-1',
+    name: 'Maiz quebrado',
+    kind: 'bag',
+    category: 'Grano',
+    markedKg: 40,
+    salePriceBag: 400,
+    salePriceKg: 11,
+    ...overrides
+  };
 }
 
 export function anInventoryItem(overrides: Partial<InventoryItem> = {}): InventoryItem {

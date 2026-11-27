@@ -2,7 +2,7 @@ import { CurrencyPipe, DatePipe, DecimalPipe, NgFor } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
-import { ExpenseRecord, InventoryItem, SaleRecord } from '../../core/pos.models';
+import { ExpenseRecord, InventoryItem, SaleRecord } from '@core/pos.models';
 import { DashboardStore } from './dashboard.store';
 import { ProductImportance } from './store/dashboard.actions';
 

@@ -3,9 +3,13 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { startWith } from 'rxjs';
-import { ExpenseArea, PurchaseKind } from '../../core/pos.models';
+import { debounceTime, startWith } from 'rxjs';
+import { Notifier } from '@core/notify/notification.service';
+import { ExpenseArea, PurchaseKind } from '@core/pos.models';
 import { PurchasesStore } from './purchases.store';
+
+/** Espera tras la última tecla antes de buscar el producto escrito. */
+export const PRODUCT_LOOKUP_DEBOUNCE_MS = 150;
 
 type PurchaseLineForm = FormGroup<{
   kind: FormControl<PurchaseKind>;
@@ -144,8 +148,6 @@ type PurchaseLineForm = FormGroup<{
           <button class="btn" type="submit"><i class="pi pi-save"></i> {{ 'purchases.save' | translate }}</button>
         </footer>
       </form>
-
-      <p class="notice" *ngIf="message()">{{ message() }}</p>
     </section>
 
     <section class="panel expense-panel">
@@ -191,8 +193,6 @@ type PurchaseLineForm = FormGroup<{
           <button class="btn" type="submit"><i class="pi pi-save"></i> {{ 'expenses.save' | translate }}</button>
         </footer>
       </form>
-
-      <p class="notice" *ngIf="expenseMessage()">{{ expenseMessage() }}</p>
     </section>
   `,
   styles: [`
@@ -335,12 +335,6 @@ type PurchaseLineForm = FormGroup<{
       white-space: nowrap;
     }
 
-    .notice {
-      color: var(--ok);
-      font-weight: 800;
-      margin: 0;
-    }
-
     .expense-panel {
       margin-top: 1rem;
     }
@@ -420,9 +414,8 @@ export class PurchasesPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly translate = inject(TranslateService);
+  private readonly notifier = inject(Notifier);
   readonly store = inject(PurchasesStore);
-  readonly message = signal('');
-  readonly expenseMessage = signal('');
   readonly supplierToolbarOpen = signal(false);
 
   readonly form = this.fb.nonNullable.group({
@@ -531,7 +524,7 @@ export class PurchasesPageComponent {
     );
     if (invalidBagLine) {
       invalidBagLine.controls.salePriceKg.markAsTouched();
-      this.message.set(this.translate.instant('purchases.messages.missingKgPrice'));
+      void this.notifier.error(this.translate.instant('purchases.messages.missingKgPrice'));
       return;
     }
 
@@ -551,13 +544,13 @@ export class PurchasesPageComponent {
       }))
     }).subscribe({
       next: () => {
-        this.message.set(this.translate.instant('purchases.messages.registered'));
+        void this.notifier.success(this.translate.instant('purchases.messages.registered'));
         this.lines.clear();
         this.lines.push(this.createLine());
       },
       error: (error) => {
         // Un mensaje del backend no es una clave: instant() lo devuelve tal cual.
-        this.message.set(this.translate.instant(error?.error?.message ?? error?.message ?? 'purchases.errors.register'));
+        void this.notifier.error(this.translate.instant(error?.error?.message ?? error?.message ?? 'purchases.errors.register'));
       }
     });
   }
@@ -577,7 +570,7 @@ export class PurchasesPageComponent {
       notes: value.notes
     }).subscribe({
       next: () => {
-        this.expenseMessage.set(this.translate.instant('expenses.messages.registered'));
+        void this.notifier.success(this.translate.instant('expenses.messages.registered'));
         this.expenseForm.reset({
           concept: '',
           category: 'Insumos',
@@ -587,13 +580,13 @@ export class PurchasesPageComponent {
         });
       },
       error: (error) => {
-        this.expenseMessage.set(this.translate.instant(error?.message ?? 'expenses.errors.register'));
+        void this.notifier.error(this.translate.instant(error?.message ?? 'expenses.errors.register'));
       }
     });
   }
 
   private createLine(): PurchaseLineForm {
-    return this.fb.nonNullable.group({
+    const line: PurchaseLineForm = this.fb.nonNullable.group({
       kind: ['bag' as PurchaseKind, Validators.required],
       productName: ['', Validators.required],
       category: ['', Validators.required],
@@ -603,5 +596,38 @@ export class PurchasesPageComponent {
       salePriceBag: [0, [Validators.required, Validators.min(0.01)]],
       salePriceKg: [0, [Validators.min(0)]]
     });
+
+    line.controls.productName.valueChanges.pipe(
+      debounceTime(PRODUCT_LOOKUP_DEBOUNCE_MS),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((productName) => this.fillFromLastPurchase(line, productName));
+
+    return line;
+  }
+
+  /**
+   * Un producto existente llena su tipo (que queda fijo), su categoría, sus kg por bulto y sus últimos
+   * precios de venta. La cantidad y el costo no se tocan: cambian con cada compra. Un nombre nuevo deja la
+   * línea editable.
+   */
+  private fillFromLastPurchase(line: PurchaseLineForm, productName: string): void {
+    const name = productName.trim().toLocaleLowerCase();
+    const defaults = name
+      ? this.store.purchaseDefaults().find((item) => item.name.trim().toLocaleLowerCase() === name)
+      : undefined;
+
+    if (!defaults) {
+      line.controls.kind.enable({ emitEvent: false });
+      return;
+    }
+
+    line.patchValue({
+      kind: defaults.kind,
+      category: defaults.category,
+      salePriceBag: defaults.salePriceBag,
+      ...(defaults.markedKg == null ? {} : { markedKg: defaults.markedKg }),
+      ...(defaults.salePriceKg == null ? {} : { salePriceKg: defaults.salePriceKg })
+    });
+    line.controls.kind.disable({ emitEvent: false });
   }
 }

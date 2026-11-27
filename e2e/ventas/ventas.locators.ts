@@ -1,11 +1,10 @@
 import { Page } from '@playwright/test';
 import { t, terminaCon } from '../support/textos';
 
-// Los textos salen de es.json (los de las plantillas de Ventas y del guard de vendedor).
+// Los textos salen de es.json (los de las plantillas de Ventas). Los diálogos del vendedor y del fin de
+// venta son avisos de la app: ver ../support/avisos.ts.
 
-export const PIDE_ID = t('seller.askId');
 export const ID_RECHAZADO = t('seller.rejected');
-export const PREGUNTA_TICKET = t('sales.messages.askTicket');
 export const textoVendedor = (nombre: string) => t('sales.toolbar.seller', { name: nombre });
 
 export function ventas(page: Page) {

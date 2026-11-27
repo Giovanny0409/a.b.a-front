@@ -1,6 +1,8 @@
 import { CurrencyPipe, DatePipe, DecimalPipe, NgFor } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { SaleLine } from '@core/pos.models';
+import { saleQuantityKey } from '@core/sale-quantity';
 import { HistoryStore } from './history.store';
 
 @Component({
@@ -49,7 +51,7 @@ import { HistoryStore } from './history.store';
                 <td>{{ sale.soldAt | date: 'dd/MM/yyyy HH:mm' }}</td>
                 <td>{{ sale.customer }}</td>
                 <td>{{ sale.lines[0].productName }}</td>
-                <td>{{ (sale.lines[0].unit === 'kg' ? 'sales.quantity.kg' : 'sales.quantity.bag') | translate: { quantity: (sale.lines[0].quantity | number: '1.0-2') } }}</td>
+                <td>{{ quantityKey(sale.lines[0]) | translate: { quantity: (sale.lines[0].quantity | number: '1.0-2') } }}</td>
                 <td>{{ sale.total | currency: 'MXN' }}</td>
                 <td>{{ sale.cost | currency: 'MXN' }}</td>
                 <td>{{ sale.profit | currency: 'MXN' }}</td>
@@ -166,6 +168,11 @@ export class HistoryPageComponent {
     }
 
     return this.translate.instant('history.purchases.bagsAndKg', { bags: purchase.bags ?? 0, kg: purchase.markedKg ?? 0 });
+  }
+
+  /** Clave de la cantidad vendida con su unidad real, igual que en el ticket. */
+  quantityKey(line: SaleLine): string {
+    return saleQuantityKey(line.unit, line.quantity);
   }
 
   /** Clave del apartado del gasto; un apartado desconocido se devuelve tal cual y se muestra así. */

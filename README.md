@@ -17,4 +17,4 @@ npm install
 npm start
 ```
 
-El frontend consume el backend configurado en `http://localhost:5028/api` y mantiene el estado de la sesion en NgRx.
+El frontend consume el backend de `apiBaseUrl` en `src/environments/` (hoy `http://localhost:5028/api`) y mantiene el estado de la sesion en NgRx. Los providers de la app estan en `src/app/app.config.ts`.

@@ -5,30 +5,34 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Observable, Subject, firstValueFrom, isObservable } from 'rxjs';
 import { Action } from '@ngrx/store';
-import { SalesActions } from '../features/sales/store/sales.actions';
-import { t } from '../testing/translate';
+import { SalesActions } from '@features/sales/store/sales.actions';
+import { FakeNotifier, fakeNotifier } from '@testing/fake-notifier';
+import { t } from '@testing/translate';
 import { provideI18n } from './i18n/provide-i18n';
-import { selectActiveSeller } from '../features/sales/store/sales.selectors';
+import { Notifier } from './notify/notification.service';
+import { selectActiveSeller } from '@features/sales/store/sales.selectors';
 import { salesAuthorizationGuard } from './sales-auth.guard';
 
 describe('salesAuthorizationGuard', () => {
   let store: MockStore;
   let actions$: Subject<Action>;
   let router: Router;
+  let notifier: FakeNotifier;
 
   beforeEach(() => {
     actions$ = new Subject<Action>();
+    notifier = fakeNotifier();
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
         provideMockStore(),
         provideMockActions(() => actions$),
-        provideI18n()
+        provideI18n(),
+        { provide: Notifier, useValue: notifier }
       ]
     });
     store = TestBed.inject(MockStore);
     router = TestBed.inject(Router);
-    vi.spyOn(window, 'alert').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -36,7 +40,9 @@ describe('salesAuthorizationGuard', () => {
     vi.restoreAllMocks();
   });
 
-  function authorizeRequest(dispatch: { mock: { calls: unknown[][] } }): { requestId: string; sellerId: string } {
+  /** Espera a que el guard despache la autorización (el ID llega después del diálogo) y la devuelve. */
+  async function authorizeRequest(dispatch: { mock: { calls: unknown[][] } }): Promise<{ requestId: string; sellerId: string }> {
+    await vi.waitFor(() => expect(dispatch.mock.calls).toHaveLength(1));
     return dispatch.mock.calls[0][0] as ReturnType<typeof SalesActions.authorizeSeller>;
   }
 
@@ -52,30 +58,37 @@ describe('salesAuthorizationGuard', () => {
 
   it('deja pasar si ya hay un vendedor activo, sin preguntar', async () => {
     store.overrideSelector(selectActiveSeller, { id: '0409', name: 'Aurelio' });
-    const prompt = vi.spyOn(window, 'prompt');
 
     await expect(firstValueFrom(runGuard())).resolves.toBe(true);
-    expect(prompt).not.toHaveBeenCalled();
+    expect(notifier.prompt).not.toHaveBeenCalled();
   });
 
-  it('regresa al tablero si se cancela el prompt', async () => {
+  it('pide el ID en el diálogo de la app, con el campo oculto', async () => {
     store.overrideSelector(selectActiveSeller, null);
-    const prompt = vi.spyOn(window, 'prompt').mockReturnValue(null);
+
+    await firstValueFrom(runGuard());
+
+    expect(notifier.prompt).toHaveBeenCalledWith({ title: t('seller.askId'), secret: true });
+  });
+
+  it('regresa al tablero si se cancela el diálogo', async () => {
+    store.overrideSelector(selectActiveSeller, null);
+    notifier.prompt.mockResolvedValue(null);
+    const dispatch = vi.spyOn(store, 'dispatch');
 
     const result = await firstValueFrom(runGuard());
 
-    expect(prompt).toHaveBeenCalledWith(t('seller.askId'));
-
     expect(router.serializeUrl(result as UrlTree)).toBe('/tablero');
+    expect(dispatch).not.toHaveBeenCalled();
   });
 
   it('pide autorización y deja pasar a un vendedor autorizado', async () => {
     store.overrideSelector(selectActiveSeller, null);
-    vi.spyOn(window, 'prompt').mockReturnValue('0409');
+    notifier.prompt.mockResolvedValue('0409');
     const dispatch = vi.spyOn(store, 'dispatch');
 
     const result = firstValueFrom(runGuard());
-    const { requestId, sellerId } = authorizeRequest(dispatch);
+    const { requestId, sellerId } = await authorizeRequest(dispatch);
     expect(sellerId).toBe('0409');
 
     actions$.next(SalesActions.authorizeSellerSuccess({
@@ -88,11 +101,11 @@ describe('salesAuthorizationGuard', () => {
 
   it('ignora respuestas de otra solicitud', async () => {
     store.overrideSelector(selectActiveSeller, null);
-    vi.spyOn(window, 'prompt').mockReturnValue('0409');
+    notifier.prompt.mockResolvedValue('0409');
     const dispatch = vi.spyOn(store, 'dispatch');
 
     const result = firstValueFrom(runGuard());
-    const { requestId } = authorizeRequest(dispatch);
+    const { requestId } = await authorizeRequest(dispatch);
 
     actions$.next(SalesActions.authorizeSellerFailure({ requestId: 'otra', error: 'x' }));
     actions$.next(SalesActions.authorizeSellerSuccess({
@@ -105,30 +118,30 @@ describe('salesAuthorizationGuard', () => {
 
   it('regresa al tablero y avisa si el ID no está autorizado', async () => {
     store.overrideSelector(selectActiveSeller, null);
-    vi.spyOn(window, 'prompt').mockReturnValue('9999');
+    notifier.prompt.mockResolvedValue('9999');
     const dispatch = vi.spyOn(store, 'dispatch');
 
     const result = firstValueFrom(runGuard());
-    const { requestId } = authorizeRequest(dispatch);
+    const { requestId } = await authorizeRequest(dispatch);
     actions$.next(SalesActions.authorizeSellerSuccess({
       requestId,
       authorization: { authorized: false, seller: null }
     }));
 
     expect(router.serializeUrl(await result as UrlTree)).toBe('/tablero');
-    expect(window.alert).toHaveBeenCalledWith(t('seller.rejected'));
+    expect(notifier.error).toHaveBeenCalledWith(t('seller.rejected'));
   });
 
   it('regresa al tablero y avisa si falla la autorización', async () => {
     store.overrideSelector(selectActiveSeller, null);
-    vi.spyOn(window, 'prompt').mockReturnValue('0409');
+    notifier.prompt.mockResolvedValue('0409');
     const dispatch = vi.spyOn(store, 'dispatch');
 
     const result = firstValueFrom(runGuard());
-    const { requestId } = authorizeRequest(dispatch);
+    const { requestId } = await authorizeRequest(dispatch);
     actions$.next(SalesActions.authorizeSellerFailure({ requestId, error: 'Sin red' }));
 
     expect(router.serializeUrl(await result as UrlTree)).toBe('/tablero');
-    expect(window.alert).toHaveBeenCalledWith(t('seller.rejected'));
+    expect(notifier.error).toHaveBeenCalledWith(t('seller.rejected'));
   });
 });

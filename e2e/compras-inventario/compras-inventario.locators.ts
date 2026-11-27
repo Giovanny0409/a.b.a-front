@@ -21,7 +21,6 @@ export function compras(page: Page) {
       registrar: barra.getByRole('button', { name: terminaCon(t('purchases.supplier.register')) })
     },
     guardar: page.getByRole('button', { name: terminaCon(t('purchases.save')) }),
-    aviso: page.locator('p.notice').first(),
     linea: (indice: number) => {
       const fila: Locator = lineas.nth(indice);
       return {

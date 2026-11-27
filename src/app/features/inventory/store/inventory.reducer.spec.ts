@@ -1,4 +1,4 @@
-import { aLot, aProduct, anInventoryItem } from '../../../testing/fixtures';
+import { aLot, aProduct, anInventoryItem } from '@testing/fixtures';
 import { InventoryActions } from './inventory.actions';
 import { initialInventoryState, inventoryFeatureKey, inventoryReducer } from './inventory.reducer';
 import { selectInventoryItems, selectInventoryLots, selectInventoryProducts } from './inventory.selectors';

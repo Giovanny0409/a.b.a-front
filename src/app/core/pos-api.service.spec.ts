@@ -2,9 +2,10 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
+import { environment } from '@env/environment';
 import { PosApiService } from './pos-api.service';
 
-const API = 'http://localhost:5028/api';
+const API = environment.apiBaseUrl;
 
 describe('PosApiService', () => {
   let service: PosApiService;
@@ -22,6 +23,7 @@ describe('PosApiService', () => {
 
   it.each([
     ['getProducts', `${API}/products`],
+    ['getPurchaseDefaults', `${API}/products/purchase-defaults`],
     ['getLots', `${API}/inventory/lots`],
     ['getPurchases', `${API}/purchases`],
     ['getSales', `${API}/sales`],
