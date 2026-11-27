@@ -1,6 +1,10 @@
 $ErrorActionPreference = 'Stop'
 
-$backendPath = 'C:\Users\carte\OneDrive\Desktop\backend aba'
+$backendPath = if ($env:ABA_BACKEND_PATH) {
+  $env:ABA_BACKEND_PATH
+} else {
+  Join-Path $PSScriptRoot '..\..\a.b.a-back'
+}
 
 if (-not (Test-Path $backendPath)) {
   Write-Error "No se encontro el backend en: $backendPath"

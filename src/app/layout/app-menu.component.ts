@@ -1,40 +1,41 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'aba-app-menu',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TranslatePipe],
   template: `
     <aside class="sidebar">
       <div class="brand">
-        <div class="brand-mark">ABA</div>
+        <div class="brand-mark">{{ 'common.brand.mark' | translate }}</div>
         <div>
-          <strong>Alimentos Balanceados Alonso</strong>
-          <span>Punto de venta</span>
+          <strong>{{ 'common.brand.name' | translate }}</strong>
+          <span>{{ 'menu.subtitle' | translate }}</span>
         </div>
       </div>
 
       <nav class="nav">
         <a routerLink="/tablero" routerLinkActive="active">
           <i class="pi pi-chart-line"></i>
-          <span>Tablero</span>
+          <span>{{ 'menu.dashboard' | translate }}</span>
         </a>
         <a routerLink="/ventas" routerLinkActive="active">
           <i class="pi pi-shopping-cart"></i>
-          <span>Ventas</span>
+          <span>{{ 'menu.sales' | translate }}</span>
         </a>
         <a routerLink="/compras" routerLinkActive="active">
           <i class="pi pi-plus-circle"></i>
-          <span>Compras</span>
+          <span>{{ 'menu.purchases' | translate }}</span>
         </a>
         <a routerLink="/inventario" routerLinkActive="active">
           <i class="pi pi-warehouse"></i>
-          <span>Inventario</span>
+          <span>{{ 'menu.inventory' | translate }}</span>
         </a>
         <a routerLink="/historial" routerLinkActive="active">
           <i class="pi pi-history"></i>
-          <span>Historial</span>
+          <span>{{ 'menu.history' | translate }}</span>
         </a>
       </nav>
     </aside>

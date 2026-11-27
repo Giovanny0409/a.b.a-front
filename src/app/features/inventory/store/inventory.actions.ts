@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { BagLot, InventoryItem, Product } from '../../../core/pos.models';
+import { BagLot, InventoryItem, Product } from '@core/pos.models';
 
 export const InventoryActions = createActionGroup({
   source: 'Inventory',

@@ -2,9 +2,14 @@ import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { startWith } from 'rxjs';
-import { ExpenseArea, PurchaseKind } from '../../core/pos.models';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { debounceTime, startWith } from 'rxjs';
+import { Notifier } from '@core/notify/notification.service';
+import { ExpenseArea, PurchaseKind } from '@core/pos.models';
 import { PurchasesStore } from './purchases.store';
+
+/** Espera tras la última tecla antes de buscar el producto escrito. */
+export const PRODUCT_LOOKUP_DEBOUNCE_MS = 150;
 
 type PurchaseLineForm = FormGroup<{
   kind: FormControl<PurchaseKind>;
@@ -20,38 +25,38 @@ type PurchaseLineForm = FormGroup<{
 @Component({
   selector: 'aba-purchases-page',
   standalone: true,
-  imports: [CurrencyPipe, NgFor, NgIf, ReactiveFormsModule],
+  imports: [CurrencyPipe, NgFor, NgIf, ReactiveFormsModule, TranslatePipe],
   providers: [PurchasesStore],
   template: `
     <section class="panel purchase-panel">
       <div class="head">
-        <h2>Registrar compra</h2>
+        <h2>{{ 'purchases.title' | translate }}</h2>
         <button class="btn secondary" type="button" (click)="toggleSupplierToolbar()">
           <i class="pi pi-user-plus"></i>
-          Nuevo proveedor
+          {{ 'purchases.supplier.new' | translate }}
         </button>
       </div>
 
       <form class="supplier-toolbar" *ngIf="supplierToolbarOpen()" [formGroup]="supplierForm" (ngSubmit)="saveSupplier()">
         <label class="field">
-          <span>Proveedor</span>
-          <input formControlName="name" placeholder="Nombre comercial">
+          <span>{{ 'common.fields.supplier' | translate }}</span>
+          <input formControlName="name" [placeholder]="'purchases.supplier.namePlaceholder' | translate">
         </label>
         <label class="field">
-          <span>Numero</span>
-          <input formControlName="phone" placeholder="Telefono o WhatsApp">
+          <span>{{ 'purchases.supplier.phone' | translate }}</span>
+          <input formControlName="phone" [placeholder]="'purchases.supplier.phonePlaceholder' | translate">
         </label>
         <div class="toolbar-actions">
-          <button class="btn" type="submit"><i class="pi pi-check"></i> Registrar</button>
-          <button class="btn secondary" type="button" (click)="closeSupplierToolbar()">Cancelar</button>
+          <button class="btn" type="submit"><i class="pi pi-check"></i> {{ 'purchases.supplier.register' | translate }}</button>
+          <button class="btn secondary" type="button" (click)="closeSupplierToolbar()">{{ 'common.actions.cancel' | translate }}</button>
         </div>
       </form>
 
       <form [formGroup]="form" (ngSubmit)="save()">
         <div class="ticket-bar">
           <label class="field">
-            <span>Proveedor</span>
-            <input formControlName="supplierName" list="purchase-suppliers" placeholder="Selecciona proveedor">
+            <span>{{ 'common.fields.supplier' | translate }}</span>
+            <input formControlName="supplierName" list="purchase-suppliers" [placeholder]="'purchases.supplier.selectPlaceholder' | translate">
             <datalist id="purchase-suppliers">
               <option *ngFor="let supplier of store.suppliers()" [value]="supplier.name">
                 {{ supplier.phone }}
@@ -62,7 +67,7 @@ type PurchaseLineForm = FormGroup<{
           <div class="ticket-actions">
             <button class="btn secondary" type="button" (click)="addLine()">
               <i class="pi pi-plus"></i>
-              Producto
+              {{ 'purchases.lines.add' | translate }}
             </button>
           </div>
         </div>
@@ -71,14 +76,14 @@ type PurchaseLineForm = FormGroup<{
           <table class="purchase-total-table" formArrayName="lines">
             <thead>
               <tr>
-                <th>Tipo</th>
-                <th>Producto</th>
-                <th>Categoria</th>
-                <th>Cantidad</th>
-                <th>Kg/bulto</th>
-                <th>Costo total</th>
-                <th>Venta bulto/u.</th>
-                <th>Venta kg</th>
+                <th>{{ 'purchases.lines.kind' | translate }}</th>
+                <th>{{ 'common.fields.product' | translate }}</th>
+                <th>{{ 'common.fields.category' | translate }}</th>
+                <th>{{ 'common.fields.quantity' | translate }}</th>
+                <th>{{ 'purchases.lines.markedKg' | translate }}</th>
+                <th>{{ 'purchases.lines.cost' | translate }}</th>
+                <th>{{ 'purchases.lines.salePriceBag' | translate }}</th>
+                <th>{{ 'purchases.lines.salePriceKg' | translate }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -86,15 +91,15 @@ type PurchaseLineForm = FormGroup<{
               <tr *ngFor="let line of lines.controls; let i = index" [formGroupName]="i">
                 <td>
                   <select formControlName="kind">
-                    <option value="bag">Bultos</option>
-                    <option value="unit">Varios</option>
+                    <option value="bag">{{ 'purchases.kinds.bag' | translate }}</option>
+                    <option value="unit">{{ 'purchases.kinds.unit' | translate }}</option>
                   </select>
                 </td>
                 <td>
-                  <input formControlName="productName" list="purchase-products" placeholder="Producto">
+                  <input formControlName="productName" list="purchase-products" [placeholder]="'common.fields.product' | translate">
                 </td>
                 <td>
-                  <input formControlName="category" list="purchase-categories" placeholder="Categoria">
+                  <input formControlName="category" list="purchase-categories" [placeholder]="'common.fields.category' | translate">
                 </td>
                 <td>
                   <input formControlName="quantity" type="number" min="1" step="1">
@@ -114,7 +119,7 @@ type PurchaseLineForm = FormGroup<{
                   <span *ngIf="!isBagLine(i)" class="muted-cell">-</span>
                 </td>
                 <td>
-                  <button class="icon-btn" type="button" title="Quitar producto" (click)="removeLine(i)" [disabled]="lines.length === 1">
+                  <button class="icon-btn" type="button" [title]="'common.actions.removeProduct' | translate" (click)="removeLine(i)" [disabled]="lines.length === 1">
                     <i class="pi pi-trash"></i>
                   </button>
                 </td>
@@ -126,6 +131,7 @@ type PurchaseLineForm = FormGroup<{
         <datalist id="purchase-products">
           <option *ngFor="let product of store.products()" [value]="product.name"></option>
         </datalist>
+        <!-- Las categorías se guardan tal cual como dato del producto. -->
         <datalist id="purchase-categories">
           <option value="Alimento"></option>
           <option value="Medicamento"></option>
@@ -135,61 +141,58 @@ type PurchaseLineForm = FormGroup<{
         </datalist>
 
         <footer class="totals">
-          <span>Productos: <strong>{{ lines.length }}</strong></span>
-          <span>Bultos: <strong>{{ totalBags() }}</strong></span>
-          <span>Piezas: <strong>{{ totalPieces() }}</strong></span>
-          <span>Inversion: <strong>{{ totalInvestment() | currency: 'MXN' }}</strong></span>
-          <button class="btn" type="submit"><i class="pi pi-save"></i> Guardar compra</button>
+          <span>{{ 'purchases.totals.products' | translate }} <strong>{{ lines.length }}</strong></span>
+          <span>{{ 'purchases.totals.bags' | translate }} <strong>{{ totalBags() }}</strong></span>
+          <span>{{ 'purchases.totals.pieces' | translate }} <strong>{{ totalPieces() }}</strong></span>
+          <span>{{ 'purchases.totals.investment' | translate }} <strong>{{ totalInvestment() | currency: 'MXN' }}</strong></span>
+          <button class="btn" type="submit"><i class="pi pi-save"></i> {{ 'purchases.save' | translate }}</button>
         </footer>
       </form>
-
-      <p class="notice" *ngIf="message()">{{ message() }}</p>
     </section>
 
     <section class="panel expense-panel">
       <div class="head">
-        <h2>Compra de insumos y gastos</h2>
+        <h2>{{ 'expenses.title' | translate }}</h2>
       </div>
 
       <form class="expense-form" [formGroup]="expenseForm" (ngSubmit)="saveExpense()">
         <label class="field">
-          <span>Concepto</span>
-          <input formControlName="concept" placeholder="Renta, luz, bolsas, comida">
+          <span>{{ 'expenses.fields.concept' | translate }}</span>
+          <input formControlName="concept" [placeholder]="'expenses.fields.conceptPlaceholder' | translate">
         </label>
+        <!-- Los valores de categoría y apartado se guardan tal cual; solo la etiqueta sale del diccionario. -->
         <label class="field">
-          <span>Categoria</span>
+          <span>{{ 'common.fields.category' | translate }}</span>
           <select formControlName="category">
-            <option value="Renta">Renta</option>
-            <option value="Luz">Luz</option>
-            <option value="Bolsas">Bolsas</option>
-            <option value="Comida">Comida</option>
-            <option value="Insumos">Insumos</option>
-            <option value="Otro">Otro</option>
+            <option value="Renta">{{ 'expenses.categories.rent' | translate }}</option>
+            <option value="Luz">{{ 'expenses.categories.power' | translate }}</option>
+            <option value="Bolsas">{{ 'expenses.categories.bags' | translate }}</option>
+            <option value="Comida">{{ 'expenses.categories.food' | translate }}</option>
+            <option value="Insumos">{{ 'expenses.categories.supplies' | translate }}</option>
+            <option value="Otro">{{ 'expenses.categories.other' | translate }}</option>
           </select>
         </label>
         <label class="field">
-          <span>Apartado</span>
+          <span>{{ 'expenses.fields.area' | translate }}</span>
           <select formControlName="area">
-            <option value="general">General</option>
-            <option value="guardadito">Guardadito</option>
-            <option value="camioneta">Camioneta</option>
+            <option value="general">{{ 'expenses.areas.general' | translate }}</option>
+            <option value="guardadito">{{ 'expenses.areas.guardadito' | translate }}</option>
+            <option value="camioneta">{{ 'expenses.areas.camioneta' | translate }}</option>
           </select>
         </label>
         <label class="field">
-          <span>Monto</span>
+          <span>{{ 'expenses.fields.amount' | translate }}</span>
           <input formControlName="amount" type="number" min="0.01" step="0.01" placeholder="0">
         </label>
         <label class="field notes-field">
-          <span>Notas</span>
-          <input formControlName="notes" placeholder="Detalle opcional">
+          <span>{{ 'expenses.fields.notes' | translate }}</span>
+          <input formControlName="notes" [placeholder]="'expenses.fields.notesPlaceholder' | translate">
         </label>
         <footer class="expense-actions">
-          <span>Se descuenta de ganancias: <strong>{{ expenseAmount() | currency: 'MXN' }}</strong></span>
-          <button class="btn" type="submit"><i class="pi pi-save"></i> Guardar gasto</button>
+          <span>{{ 'expenses.deducted' | translate }} <strong>{{ expenseAmount() | currency: 'MXN' }}</strong></span>
+          <button class="btn" type="submit"><i class="pi pi-save"></i> {{ 'expenses.save' | translate }}</button>
         </footer>
       </form>
-
-      <p class="notice" *ngIf="expenseMessage()">{{ expenseMessage() }}</p>
     </section>
   `,
   styles: [`
@@ -332,12 +335,6 @@ type PurchaseLineForm = FormGroup<{
       white-space: nowrap;
     }
 
-    .notice {
-      color: var(--ok);
-      font-weight: 800;
-      margin: 0;
-    }
-
     .expense-panel {
       margin-top: 1rem;
     }
@@ -416,9 +413,9 @@ type PurchaseLineForm = FormGroup<{
 export class PurchasesPageComponent {
   private readonly fb = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
+  private readonly notifier = inject(Notifier);
   readonly store = inject(PurchasesStore);
-  readonly message = signal('');
-  readonly expenseMessage = signal('');
   readonly supplierToolbarOpen = signal(false);
 
   readonly form = this.fb.nonNullable.group({
@@ -527,7 +524,7 @@ export class PurchasesPageComponent {
     );
     if (invalidBagLine) {
       invalidBagLine.controls.salePriceKg.markAsTouched();
-      this.message.set('Captura el precio de venta por kilo en todos los bultos.');
+      void this.notifier.error(this.translate.instant('purchases.messages.missingKgPrice'));
       return;
     }
 
@@ -547,12 +544,13 @@ export class PurchasesPageComponent {
       }))
     }).subscribe({
       next: () => {
-        this.message.set('Compra registrada en el backend e inventario actualizado.');
+        void this.notifier.success(this.translate.instant('purchases.messages.registered'));
         this.lines.clear();
         this.lines.push(this.createLine());
       },
       error: (error) => {
-        this.message.set(error?.error?.message ?? error?.message ?? 'No fue posible registrar la compra en el backend.');
+        // Un mensaje del backend no es una clave: instant() lo devuelve tal cual.
+        void this.notifier.error(this.translate.instant(error?.error?.message ?? error?.message ?? 'purchases.errors.register'));
       }
     });
   }
@@ -572,7 +570,7 @@ export class PurchasesPageComponent {
       notes: value.notes
     }).subscribe({
       next: () => {
-        this.expenseMessage.set('Gasto registrado y descontado de ganancias.');
+        void this.notifier.success(this.translate.instant('expenses.messages.registered'));
         this.expenseForm.reset({
           concept: '',
           category: 'Insumos',
@@ -582,13 +580,13 @@ export class PurchasesPageComponent {
         });
       },
       error: (error) => {
-        this.expenseMessage.set(error?.message ?? 'No fue posible registrar el gasto en el backend.');
+        void this.notifier.error(this.translate.instant(error?.message ?? 'expenses.errors.register'));
       }
     });
   }
 
   private createLine(): PurchaseLineForm {
-    return this.fb.nonNullable.group({
+    const line: PurchaseLineForm = this.fb.nonNullable.group({
       kind: ['bag' as PurchaseKind, Validators.required],
       productName: ['', Validators.required],
       category: ['', Validators.required],
@@ -598,5 +596,38 @@ export class PurchasesPageComponent {
       salePriceBag: [0, [Validators.required, Validators.min(0.01)]],
       salePriceKg: [0, [Validators.min(0)]]
     });
+
+    line.controls.productName.valueChanges.pipe(
+      debounceTime(PRODUCT_LOOKUP_DEBOUNCE_MS),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((productName) => this.fillFromLastPurchase(line, productName));
+
+    return line;
+  }
+
+  /**
+   * Un producto existente llena su tipo (que queda fijo), su categoría, sus kg por bulto y sus últimos
+   * precios de venta. La cantidad y el costo no se tocan: cambian con cada compra. Un nombre nuevo deja la
+   * línea editable.
+   */
+  private fillFromLastPurchase(line: PurchaseLineForm, productName: string): void {
+    const name = productName.trim().toLocaleLowerCase();
+    const defaults = name
+      ? this.store.purchaseDefaults().find((item) => item.name.trim().toLocaleLowerCase() === name)
+      : undefined;
+
+    if (!defaults) {
+      line.controls.kind.enable({ emitEvent: false });
+      return;
+    }
+
+    line.patchValue({
+      kind: defaults.kind,
+      category: defaults.category,
+      salePriceBag: defaults.salePriceBag,
+      ...(defaults.markedKg == null ? {} : { markedKg: defaults.markedKg }),
+      ...(defaults.salePriceKg == null ? {} : { salePriceKg: defaults.salePriceKg })
+    });
+    line.controls.kind.disable({ emitEvent: false });
   }
 }

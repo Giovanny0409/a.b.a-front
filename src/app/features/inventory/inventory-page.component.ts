@@ -1,24 +1,25 @@
 import { DecimalPipe, NgFor, NgIf } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
-import { InventoryItem } from '../../core/pos.models';
+import { Component, LOCALE_ID, inject, signal } from '@angular/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { InventoryItem } from '@core/pos.models';
 import { InventoryStore } from './inventory.store';
 
 @Component({
   selector: 'aba-inventory-page',
   standalone: true,
-  imports: [DecimalPipe, NgFor, NgIf],
+  imports: [DecimalPipe, NgFor, NgIf, TranslatePipe],
   providers: [InventoryStore],
   template: `
     <section class="panel inventory-panel">
       <div class="head">
-        <h2>Inventario neto</h2>
+        <h2>{{ 'inventory.title' | translate }}</h2>
 
         <label class="field product-filter">
-          <span>Filtrar producto</span>
+          <span>{{ 'inventory.filter.label' | translate }}</span>
           <input
             #productFilter
             list="inventory-products"
-            placeholder="Nombre del producto"
+            [placeholder]="'inventory.filter.placeholder' | translate"
             type="search"
             (input)="filter.set(productFilter.value)"
           >
@@ -32,14 +33,14 @@ import { InventoryStore } from './inventory.store';
         <table>
           <thead>
             <tr>
-              <th>Producto</th>
-              <th>Categoria</th>
-              <th>Inventario neto</th>
-              <th>Bultos sellados</th>
-              <th>Kg abiertos</th>
-              <th>Piezas</th>
-              <th>Minimo</th>
-              <th>Estado</th>
+              <th>{{ 'common.fields.product' | translate }}</th>
+              <th>{{ 'common.fields.category' | translate }}</th>
+              <th>{{ 'inventory.columns.net' | translate }}</th>
+              <th>{{ 'inventory.columns.sealedBags' | translate }}</th>
+              <th>{{ 'inventory.columns.openKg' | translate }}</th>
+              <th>{{ 'inventory.columns.pieces' | translate }}</th>
+              <th>{{ 'inventory.columns.minimum' | translate }}</th>
+              <th>{{ 'common.fields.status' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -53,12 +54,12 @@ import { InventoryStore } from './inventory.store';
               <td>{{ item.product.minBags }}</td>
               <td>
                 <span class="badge" [class.danger]="item.needsRestock" [class.ok]="!item.needsRestock">
-                  {{ item.needsRestock ? 'Compra sugerida' : 'Cubierto' }}
+                  {{ (item.needsRestock ? 'inventory.status.restock' : 'inventory.status.covered') | translate }}
                 </span>
               </td>
             </tr>
             <tr *ngIf="filteredInventory().length === 0">
-              <td colspan="8" class="empty">No hay productos que coincidan con el filtro.</td>
+              <td colspan="8" class="empty">{{ 'inventory.filter.empty' | translate }}</td>
             </tr>
           </tbody>
         </table>
@@ -107,6 +108,8 @@ import { InventoryStore } from './inventory.store';
   `]
 })
 export class InventoryPageComponent {
+  private readonly translate = inject(TranslateService);
+  private readonly decimal = new DecimalPipe(inject(LOCALE_ID));
   readonly store = inject(InventoryStore);
   readonly filter = signal('');
 
@@ -131,17 +134,17 @@ export class InventoryPageComponent {
     const parts: string[] = [];
 
     if (item.sealedBags > 0) {
-      parts.push(`${item.sealedBags} bultos`);
+      parts.push(this.translate.instant('common.units.bagsCount', { count: item.sealedBags }));
     }
 
     if (item.openKg > 0) {
-      parts.push(`${item.openKg.toLocaleString('es-MX', { maximumFractionDigits: 2 })} kg abiertos`);
+      parts.push(this.translate.instant('common.units.openKg', { kg: this.decimal.transform(item.openKg, '1.0-2') }));
     }
 
     if (pieces > 0) {
-      parts.push(`${pieces} piezas`);
+      parts.push(this.translate.instant('common.units.piecesCount', { count: pieces }));
     }
 
-    return parts.length ? parts.join(' / ') : 'Sin existencia';
+    return parts.length ? parts.join(' / ') : this.translate.instant('inventory.noStock');
   }
 }

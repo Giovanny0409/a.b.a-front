@@ -1,11 +1,13 @@
 import { createReducer, on } from '@ngrx/store';
-import { ExpenseRecord, Product, PurchaseRecord } from '../../../core/pos.models';
+import { ExpenseRecord, Product, ProductPurchaseDefaults, PurchaseRecord } from '@core/pos.models';
 import { PurchaseSupplier, PurchasesActions } from './purchases.actions';
 
 export const purchasesFeatureKey = 'purchases';
 
 export interface PurchasesState {
   products: Product[];
+  /** Datos de la última compra de cada producto, para autollenar la línea. */
+  purchaseDefaults: ProductPurchaseDefaults[];
   purchases: PurchaseRecord[];
   expenses: ExpenseRecord[];
   suppliers: PurchaseSupplier[];
@@ -14,6 +16,7 @@ export interface PurchasesState {
 
 export const initialPurchasesState: PurchasesState = {
   products: [],
+  purchaseDefaults: [],
   purchases: [],
   expenses: [],
   suppliers: [],
@@ -22,23 +25,31 @@ export const initialPurchasesState: PurchasesState = {
 
 export const purchasesReducer = createReducer(
   initialPurchasesState,
-  on(PurchasesActions.loadProductsSuccess, (state, { products, purchases, expenses }) => ({
+  on(PurchasesActions.loadProductsSuccess, (state, { products, purchaseDefaults, purchases, expenses }) => ({
     ...state,
     products,
+    purchaseDefaults,
     purchases,
     expenses,
     suppliers: mergeSuppliers(state.suppliers, purchases.map((purchase) => supplierFromPurchase(purchase))),
     error: null
   })),
-  on(PurchasesActions.loadProductsFailure, (state, { error }) => ({ ...state, products: [], purchases: [], expenses: [], error })),
+  on(PurchasesActions.loadProductsFailure, (state, { error }) => ({
+    ...state,
+    products: [],
+    purchaseDefaults: [],
+    purchases: [],
+    expenses: [],
+    error
+  })),
   on(PurchasesActions.addSupplier, (state, { supplier }) => ({
     ...state,
     suppliers: mergeSuppliers(state.suppliers, [supplier])
   })),
-  on(PurchasesActions.registerPurchaseSuccess, (state, { purchase }) => ({
+  on(PurchasesActions.registerPurchaseSuccess, (state, { purchases }) => ({
     ...state,
-    purchases: [purchase, ...state.purchases],
-    suppliers: mergeSuppliers(state.suppliers, [supplierFromPurchase(purchase)]),
+    purchases: [...purchases, ...state.purchases],
+    suppliers: mergeSuppliers(state.suppliers, purchases.map((purchase) => supplierFromPurchase(purchase))),
     error: null
   })),
   on(PurchasesActions.registerPurchaseFailure, (state, { error }) => ({ ...state, error })),

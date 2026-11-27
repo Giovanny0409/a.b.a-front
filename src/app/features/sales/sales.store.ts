@@ -1,11 +1,18 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, catchError, filter, forkJoin, map, mergeMap, of, switchMap, take, throwError } from 'rxjs';
-import { SaleLine, SaleRecord, SaleUnit } from '../../core/pos.models';
-import { PosApiService } from '../../core/pos-api.service';
+import { InventoryItem, ProductKind, SaleLine, SaleRecord, SaleUnit } from '@core/pos.models';
+import { PosApiService } from '@core/pos-api.service';
 import { SalesActions, SavedTicket } from './store/sales.actions';
-import { selectActiveSeller, selectSalesProducts, selectSalesRecords, selectSavedTickets } from './store/sales.selectors';
+import {
+  selectActiveSeller,
+  selectSalesInventory,
+  selectSalesProducts,
+  selectSalesRecords,
+  selectSavedTickets
+} from './store/sales.selectors';
 
 export type SalesEntryMode = SaleUnit | 'money';
 
@@ -20,11 +27,32 @@ export class SalesStore {
   private readonly api = inject(PosApiService);
   private readonly store = inject(Store);
   private readonly actions$ = inject(Actions);
+  private readonly router = inject(Router);
 
   readonly products = this.store.selectSignal(selectSalesProducts);
   readonly sales = this.store.selectSignal(selectSalesRecords);
   readonly activeSeller = this.store.selectSignal(selectActiveSeller);
   readonly savedTickets = this.store.selectSignal(selectSavedTickets);
+  private readonly inventory = this.store.selectSignal(selectSalesInventory);
+
+  /** Tipo del producto: decide qué modos de venta se ofrecen. */
+  productKind(productId: string): ProductKind | undefined {
+    return this.products().find((product) => product.id === productId)?.kind;
+  }
+
+  /** Existencia del producto, o `undefined` si no tiene. */
+  stock(productId: string): InventoryItem | undefined {
+    return this.inventory().find((item) => item.product.id === productId);
+  }
+
+  /**
+   * Quita al vendedor activo y vuelve a entrar a Ventas: el router reconoce otra vez la ruta y el guard
+   * de vendedor pide el ID. Si se cancela, el guard regresa al tablero. Los tickets guardados se conservan.
+   */
+  changeSeller(): Promise<boolean> {
+    this.store.dispatch(SalesActions.clearSeller());
+    return this.router.navigateByUrl('/ventas', { onSameUrlNavigation: 'reload' });
+  }
 
   load(): void {
     this.store.dispatch(SalesActions.load());
@@ -53,7 +81,7 @@ export class SalesStore {
     const sellerId = this.activeSeller()?.id;
 
     if (!sellerId) {
-      return throwError(() => new Error('Vendedor no autorizado para registrar ventas.'));
+      return throwError(() => new Error('sales.errors.sellerNotAuthorized'));
     }
 
     const requestId = crypto.randomUUID();

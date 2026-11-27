@@ -1,12 +1,14 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin } from 'rxjs';
+import { environment } from '@env/environment';
 import {
   BagLot,
   ExpenseRecord,
   ExpenseArea,
   InventoryItem,
   Product,
+  ProductPurchaseDefaults,
   PurchaseRecord,
   PurchaseLineInput,
   SaleLine,
@@ -16,30 +18,34 @@ import {
   SellerAuthorization
 } from './pos.models';
 
-const API_BASE_URL = 'http://localhost:5028/api';
-
 @Injectable({ providedIn: 'root' })
 export class PosApiService {
   private readonly http = inject(HttpClient);
+  /** La URL del backend viene del build (`src/environments/`). */
+  private readonly baseUrl = environment.apiBaseUrl;
 
   getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${API_BASE_URL}/products`);
+    return this.http.get<Product[]>(`${this.baseUrl}/products`);
+  }
+
+  getPurchaseDefaults(): Observable<ProductPurchaseDefaults[]> {
+    return this.http.get<ProductPurchaseDefaults[]>(`${this.baseUrl}/products/purchase-defaults`);
   }
 
   getLots(): Observable<BagLot[]> {
-    return this.http.get<BagLot[]>(`${API_BASE_URL}/inventory/lots`);
+    return this.http.get<BagLot[]>(`${this.baseUrl}/inventory/lots`);
   }
 
   getPurchases(): Observable<PurchaseRecord[]> {
-    return this.http.get<PurchaseRecord[]>(`${API_BASE_URL}/purchases`);
+    return this.http.get<PurchaseRecord[]>(`${this.baseUrl}/purchases`);
   }
 
   getSales(): Observable<SaleRecord[]> {
-    return this.http.get<SaleRecord[]>(`${API_BASE_URL}/sales`);
+    return this.http.get<SaleRecord[]>(`${this.baseUrl}/sales`);
   }
 
   getExpenses(): Observable<ExpenseRecord[]> {
-    return this.http.get<ExpenseRecord[]>(`${API_BASE_URL}/expenses`);
+    return this.http.get<ExpenseRecord[]>(`${this.baseUrl}/expenses`);
   }
 
   getSnapshot(): Observable<{
@@ -59,18 +65,18 @@ export class PosApiService {
   }
 
   getInventory(): Observable<InventoryItem[]> {
-    return this.http.get<InventoryItem[]>(`${API_BASE_URL}/inventory`);
+    return this.http.get<InventoryItem[]>(`${this.baseUrl}/inventory`);
   }
 
   createProduct(input: { name: string; category: string; minBags: number }): Observable<Product> {
-    return this.http.post<Product>(`${API_BASE_URL}/products`, input);
+    return this.http.post<Product>(`${this.baseUrl}/products`, input);
   }
 
   registerPurchase(input: {
     supplier: Supplier;
     lines: PurchaseLineInput[];
-  }): Observable<PurchaseRecord> {
-    return this.http.post<PurchaseRecord>(`${API_BASE_URL}/purchases`, input);
+  }): Observable<PurchaseRecord[]> {
+    return this.http.post<PurchaseRecord[]>(`${this.baseUrl}/purchases`, input);
   }
 
   registerExpense(input: {
@@ -80,7 +86,7 @@ export class PosApiService {
     amount: number;
     notes?: string;
   }): Observable<ExpenseRecord> {
-    return this.http.post<ExpenseRecord>(`${API_BASE_URL}/expenses`, input);
+    return this.http.post<ExpenseRecord>(`${this.baseUrl}/expenses`, input);
   }
 
   quoteSale(productId: string, unit: SaleUnit, quantity: number): Observable<SaleLine> {
@@ -89,7 +95,7 @@ export class PosApiService {
       .set('unit', unit)
       .set('quantity', quantity);
 
-    return this.http.get<SaleLine>(`${API_BASE_URL}/sales/quote`, { params });
+    return this.http.get<SaleLine>(`${this.baseUrl}/sales/quote`, { params });
   }
 
   registerSale(input: {
@@ -99,7 +105,7 @@ export class PosApiService {
     unit: SaleUnit;
     quantity: number;
   }): Observable<SaleRecord> {
-    return this.http.post<SaleRecord>(`${API_BASE_URL}/sales`, input);
+    return this.http.post<SaleRecord>(`${this.baseUrl}/sales`, input);
   }
 
   registerSaleBatch(input: {
@@ -107,10 +113,10 @@ export class PosApiService {
     sellerId: string;
     lines: Array<{ productId: string; unit: SaleUnit; quantity: number }>;
   }): Observable<SaleRecord> {
-    return this.http.post<SaleRecord>(`${API_BASE_URL}/sales/batch`, input);
+    return this.http.post<SaleRecord>(`${this.baseUrl}/sales/batch`, input);
   }
 
   authorizeSeller(sellerId: string): Observable<SellerAuthorization> {
-    return this.http.post<SellerAuthorization>(`${API_BASE_URL}/sellers/authorize`, { sellerId });
+    return this.http.post<SellerAuthorization>(`${this.baseUrl}/sellers/authorize`, { sellerId });
   }
 }

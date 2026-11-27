@@ -1,12 +1,27 @@
-export type SaleUnit = 'bag' | 'kg';
+export type SaleUnit = 'bag' | 'kg' | 'piece';
 export type PurchaseKind = 'bag' | 'unit';
 export type ExpenseArea = 'general' | 'guardadito' | 'camioneta';
+/** Tipo del producto, fijo desde su primera compra: `bag` se vende por bulto, kilo o pesos; `unit`, por pieza. */
+export type ProductKind = 'bag' | 'unit';
 
 export interface Product {
   id: string;
   name: string;
   category: string;
   minBags: number;
+  kind: ProductKind;
+}
+
+/** Datos de la última compra de un producto (`GET /api/products/purchase-defaults`). */
+export interface ProductPurchaseDefaults {
+  productId: string;
+  name: string;
+  kind: ProductKind;
+  category: string;
+  markedKg: number | null;
+  /** Para `unit` es el precio de la pieza, como «Venta bulto/u.» en Compras. */
+  salePriceBag: number;
+  salePriceKg: number | null;
 }
 
 export interface Supplier {

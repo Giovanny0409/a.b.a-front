@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
+import { PosApiService } from '@core/pos-api.service';
 import { DashboardActions } from './dashboard.actions';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class DashboardEffects {
     }).pipe(
       map(({ inventory, lots, purchases, sales, expenses }) => DashboardActions.loadSuccess({ inventory, lots, purchases, sales, expenses })),
       catchError((error) => of(DashboardActions.loadFailure({
-        error: error?.error?.message ?? 'No fue posible cargar el tablero.'
+        error: error?.error?.message ?? 'dashboard.errors.load'
       })))
     ))
   ));
