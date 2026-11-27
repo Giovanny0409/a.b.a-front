@@ -1,4 +1,4 @@
-import { aPurchase, aSale, anExpense } from '../../../testing/fixtures';
+import { aPurchase, aSale, anExpense } from '@testing/fixtures';
 import { HistoryActions } from './history.actions';
 import { historyReducer, initialHistoryState } from './history.reducer';
 

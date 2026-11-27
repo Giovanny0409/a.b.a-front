@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { firstValueFrom, of, throwError } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
-import { FakePosApi, fakePosApi } from '../../../testing/fake-pos-api';
-import { aLot, aProduct, anInventoryItem } from '../../../testing/fixtures';
+import { PosApiService } from '@core/pos-api.service';
+import { FakePosApi, fakePosApi } from '@testing/fake-pos-api';
+import { aLot, aProduct, anInventoryItem } from '@testing/fixtures';
 import { InventoryActions } from './inventory.actions';
 import { InventoryEffects } from './inventory.effects';
 
@@ -40,7 +40,7 @@ describe('InventoryEffects', () => {
 
     api.getLots.mockReturnValue(throwError(() => new Error('red')));
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      InventoryActions.loadFailure({ error: 'No fue posible cargar inventario.' })
+      InventoryActions.loadFailure({ error: 'inventory.errors.load' })
     );
   });
 });

@@ -1,5 +1,5 @@
 import { createReducer, on } from '@ngrx/store';
-import { BagLot, ExpenseRecord, InventoryItem, PurchaseRecord, SaleRecord } from '../../../core/pos.models';
+import { BagLot, ExpenseRecord, InventoryItem, PurchaseRecord, SaleRecord } from '@core/pos.models';
 import { DashboardActions, ProductImportance } from './dashboard.actions';
 
 export const dashboardFeatureKey = 'dashboard';

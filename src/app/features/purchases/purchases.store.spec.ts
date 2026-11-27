@@ -3,10 +3,10 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { MockStore, provideMockStore } from '@ngrx/store/testing';
 import { Subject, firstValueFrom } from 'rxjs';
-import { aProduct, aPurchase, anExpense } from '../../testing/fixtures';
+import { aProduct, aPurchase, aPurchaseDefaults, anExpense } from '@testing/fixtures';
 import { PurchasesStore } from './purchases.store';
 import { PurchasesActions } from './store/purchases.actions';
-import { selectPurchaseProducts, selectPurchaseSuppliers } from './store/purchases.selectors';
+import { selectPurchaseDefaults, selectPurchaseProducts, selectPurchaseSuppliers } from './store/purchases.selectors';
 
 describe('PurchasesStore', () => {
   let facade: PurchasesStore;
@@ -21,7 +21,8 @@ describe('PurchasesStore', () => {
         provideMockStore({
           selectors: [
             { selector: selectPurchaseProducts, value: [aProduct()] },
-            { selector: selectPurchaseSuppliers, value: [{ name: 'Alfa', phone: '1' }] }
+            { selector: selectPurchaseSuppliers, value: [{ name: 'Alfa', phone: '1' }] },
+            { selector: selectPurchaseDefaults, value: [aPurchaseDefaults()] }
           ]
         }),
         provideMockActions(() => actions$)
@@ -39,9 +40,10 @@ describe('PurchasesStore', () => {
     return calls[calls.length - 1][0].requestId;
   }
 
-  it('expone productos y proveedores del store', () => {
+  it('expone productos, proveedores y datos de la última compra del store', () => {
     expect(facade.products()).toEqual([aProduct()]);
     expect(facade.suppliers()).toEqual([{ name: 'Alfa', phone: '1' }]);
+    expect(facade.purchaseDefaults()).toEqual([aPurchaseDefaults()]);
   });
 
   it('despacha la carga y el alta de proveedor', () => {

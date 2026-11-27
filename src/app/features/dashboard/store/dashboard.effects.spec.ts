@@ -1,9 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { firstValueFrom, of, throwError } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
-import { FakePosApi, fakePosApi } from '../../../testing/fake-pos-api';
-import { aLot, aPurchase, aSale, anExpense, anInventoryItem } from '../../../testing/fixtures';
+import { PosApiService } from '@core/pos-api.service';
+import { FakePosApi, fakePosApi } from '@testing/fake-pos-api';
+import { aLot, aPurchase, aSale, anExpense, anInventoryItem } from '@testing/fixtures';
 import { DashboardActions } from './dashboard.actions';
 import { DashboardEffects } from './dashboard.effects';
 
@@ -56,7 +56,7 @@ describe('DashboardEffects', () => {
     api.getInventory.mockReturnValue(throwError(() => new Error('red')));
 
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      DashboardActions.loadFailure({ error: 'No fue posible cargar el tablero.' })
+      DashboardActions.loadFailure({ error: 'dashboard.errors.load' })
     );
   });
 });

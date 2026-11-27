@@ -1,9 +1,9 @@
 import { Locator, Page } from '@playwright/test';
+import { t, terminaCon } from '../support/textos';
 
-// Los textos son los de las plantillas de Compras e Inventario. Cuando lleguen a es.json (P-01),
-// se actualizan aquí.
+// Los textos salen de es.json (los de las plantillas de Compras e Inventario).
 
-export const ESTA_REGISTRADA = 'Compra registrada en el backend e inventario actualizado.';
+export const ESTA_REGISTRADA = t('purchases.messages.registered');
 
 export function compras(page: Page) {
   const lineas = page.locator('table.purchase-total-table tbody tr');
@@ -15,13 +15,12 @@ export function compras(page: Page) {
     proveedor: page.locator('input[formcontrolname="supplierName"]'),
     barraProveedor: {
       // El nombre accesible empieza con el glifo del icono, por eso se ancla al final.
-      abrir: page.getByRole('button', { name: /Nuevo proveedor$/ }),
+      abrir: page.getByRole('button', { name: terminaCon(t('purchases.supplier.new')) }),
       nombre: barra.locator('input[formcontrolname="name"]'),
       telefono: barra.locator('input[formcontrolname="phone"]'),
-      registrar: barra.getByRole('button', { name: /Registrar$/ })
+      registrar: barra.getByRole('button', { name: terminaCon(t('purchases.supplier.register')) })
     },
-    guardar: page.getByRole('button', { name: 'Guardar compra' }),
-    aviso: page.locator('p.notice').first(),
+    guardar: page.getByRole('button', { name: terminaCon(t('purchases.save')) }),
     linea: (indice: number) => {
       const fila: Locator = lineas.nth(indice);
       return {
@@ -44,7 +43,7 @@ const COLUMNA_PIEZAS = 5;
 
 export function inventario(page: Page) {
   return {
-    filtro: page.getByLabel('Filtrar producto'),
+    filtro: page.getByLabel(t('inventory.filter.label')),
     fila: (producto: string) => {
       const fila = page.locator('tbody tr').filter({
         has: page.locator('td').first().getByText(producto, { exact: true })

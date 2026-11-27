@@ -112,10 +112,16 @@ fusiona un PR.
 - Todo texto visible al usuario se agrega en el diccionario `src/assets/i18n/es.json` (**único idioma: español**,
   no existe `en.json` ni se planea agregar).
 - En plantillas/código se usa la clave de traducción (`| translate` / `TranslateService`), nunca el literal.
-- **Esta regla aplica de forma retroactiva**: todo el texto que hoy está embebido directo en los templates
-  (la mayoría del código existente) debe migrarse a `es.json` a medida que se toca cada componente, y todo
-  componente nuevo se escribe usando claves desde el inicio. No es opcional para código nuevo ni para código
-  legado que se esté modificando.
+- Todas las pantallas ya están en `es.json` (`instalar-i18n-espanol`). Todo componente nuevo o modificado se
+  escribe con claves desde el inicio. No es opcional.
+- `provideI18n()` (`src/app/core/i18n/`) registra el diccionario, que viaja dentro del bundle, y el formato
+  `es-MX` («$1,250.00»). Las etiquetas devuelven la clave y la plantilla la traduce. Los textos que llevan
+  datos y los avisos se traducen con `TranslateService.instant()`. Un mensaje del backend no es una clave,
+  así que se muestra tal cual.
+- Los valores que se guardan como dato (categorías, apartados, «Publico general», «Sin proveedor») no son
+  textos de pantalla: se quedan en el código. Solo su etiqueta visible sale del diccionario.
+- Las pruebas comparan contra el diccionario con `t()` (`src/app/testing/translate.ts` y
+  `e2e/support/textos.ts`), nunca contra el literal.
 
 ### 2. Principios SOLID
 - Aplicar SOLID siempre:
@@ -137,6 +143,15 @@ fusiona un PR.
   ```
 - Convenciones: componentes standalone, view-model en camelCase, contrato de API (cable) en snake_case cuando aplique (el backend en .NET serializa en camelCase, validar contra los `record` reales antes de asumir el shape).
 - Modelos y servicios compartidos por todos los features viven en `src/app/core/` (`pos.models.ts`, `pos-api.service.ts`); no dupliques ahí un modelo o llamada que ya exista.
+- **Importaciones:** entre carpetas de primer nivel se usa el alias (`@core/*`, `@features/*`, `@layout/*`,
+  `@testing/*`, `@env/*`, definidos en `tsconfig.json`); dentro de la misma carpeta, rutas relativas. Nunca
+  `../../` hacia otra carpeta de `src/app`.
+- **Arranque:** `src/main.ts` solo arranca la app; los providers viven en `src/app/app.config.ts`, agrupados por
+  secciones (HTTP, i18n, avisos, NgRx, router). Un feature nuevo registra ahí su reducer y su effect. El store
+  corre con `runtimeChecks` estrictos: el estado y las acciones no se mutan y se pueden serializar.
+- **Configuración del build:** lo que cambia por build (la URL del backend, las Redux DevTools de desarrollo)
+  vive en `src/environments/` (`environment.ts` y `environment.development.ts`, con `fileReplacements`), nunca
+  escrito en un servicio.
 
 ### 4. Reutilizar estilos estandarizados
 - Usar los estilos ya definidos en `src/assets/layout/` (`_base`, `_buttons`, `_forms`, `_cards`, `_tables`, `_badges`, `_primeng`, `_variables`).
@@ -148,6 +163,10 @@ fusiona un PR.
 - `npm run logs:check` (`scripts/logs/check-debug-logs.mjs`) corre solo antes de `npm run build` y `npm test`.
   Falla si un `.ts` de `src/`, salvo los `*.spec.ts`, llama a `console.log`, `console.debug`, `console.info` o
   `console.trace`, aunque esté comentado. `console.warn` y `console.error` se permiten, porque reportan errores.
+- `npm run i18n:check` (`scripts/i18n/check-i18n-keys.mjs`) corre después de `logs:check`, también antes de
+  `npm run build` y `npm test`. Falla si `src/app` usa una clave que no está en `es.json`, o si `es.json`
+  tiene una clave que nadie usa. Por eso las claves se escriben completas en el código, nunca armadas por
+  concatenación.
 - No dejar componentes, métodos, servicios, actions/effects/selectors ni claves i18n huérfanas (sin uso).
 - Al eliminar una funcionalidad, limpiar todas sus referencias — **incluyendo el backend** cuando el campo o endpoint ya no se use desde el frontend (por ejemplo, campos que el frontend dejó de usar pero siguen vivos en los `record` de `backend aba`).
 

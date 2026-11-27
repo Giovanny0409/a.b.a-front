@@ -2,9 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideMockActions } from '@ngrx/effects/testing';
 import { Action } from '@ngrx/store';
 import { Observable, firstValueFrom, of, throwError } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
-import { FakePosApi, fakePosApi } from '../../../testing/fake-pos-api';
-import { aProduct, aSale } from '../../../testing/fixtures';
+import { PosApiService } from '@core/pos-api.service';
+import { FakePosApi, fakePosApi } from '@testing/fake-pos-api';
+import { aProduct, aSale, anInventoryItem } from '@testing/fixtures';
 import { SalesActions } from './sales.actions';
 import { SalesEffects } from './sales.effects';
 
@@ -25,13 +25,14 @@ describe('SalesEffects', () => {
     effects = TestBed.inject(SalesEffects);
   });
 
-  it('carga productos y ventas', async () => {
+  it('carga productos, ventas y existencia', async () => {
     actions$ = of(SalesActions.load());
     api.getProducts.mockReturnValue(of([aProduct()]));
     api.getSales.mockReturnValue(of([aSale()]));
+    api.getInventory.mockReturnValue(of([anInventoryItem()]));
 
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      SalesActions.loadSuccess({ products: [aProduct()], sales: [aSale()] })
+      SalesActions.loadSuccess({ products: [aProduct()], sales: [aSale()], inventory: [anInventoryItem()] })
     );
   });
 
@@ -39,9 +40,10 @@ describe('SalesEffects', () => {
     actions$ = of(SalesActions.load());
     api.getProducts.mockReturnValue(throwError(() => new Error('red')));
     api.getSales.mockReturnValue(of([]));
+    api.getInventory.mockReturnValue(of([]));
 
     await expect(firstValueFrom(effects.load$)).resolves.toEqual(
-      SalesActions.loadFailure({ error: 'No fue posible cargar ventas.' })
+      SalesActions.loadFailure({ error: 'sales.errors.load' })
     );
   });
 
@@ -61,7 +63,7 @@ describe('SalesEffects', () => {
     api.authorizeSeller.mockReturnValue(throwError(() => ({ status: 401, error: { authorized: false } })));
 
     await expect(firstValueFrom(effects.authorizeSeller$)).resolves.toEqual(
-      SalesActions.authorizeSellerFailure({ requestId: 'r-1', error: 'ID de vendedor no autorizado.' })
+      SalesActions.authorizeSellerFailure({ requestId: 'r-1', error: 'seller.rejected' })
     );
   });
 

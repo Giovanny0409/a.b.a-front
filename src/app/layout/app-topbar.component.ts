@@ -1,13 +1,15 @@
 import { Component } from '@angular/core';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'aba-app-topbar',
   standalone: true,
+  imports: [TranslatePipe],
   template: `
     <header class="topbar">
       <div class="brand-line">
-        <span class="eyebrow">A.B.A</span>
-        <span>Alimentos Balanceados Alonso</span>
+        <span class="eyebrow">{{ 'common.brand.initials' | translate }}</span>
+        <span>{{ 'common.brand.name' | translate }}</span>
       </div>
     </header>
   `,

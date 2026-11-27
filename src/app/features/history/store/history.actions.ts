@@ -1,5 +1,5 @@
 import { createActionGroup, emptyProps, props } from '@ngrx/store';
-import { ExpenseRecord, PurchaseRecord, SaleRecord } from '../../../core/pos.models';
+import { ExpenseRecord, PurchaseRecord, SaleRecord } from '@core/pos.models';
 
 export const HistoryActions = createActionGroup({
   source: 'History',

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, forkJoin, map, of, switchMap } from 'rxjs';
-import { PosApiService } from '../../../core/pos-api.service';
+import { PosApiService } from '@core/pos-api.service';
 import { PurchasesActions } from './purchases.actions';
 
 @Injectable()
@@ -13,12 +13,13 @@ export class PurchasesEffects {
     ofType(PurchasesActions.loadProducts),
     switchMap(() => forkJoin({
       products: this.api.getProducts(),
+      purchaseDefaults: this.api.getPurchaseDefaults(),
       purchases: this.api.getPurchases(),
       expenses: this.api.getExpenses().pipe(catchError(() => of([])))
     }).pipe(
-      map(({ products, purchases, expenses }) => PurchasesActions.loadProductsSuccess({ products, purchases, expenses })),
+      map((loaded) => PurchasesActions.loadProductsSuccess(loaded)),
       catchError((error) => of(PurchasesActions.loadProductsFailure({
-        error: error?.error?.message ?? 'No fue posible cargar productos.'
+        error: error?.error?.message ?? 'purchases.errors.loadProducts'
       })))
     ))
   ));
@@ -44,7 +45,7 @@ export class PurchasesEffects {
         map((purchases) => PurchasesActions.registerPurchaseSuccess({ requestId, purchases })),
         catchError((error) => of(PurchasesActions.registerPurchaseFailure({
           requestId,
-          error: error?.error?.message ?? 'No fue posible registrar la compra.'
+          error: error?.error?.message ?? 'purchases.errors.register'
         })))
       )
     )
@@ -62,7 +63,7 @@ export class PurchasesEffects {
       map((expense) => PurchasesActions.registerExpenseSuccess({ requestId, expense })),
       catchError((error) => of(PurchasesActions.registerExpenseFailure({
         requestId,
-        error: error?.error?.message ?? 'No fue posible registrar el gasto.'
+        error: error?.error?.message ?? 'expenses.errors.register'
       })))
     ))
   ));

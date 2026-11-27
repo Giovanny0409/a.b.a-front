@@ -1,0 +1,73 @@
+// Avisos de SweetAlert2 (core/notify/notification.service.ts) con los colores de la app. Los botones usan
+// las clases .btn de _buttons.scss (buttonsStyling: false), así que aquí solo va lo propio del aviso.
+
+.aba-notification {
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  color: var(--ink);
+  font-family: var(--font-family);
+
+  .swal2-title {
+    color: var(--ink);
+    font-size: 1.35rem;
+  }
+
+  .swal2-html-container {
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .swal2-actions {
+    gap: 0.75rem;
+  }
+
+  .swal2-input {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: none;
+  }
+
+  .swal2-input:focus {
+    border-color: var(--brand);
+    box-shadow: var(--focus-ring);
+  }
+
+  .swal2-icon.swal2-success {
+    border-color: var(--ok);
+    color: var(--ok);
+
+    .swal2-success-ring {
+      border-color: var(--ok);
+    }
+
+    [class^='swal2-success-line'] {
+      background-color: var(--ok);
+    }
+  }
+
+  .swal2-icon.swal2-error {
+    border-color: var(--danger);
+    color: var(--danger);
+
+    [class^='swal2-x-mark-line'] {
+      background-color: var(--danger);
+    }
+  }
+
+  .swal2-icon.swal2-warning {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .swal2-icon.swal2-question {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+}
+
+// Imprimir el ticket saca solo el ticket, aunque haya un aviso abierto.
+@media print {
+  .swal2-container {
+    display: none !important;
+  }
+}
